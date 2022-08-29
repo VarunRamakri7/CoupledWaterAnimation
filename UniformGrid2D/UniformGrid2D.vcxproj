@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\imgui-master\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\imgui-master\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\imgui-master\imgui.cpp" />
+    <ClCompile Include="..\imgui-master\imgui_demo.cpp" />
+    <ClCompile Include="..\imgui-master\imgui_draw.cpp" />
+    <ClCompile Include="..\imgui-master\imgui_tables.cpp" />
+    <ClCompile Include="..\imgui-master\imgui_widgets.cpp" />
+    <ClCompile Include="Aabb.cpp" />
+    <ClCompile Include="AttriblessRendering.cpp" />
+    <ClCompile Include="BlitFbo.cpp" />
+    <ClCompile Include="Bloom.cpp" />
+    <ClCompile Include="DebugCallback.cpp" />
+    <ClCompile Include="InitShader.cpp" />
+    <ClCompile Include="LoadMesh.cpp" />
+    <ClCompile Include="LoadTexture.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Module.cpp" />
+    <ClCompile Include="ParallelScan.cpp" />
+    <ClCompile Include="UniformGrid2D.cpp" />
+    <ClCompile Include="UniformGridGpu2D.cpp" />
+    <ClCompile Include="UniformGridGpu3D.cpp" />
+    <ClCompile Include="UniformGridParticles3D.cpp" />
+    <ClCompile Include="VideoMux.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\imgui-master\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="..\imgui-master\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\imgui-master\imgui.h" />
+    <ClInclude Include="..\imgui-master\imgui_internal.h" />
+    <ClInclude Include="..\imgui-master\imstb_rectpack.h" />
+    <ClInclude Include="..\imgui-master\imstb_textedit.h" />
+    <ClInclude Include="..\imgui-master\imstb_truetype.h" />
+    <ClInclude Include="AttriblessRendering.h" />
+    <ClInclude Include="BlitFbo.h" />
+    <ClInclude Include="Bloom.h" />
+    <ClInclude Include="DebugCallback.h" />
+    <ClInclude Include="Aabb.h" />
+    <ClInclude Include="Module.h" />
+    <ClInclude Include="UniformGridGpu2D.h" />
+    <ClInclude Include="InitShader.h" />
+    <ClInclude Include="LoadMesh.h" />
+    <ClInclude Include="LoadTexture.h" />
+    <ClInclude Include="ParallelScan.h" />
+    <ClInclude Include="UniformGrid2D.h" />
+    <ClInclude Include="UniformGridGpu3D.h" />
+    <ClInclude Include="UniformGridParticles3D.h" />
+    <ClInclude Include="VideoMux.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bloom1_fs.glsl" />
+    <None Include="bloom1_vs.glsl" />
+    <None Include="grid_test_fs.glsl" />
+    <None Include="grid_test_gpu_fs.glsl" />
+    <None Include="grid_test_gpu_vs.glsl" />
+    <None Include="grid_test_pbd_gpu_3D_fs.glsl" />
+    <None Include="grid_test_pbd_gpu_3D_vs.glsl" />
+    <None Include="grid_test_pbd_gpu_fs.glsl" />
+    <None Include="grid_test_pbd_gpu_prt_light_3D_fs.glsl" />
+    <None Include="grid_test_pbd_gpu_vs.glsl" />
+    <None Include="grid_test_vs.glsl" />
+    <None Include="particle_collision_cs.glsl" />
+    <None Include="particle_cs.glsl" />
+    <None Include="particle_fs.glsl" />
+    <None Include="particle_vs.glsl" />
+    <None Include="prefix_sum_cs.glsl" />
+    <None Include="template_fs.glsl" />
+    <None Include="template_vs.glsl" />
+    <None Include="ugrid_particles_cs.glsl" />
+    <None Include="uniform_grid_cs.glsl" />
+    <None Include="uniform_grid_pbd_3D_cs.glsl" />
+    <None Include="uniform_grid_pbd_cs.glsl" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{a6b2b6a4-1dac-47d1-96bd-00fe48d31ff4}</ProjectGuid>
+    <RootNamespace>UniformGrid2D</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)\imgui-master;$(SolutionDir)\imgui-master\backends;$(SolutionDir)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)\imgui-master;$(SolutionDir)\imgui-master\backends;$(SolutionDir)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>NOMINMAX;GLM_ENABLE_EXPERIMENTAL;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;assimp.lib;avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;swresample.lib;avutil.lib;FreeImage.lib;glew32.lib;glfw3dll.lib;swscale.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>NOMINMAX;GLM_ENABLE_EXPERIMENTAL;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;assimp.lib;avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;swresample.lib;avutil.lib;FreeImage.lib;glew32.lib;glfw3dll.lib;swscale.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

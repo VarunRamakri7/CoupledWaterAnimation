@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniformGrid2D", "..\..\..\OneDrive - purdue.edu\College Stuff\Masters\Fall 2022\CGT 698\CoupledWaterAnim\UniformGrid2D\UniformGrid2D.vcxproj", "{A6B2B6A4-1DAC-47D1-96BD-00FE48D31FF4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wave2D", "..\..\..\OneDrive - purdue.edu\College Stuff\Masters\Fall 2022\CGT 698\CoupledWaterAnim\Wave2D\Wave2D.vcxproj", "{47370FD3-E64A-4A9B-84DF-EAAA21B52CBF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoupledWaterAnimation", "CoupledWaterAnimation\CoupledWaterAnim.vcxproj", "{44B89F38-C89E-4C69-A726-150CA87473AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6B2B6A4-1DAC-47D1-96BD-00FE48D31FF4}.Debug|x64.ActiveCfg = Debug|x64
+		{A6B2B6A4-1DAC-47D1-96BD-00FE48D31FF4}.Debug|x64.Build.0 = Debug|x64
+		{A6B2B6A4-1DAC-47D1-96BD-00FE48D31FF4}.Debug|x86.ActiveCfg = Debug|Win32
+		{A6B2B6A4-1DAC-47D1-96BD-00FE48D31FF4}.Debug|x86.Build.0 = Debug|Win32
+		{A6B2B6A4-1DAC-47D1-96BD-00FE48D31FF4}.Release|x64.ActiveCfg = Release|x64
+		{A6B2B6A4-1DAC-47D1-96BD-00FE48D31FF4}.Release|x64.Build.0 = Release|x64
+		{A6B2B6A4-1DAC-47D1-96BD-00FE48D31FF4}.Release|x86.ActiveCfg = Release|Win32
+		{A6B2B6A4-1DAC-47D1-96BD-00FE48D31FF4}.Release|x86.Build.0 = Release|Win32
+		{47370FD3-E64A-4A9B-84DF-EAAA21B52CBF}.Debug|x64.ActiveCfg = Debug|x64
+		{47370FD3-E64A-4A9B-84DF-EAAA21B52CBF}.Debug|x64.Build.0 = Debug|x64
+		{47370FD3-E64A-4A9B-84DF-EAAA21B52CBF}.Debug|x86.ActiveCfg = Debug|Win32
+		{47370FD3-E64A-4A9B-84DF-EAAA21B52CBF}.Debug|x86.Build.0 = Debug|Win32
+		{47370FD3-E64A-4A9B-84DF-EAAA21B52CBF}.Release|x64.ActiveCfg = Release|x64
+		{47370FD3-E64A-4A9B-84DF-EAAA21B52CBF}.Release|x64.Build.0 = Release|x64
+		{47370FD3-E64A-4A9B-84DF-EAAA21B52CBF}.Release|x86.ActiveCfg = Release|Win32
+		{47370FD3-E64A-4A9B-84DF-EAAA21B52CBF}.Release|x86.Build.0 = Release|Win32
+		{44B89F38-C89E-4C69-A726-150CA87473AE}.Debug|x64.ActiveCfg = Debug|x64
+		{44B89F38-C89E-4C69-A726-150CA87473AE}.Debug|x64.Build.0 = Debug|x64
+		{44B89F38-C89E-4C69-A726-150CA87473AE}.Debug|x86.ActiveCfg = Debug|Win32
+		{44B89F38-C89E-4C69-A726-150CA87473AE}.Debug|x86.Build.0 = Debug|Win32
+		{44B89F38-C89E-4C69-A726-150CA87473AE}.Release|x64.ActiveCfg = Release|x64
+		{44B89F38-C89E-4C69-A726-150CA87473AE}.Release|x64.Build.0 = Release|x64
+		{44B89F38-C89E-4C69-A726-150CA87473AE}.Release|x86.ActiveCfg = Release|Win32
+		{44B89F38-C89E-4C69-A726-150CA87473AE}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9DBF8078-F3F8-4A86-B4E7-6B5E446F2B7E}
+	EndGlobalSection
+EndGlobal
