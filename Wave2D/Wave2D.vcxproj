@@ -27,7 +27,6 @@
     <ClCompile Include="..\imgui-master\imgui_tables.cpp" />
     <ClCompile Include="..\imgui-master\imgui_widgets.cpp" />
     <ClCompile Include="AttriblessRendering.cpp" />
-    <ClCompile Include="Bloom.cpp" />
     <ClCompile Include="Caustics.cpp" />
     <ClCompile Include="DebugCallback.cpp" />
     <ClCompile Include="GridMesh.cpp" />
@@ -46,7 +45,6 @@
     <ClInclude Include="..\imgui-master\imstb_textedit.h" />
     <ClInclude Include="..\imgui-master\imstb_truetype.h" />
     <ClInclude Include="AttriblessRendering.h" />
-    <ClInclude Include="Bloom.h" />
     <ClInclude Include="Caustics.h" />
     <ClInclude Include="DebugCallback.h" />
     <ClInclude Include="GridMesh.h" />
@@ -80,13 +78,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
