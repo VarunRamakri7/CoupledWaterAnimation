@@ -31,7 +31,6 @@
 #include "UniformGridParticles3D.h"
 #include "ParallelScan.h"
 
-
 const int init_window_width = 720;
 const int init_window_height = 720;
 const char* const window_title = "UniformGrid2D";
