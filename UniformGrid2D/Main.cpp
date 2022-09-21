@@ -24,7 +24,6 @@
 #include "VideoMux.h"      //Functions for saving videos
 #include "DebugCallback.h"
 #include "BlitFbo.h"
-#include "Bloom.h"
 #include "UniformGrid2D.h"
 #include "UniformGridGpu2D.h"
 #include "UniformGridGpu3D.h"
@@ -40,7 +39,6 @@ static const std::string fragment_shader("template_fs.glsl");
 GLuint shader_program = -1;
 
 RenderFbo render_fbo;
-Bloom1 bloom;
 BlitFbo blit_fbo;
 
 //GridTestSelect grid_test(100);
@@ -201,7 +199,6 @@ void display(GLFWwindow* window)
         particles.Draw();
     }
     render_fbo.PostRender();
-    bloom.ComputeBloom();
     blit_fbo.Blit();
 
     glViewport(0, 0, init_window_width, init_window_height);
@@ -367,15 +364,10 @@ void initOpenGL()
 
     glm::ivec2 window_size(init_window_width, init_window_height);
     render_fbo.Init(window_size);
-    bloom.Init(window_size);
     blit_fbo.Init(window_size, window_size);
 
     //Bypass bloom
-    //blit_fbo.SetOutputTexture(render_fbo.mOutputTexture);
-
-    //Bloom in pipeline
-    bloom.SetInputTexture(render_fbo.mOutputTexture);
-    blit_fbo.SetInputTexture(bloom.mOutputTex, 0);
+    blit_fbo.SetInputTexture(render_fbo.mOutputTexture, 0);
 }
 
 int main(int argc, char** argv)
