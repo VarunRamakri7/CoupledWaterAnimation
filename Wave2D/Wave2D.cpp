@@ -25,7 +25,6 @@
 #include "VideoMux.h"      //Functions for saving videos
 #include "DebugCallback.h"
 #include "AttriblessRendering.h"
-#include "Caustics.h"
 #include "GridMesh.h"
 
 int window_width = 720;
@@ -53,7 +52,6 @@ int ix1 = 1; //index of u at previous timestep, t-1.
 int ix2 = 0; //index of u at earlier timestep, t-2.
 GLuint image_tex = -1;
 
-Caustics caustics;
 DrawElementsIndirect indirect_grid;
 
 void ping_pong_buffers()
@@ -221,7 +219,6 @@ void draw_gui(GLFWwindow* window)
 
     //static bool show_test = false;
     //ImGui::ShowDemoWindow(&show_test);
-    caustics.DrawGui();
 
     //End ImGui Frame
     ImGui::Render();
@@ -277,11 +274,6 @@ void display_2d(GLFWwindow* window)
     glBindTextureUnit(0, u_tex[ix0]);
     glBindVertexArray(attribless_vao);
     draw_attribless_quad();
-
-    //Blit caustics image
-    caustics.Render(u_tex[ix0]);
-    //glBindFramebuffer(GL_READ_FRAMEBUFFER, caustics.fbo);
-    //glReadBuffer(GL_COLOR_ATTACHMENT0);
 
     //Blit image tex
     //glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
@@ -434,7 +426,6 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
         case 'r':
         case 'R':
             reload_shader();
-            caustics.ReloadShader();
             break;
 
         case GLFW_KEY_ESCAPE:
@@ -574,8 +565,6 @@ void initOpenGL()
     glBindBufferBase(GL_UNIFORM_BUFFER, UboBinding::scene, scene_ubo); //Associate this uniform buffer with the uniform block in the shader that has the same binding.
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    caustics.Init(window_width, window_height);
 
     //For surface vis
     indirect_grid = CreateIndirectGridMeshTriangles(20);
