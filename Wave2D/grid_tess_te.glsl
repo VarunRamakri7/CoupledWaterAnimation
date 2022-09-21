@@ -2,17 +2,17 @@
 layout(location = 0) uniform mat4 M;
 layout(binding = 0) uniform sampler2D u0;
 
-//layout (triangles, equal_spacing, ccw) in;
 //Try some of these other options
+//layout (triangles, equal_spacing, ccw) in;
 //layout (triangles, fractional_odd_spacing, ccw) in;
 layout (triangles, fractional_even_spacing, ccw) in;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
-   mat4 PV;
+	mat4 PV;
 	vec4 mouse_pos;
-   ivec4 mouse_buttons;
-   vec4 params[2];
+	ivec4 mouse_buttons;
+	vec4 params[2];
 	vec4 pal[4];
 };
 

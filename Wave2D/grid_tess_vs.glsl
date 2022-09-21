@@ -8,10 +8,10 @@ layout(binding = 2) uniform sampler2D u2;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
-   mat4 PV;
+	mat4 PV;
 	vec4 mouse_pos;
-   ivec4 mouse_buttons;
-   vec4 params[2];
+	ivec4 mouse_buttons;
+	vec4 params[2];
 	vec4 pal[4];
 };
 
@@ -36,14 +36,13 @@ vec2 get_d2u(sampler2D tex);
 
 void main(void)
 {
-   
 	gl_Position = vec4(tex_coord_attrib, 0.0, 1.0); //transform vertices and send result into pipeline
    
-   //Use dot notation to access members of the interface block
-   outData.tex_coord = tex_coord_attrib;           //send tex_coord to fragment shader
-   outData.pw = vec3(M*vec4(tex_coord_attrib, 0.0, 1.0));		//world-space vertex position
+	//Use dot notation to access members of the interface block
+	outData.tex_coord = tex_coord_attrib;           //send tex_coord to fragment shader
+	outData.pw = vec3(M*vec4(tex_coord_attrib, 0.0, 1.0));		//world-space vertex position
 	outData.nw = vec3(M*vec4(normal_attrib, 0.0));	//world-space normal vector
-   outData.d2u = (get_d2u(u0) + get_d2u(u1) + get_d2u(u2))/3.0;
+	outData.d2u = (get_d2u(u0) + get_d2u(u1) + get_d2u(u2))/3.0;
 }
 
 vec2 get_d2u(sampler2D tex)

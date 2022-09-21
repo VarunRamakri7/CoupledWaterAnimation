@@ -31,13 +31,13 @@ const vec4 quad[4] = vec4[] (vec4(-1.0, 1.0, 0.0, 1.0),
 
 void main(void)
 {
-   float h = 0.1*textureLod(u0, tex_coord_attrib, 0.0).r;
+	float h = 0.1*textureLod(u0, tex_coord_attrib, 0.0).r;
 	gl_Position = PV*M*vec4(tex_coord_attrib, h, 1.0); //transform vertices and send result into pipeline
-   //gl_Position = PV*M*vec4(0.5, 0.5, 0.5, 1.0)*quad[ gl_VertexID ]; 	
+	//gl_Position = PV*M*vec4(0.5, 0.5, 0.5, 1.0)*quad[ gl_VertexID ]; 	
 
 
-   //Use dot notation to access members of the interface block
-   outData.tex_coord = tex_coord_attrib;           //send tex_coord to fragment shader
-   outData.pw = vec3(M*vec4(tex_coord_attrib, 0.0, 1.0));		//world-space vertex position
+	//Use dot notation to access members of the interface block
+	outData.tex_coord = tex_coord_attrib;           //send tex_coord to fragment shader
+	outData.pw = vec3(M*vec4(tex_coord_attrib, 0.0, 1.0));		//world-space vertex position
 	outData.nw = vec3(M*vec4(normal_attrib, 0.0));	//world-space normal vector
 }

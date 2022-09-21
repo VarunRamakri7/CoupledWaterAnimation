@@ -12,8 +12,6 @@ layout(std140, binding = 0) uniform SceneUniforms
 	vec4 pal[4];
 };
 
-
-
 const vec4 quad[4] = vec4[] (vec4(-1.0, 1.0, 0.0, 1.0), 
 										vec4(-1.0, -1.0, 0.0, 1.0), 
 										vec4( 1.0, 1.0, 0.0, 1.0), 
