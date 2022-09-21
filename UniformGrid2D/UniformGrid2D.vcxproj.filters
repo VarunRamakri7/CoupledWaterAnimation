@@ -72,9 +72,6 @@
     <ClCompile Include="BlitFbo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Bloom.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AttriblessRendering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -140,9 +137,6 @@
     <ClInclude Include="BlitFbo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Bloom.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AttriblessRendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -200,12 +194,6 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="uniform_grid_pbd_3D_cs.glsl">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="bloom1_fs.glsl">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="bloom1_vs.glsl">
       <Filter>shaders</Filter>
     </None>
     <None Include="particle_cs.glsl">

@@ -29,7 +29,6 @@
     <ClCompile Include="Aabb.cpp" />
     <ClCompile Include="AttriblessRendering.cpp" />
     <ClCompile Include="BlitFbo.cpp" />
-    <ClCompile Include="Bloom.cpp" />
     <ClCompile Include="DebugCallback.cpp" />
     <ClCompile Include="InitShader.cpp" />
     <ClCompile Include="LoadMesh.cpp" />
@@ -53,7 +52,6 @@
     <ClInclude Include="..\imgui-master\imstb_truetype.h" />
     <ClInclude Include="AttriblessRendering.h" />
     <ClInclude Include="BlitFbo.h" />
-    <ClInclude Include="Bloom.h" />
     <ClInclude Include="DebugCallback.h" />
     <ClInclude Include="Aabb.h" />
     <ClInclude Include="Module.h" />
@@ -68,8 +66,6 @@
     <ClInclude Include="VideoMux.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="bloom1_fs.glsl" />
-    <None Include="bloom1_vs.glsl" />
     <None Include="grid_test_fs.glsl" />
     <None Include="grid_test_gpu_fs.glsl" />
     <None Include="grid_test_gpu_vs.glsl" />
