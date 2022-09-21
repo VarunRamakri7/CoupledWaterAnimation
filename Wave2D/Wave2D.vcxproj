@@ -54,10 +54,6 @@
     <ClInclude Include="VideoMux.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="bloom_fs.glsl" />
-    <None Include="bloom_vs.glsl" />
-    <None Include="caustics_fs.glsl" />
-    <None Include="caustics_vs.glsl" />
     <None Include="grid_fs.glsl" />
     <None Include="grid_tess_fs.glsl" />
     <None Include="grid_tess_tc.glsl" />

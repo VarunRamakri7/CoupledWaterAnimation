@@ -124,18 +124,6 @@
     <None Include="wave_vs.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="bloom_fs.glsl">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="bloom_vs.glsl">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="caustics_fs.glsl">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="caustics_vs.glsl">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="grid_fs.glsl">
       <Filter>shaders</Filter>
     </None>
