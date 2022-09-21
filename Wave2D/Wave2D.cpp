@@ -28,8 +28,8 @@
 #include "Caustics.h"
 #include "GridMesh.h"
 
-int window_width = 1024;
-int window_height = 1024;
+int window_width = 720;
+int window_height = 720;
 const char* const window_title = "Wave Equation";
 
 static const std::string vertex_shader("wave_vs.glsl");
@@ -123,7 +123,7 @@ void draw_gui(GLFWwindow* window)
     static char video_filename[filename_len] = "capture.mp4";
 
     ImGui::InputText("Video filename", video_filename, filename_len);
-    ImGui::SameLine();
+    //ImGui::SameLine();
     if (recording == false)
     {
         if (ImGui::Button("Start Recording"))
@@ -191,6 +191,19 @@ void draw_gui(GLFWwindow* window)
     }
 
     ImGui::SliderFloat("Brush radius", &SceneData.mouse_pos.z, 0.8f, 100.0f);
+
+    //Show fbo_tex for debugging purposes. This is highly recommended for multipass rendering.
+    //float size = 128.0f;
+    //ImGui::Image((void*)u_tex[ix0], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0));
+    //ImGui::Image((void*)u_tex[ix1], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); 
+    //ImGui::Image((void*)u_tex[ix2], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); 
+    //ImGui::Image((void*)image_tex, ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0));
+
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::End();
+
+    ImGui::Begin("Extras");
+
     ImGui::SliderFloat4("Params0", &SceneData.params[0].x, 0.0f, 1.0f);
     ImGui::SliderFloat4("Params1", &SceneData.params[1].x, 0.0f, 1.0f);
     ImGui::ColorEdit3("Pal0", &SceneData.pal[0].x);
@@ -204,14 +217,6 @@ void draw_gui(GLFWwindow* window)
         glProgramUniform4fv(grid_tess_program, 2, 1, &slider.x);
     }
 
-    //Show fbo_tex for debugging purposes. This is highly recommended for multipass rendering.
-    float size = 128.0f;
-    //ImGui::Image((void*)u_tex[ix0], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0));
-    //ImGui::Image((void*)u_tex[ix1], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); 
-    //ImGui::Image((void*)u_tex[ix2], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); 
-    ImGui::Image((void*)image_tex, ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0));
-
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
 
     //static bool show_test = false;
@@ -444,7 +449,7 @@ void mouse_cursor(GLFWwindow* window, double x, double y)
 {
     //std::cout << "cursor pos: " << x << ", " << y << std::endl;
     SceneData.mouse_pos.x = x;
-    SceneData.mouse_pos.y = window_height - y; //flip y coordinate
+    SceneData.mouse_pos.y = window_height - y; // flip y coordinate
 }
 
 //This function gets called when a mouse button is pressed.
