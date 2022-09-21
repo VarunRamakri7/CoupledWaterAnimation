@@ -345,8 +345,9 @@ void display_3d(GLFWwindow* window)
     indirect_grid.mode = GL_PATCHES;
     glPatchParameteri(GL_PATCH_VERTICES, 3);
 
-    glm::mat4 M = glm::rotate(glm::pi<float>() / 2.0f, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(-0.5, -0.5, 0.0));
-    //glm::mat4 M = glm::scale(glm::vec3(0.35f))*glm::translate(glm::vec3(-0.5, -0.5, 0.0));
+    glm::mat4 M = glm::rotate(glm::pi<float>() / 2.0f, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(-0.5f, -0.5f, 0.0f));
+    //glm::mat4 M = glm::scale(glm::vec3(0.35f)) * glm::translate(glm::vec3(-0.5, -0.5, 0.0));
+
     //Set uniforms
     glUniformMatrix4fv(UniformLocs::M, 1, false, glm::value_ptr(M));
 
