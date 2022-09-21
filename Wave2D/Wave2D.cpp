@@ -112,6 +112,7 @@ void draw_gui(GLFWwindow* window)
 
     //Draw Gui
     ImGui::Begin("Debug window");
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     if (ImGui::Button("Quit"))
     {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -191,13 +192,12 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Brush radius", &SceneData.mouse_pos.z, 0.8f, 100.0f);
 
     //Show fbo_tex for debugging purposes. This is highly recommended for multipass rendering.
-    //float size = 128.0f;
-    //ImGui::Image((void*)u_tex[ix0], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0));
-    //ImGui::Image((void*)u_tex[ix1], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); 
-    //ImGui::Image((void*)u_tex[ix2], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); 
+    float size = 128.0f;
+    ImGui::Image((void*)u_tex[ix0], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); ImGui::SameLine();
+    //ImGui::Image((void*)u_tex[ix1], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); ImGui::SameLine();
+    //ImGui::Image((void*)u_tex[ix2], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); ImGui::SameLine();
     //ImGui::Image((void*)image_tex, ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0));
 
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
 
     ImGui::Begin("Extras");
@@ -253,7 +253,6 @@ void display_2d(GLFWwindow* window)
         //Make the viewport match the FBO texture size.
         glViewport(0, 0, window_width, window_height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
         glBindTextureUnit(1, u_tex[ix1]);
         glBindTextureUnit(2, u_tex[ix2]);
