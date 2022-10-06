@@ -57,9 +57,6 @@
     <ClCompile Include="AttriblessRendering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Caustics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GridMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,9 +99,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AttriblessRendering.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Caustics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GridMesh.h">
