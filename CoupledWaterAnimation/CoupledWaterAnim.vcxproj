@@ -181,8 +181,11 @@
     <ClInclude Include="VideoMux.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="template_fs.glsl" />
-    <None Include="template_vs.glsl" />
+    <None Include="force_comp.glsl" />
+    <None Include="integrate_comp.glsl" />
+    <None Include="rho_pres_comp.glsl" />
+    <None Include="water-anim_fs.glsl" />
+    <None Include="water-anim_vs.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
