@@ -150,9 +150,6 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
     ImGui::End();
 
-    //static bool show_test = false;
-    //ImGui::ShowDemoWindow(&show_test);
-
     //End ImGui Frame
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -273,6 +270,8 @@ void reload_shader()
     }
 }
 
+void init_particles();
+
 //This function gets called when a key is pressed
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -284,6 +283,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
         {
         case 'r':
         case 'R':
+            init_particles();
             reload_shader();
             break;
 
@@ -341,32 +341,11 @@ std::vector<glm::vec4> make_grid()
     return positions;
 }
 
-#define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
-
-//Initialize OpenGL state. This function only gets called once.
-void initOpenGL()
+/// <summary>
+/// Initialize the SSBO with a cube of particles
+/// </summary>
+void init_particles()
 {
-    glewInit();
-
-    int max_work_groups = -1;
-    glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max_work_groups);
-
-    //Print out information about the OpenGL version supported by the graphics driver.	
-    std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
-    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
-    std::cout << "Version: " << glGetString(GL_VERSION) << std::endl;
-    std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-    std::cout << "Max work group invocations: " << max_work_groups << std::endl;
-    glEnable(GL_DEPTH_TEST);
-
-    //Enable alpha blending
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE); //additive alpha blending
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //semitransparent alpha blending
-
-    glEnable(GL_POINT_SPRITE);
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-
     // Initialize particle data
     std::vector<Particle> particles(NUM_PARTICLES);
     std::vector<glm::vec4> grid_positions = make_grid(); // Get grid positions
@@ -394,8 +373,30 @@ void initOpenGL()
     glEnableVertexAttribArray(0); // Enable attribute with location = 0 (vertex position) for VAO
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind SSBO
-    //glBindVertexArray(0); // Unbind VAO
-    //glBindVertexArray(particle_position_vao);
+}
+
+#define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
+
+//Initialize OpenGL state. This function only gets called once.
+void initOpenGL()
+{
+    glewInit();
+
+    int max_work_groups = -1;
+    glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max_work_groups);
+
+    //Print out information about the OpenGL version supported by the graphics driver.	
+    std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "Version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+    std::cout << "Max work group invocations: " << max_work_groups << std::endl;
+    glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_POINT_SPRITE);
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+
+    init_particles();
 
     reload_shader();
 
