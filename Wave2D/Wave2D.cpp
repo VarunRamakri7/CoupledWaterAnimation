@@ -1,10 +1,5 @@
 #include <windows.h>
 
-//When using this as a template, be sure to make these changes in the new project: 
-//1. In Debugging properties set the Environment to PATH=%PATH%;$(SolutionDir)\lib;
-//2. Change window_title below
-//3. Copy assets (mesh and texture) to new project directory
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -192,15 +187,15 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Brush radius", &SceneData.mouse_pos.z, 0.8f, 100.0f);
 
     //Show fbo_tex for debugging purposes. This is highly recommended for multipass rendering.
-    float size = 128.0f;
-    ImGui::Image((void*)u_tex[ix0], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); ImGui::SameLine();
+    //float size = 128.0f;
+    //ImGui::Image((void*)u_tex[ix0], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); ImGui::SameLine();
     //ImGui::Image((void*)u_tex[ix1], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); ImGui::SameLine();
     //ImGui::Image((void*)u_tex[ix2], ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); ImGui::SameLine();
     //ImGui::Image((void*)image_tex, ImVec2(size, size), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0));
 
     ImGui::End();
 
-    ImGui::Begin("Extras");
+    /*ImGui::Begin("Extras");
 
     ImGui::SliderFloat4("Params0", &SceneData.params[0].x, 0.0f, 1.0f);
     ImGui::SliderFloat4("Params1", &SceneData.params[1].x, 0.0f, 1.0f);
@@ -216,6 +211,7 @@ void draw_gui(GLFWwindow* window)
     }
 
     ImGui::End();
+    */
 
     //static bool show_test = false;
     //ImGui::ShowDemoWindow(&show_test);
@@ -273,10 +269,6 @@ void display_2d(GLFWwindow* window)
     glBindTextureUnit(0, u_tex[ix0]);
     glBindVertexArray(attribless_vao);
     draw_attribless_quad();
-
-    //Blit image tex
-    //glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
-    //glReadBuffer(GL_COLOR_ATTACHMENT3);
 
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
@@ -477,23 +469,14 @@ void init_textures()
     glm::vec2 cen(0.5f * window_width, 0.5f * window_height);
     int idx = 0;
     for (int i = 0; i < window_width; i++)
+    {
         for (int j = 0; j < window_height; j++)
         {
             init[idx] = glm::vec4(0.0f);
 
-            //if(idx == window_width*window_height/2 + window_width/2) init[idx] = glm::vec4(0.1f);
-
-            //glm::vec4 noise = glm::vec4(nrand(gen), nrand(gen), nrand(gen), nrand(gen));
-            //init[idx] = glm::vec4(1.0f, 0.0f, 1.0f, 0.0f) + noise;
-
-            /*
-            if(glm::distance(glm::vec2(i,j), cen) < 20.0f)
-            {
-               init[idx] = glm::vec4(0.5f, 0.25f, 0.5f, 0.25f);
-            }
-            */
             idx++;
         }
+    }
 
     for (int i = 0; i < 3; i++)
     {
