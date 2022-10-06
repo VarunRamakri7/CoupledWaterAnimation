@@ -28,4 +28,3 @@ void main(void)
    fragcolor = vec4(1.0);
    fragcolor = mix(vec4(1.0), vec4(0.2, 0.5, 0.9, 1.0), h);
 }
-
