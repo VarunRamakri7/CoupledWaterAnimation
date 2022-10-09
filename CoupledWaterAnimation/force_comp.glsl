@@ -1,7 +1,7 @@
 #version 440
 
 #define WORK_GROUP_SIZE 1024
-#define NUM_PARTICLES 8000
+#define NUM_PARTICLES 10000
 
 // For calculations
 #define PI 3.141592741f

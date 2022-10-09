@@ -18,7 +18,7 @@
 #include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
 #include "VideoMux.h"      //Functions for saving videos
 
-#define NUM_PARTICLES 8000
+#define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
 #define NUM_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
@@ -72,8 +72,8 @@ struct ConstantsUniform
 
 struct BoundaryUniform
 {
-    glm::vec4 upper = glm::vec4(0.25f, 1.0f, 0.25f, 0.0f);
-    glm::vec4 lower = glm::vec4(-0.25f, -0.5f, -0.25f, 0.0f);
+    glm::vec4 upper = glm::vec4(1.0f);
+    glm::vec4 lower = glm::vec4(-1.0f);
 }BoundaryData;
 
 GLuint scene_ubo = -1;
@@ -146,8 +146,8 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Smoothing", &ConstantsData.smoothing_coeff, 7.0f, 10.0f);
     ImGui::SliderFloat("Viscosity", &ConstantsData.visc, 1000.0f, 5000.0f);
     ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
-    ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
-    ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
+    ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 2.0f);
+    ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -2.0f, -0.001f);
     ImGui::End();
 
     //End ImGui Frame
@@ -321,7 +321,7 @@ void resize(GLFWwindow* window, int width, int height)
 /// Make positions for a cube grid
 /// </summary>
 /// <returns>Vector of positions for the grid</returns>
-std::vector<glm::vec4> make_grid()
+std::vector<glm::vec4> make_cube()
 {
     std::vector<glm::vec4> positions;
 
@@ -340,6 +340,28 @@ std::vector<glm::vec4> make_grid()
 
     return positions;
 }
+
+/// <summary>
+/// Make positions for a plane grid
+/// </summary>
+/// <returns>Vector of positions for the grid</returns>
+std::vector<glm::vec4> make_grid()
+{
+    std::vector<glm::vec4> positions;
+
+    // 100x100 Cube of particles within [0, 0.5] on all axes
+    for (int i = 0; i < 100; i++)
+    {
+        for (int j = 0; j < 100; j++)
+        {
+            positions.push_back(glm::vec4((float)i * PARTICLE_RADIUS, 0.0f, (float)j * PARTICLE_RADIUS, 1.0f));
+        }
+    }
+    //std::cout << "Position count: " << positions.size() << std::endl;
+
+    return positions;
+}
+
 
 /// <summary>
 /// Initialize the SSBO with a cube of particles
