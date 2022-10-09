@@ -72,8 +72,8 @@ struct ConstantsUniform
 
 struct BoundaryUniform
 {
-    glm::vec4 upper = glm::vec4(1.0f);
-    glm::vec4 lower = glm::vec4(-1.0f);
+    glm::vec4 upper = glm::vec4(0.5f);
+    glm::vec4 lower = glm::vec4(-0.5f);
 }BoundaryData;
 
 GLuint scene_ubo = -1;
