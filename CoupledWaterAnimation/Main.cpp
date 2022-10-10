@@ -64,10 +64,10 @@ struct SceneUniforms
 
 struct ConstantsUniform
 {
-    float mass = 0.02f; // Particle Mass
-    float smoothing_coeff = 4.0f; // Smoothing length coefficient for neighborhood
-    float visc = 2000.0f; // Fluid viscosity
-    float resting_rho = 1000.0f; // Resting density
+    float mass = 0.05f; // Particle Mass
+    float smoothing_coeff = 10.0f; // Smoothing length coefficient for neighborhood
+    float visc = 10000.0f; // Fluid viscosity
+    float resting_rho = 12500.0f; // Resting density
 }ConstantsData;
 
 struct BoundaryUniform
@@ -142,10 +142,10 @@ void draw_gui(GLFWwindow* window)
     ImGui::End();
 
     ImGui::Begin("Constants Window");
-    ImGui::SliderFloat("Mass", &ConstantsData.mass, 0.01f, 0.1f);
+    ImGui::SliderFloat("Mass", &ConstantsData.mass, 0.01f, 10.0f);
     ImGui::SliderFloat("Smoothing", &ConstantsData.smoothing_coeff, 7.0f, 10.0f);
-    ImGui::SliderFloat("Viscosity", &ConstantsData.visc, 1000.0f, 5000.0f);
-    ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
+    ImGui::SliderFloat("Viscosity", &ConstantsData.visc, 10000.0f, 50000.0f);
+    ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 10000.0f, 50000.0f);
     ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 2.0f);
     ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -2.0f, -0.001f);
     ImGui::End();
