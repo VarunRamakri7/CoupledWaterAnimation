@@ -14,7 +14,7 @@ void main ()
 
     vec3 normal = normalize(vec3(1.0f - pow(gl_FragCoord.x, 2) - pow(gl_FragCoord.y, 2))); // Get normal of particle
 
-    frag_color = vec4(particle_pos.xyz, 1.0f);
+    //frag_color = vec4(particle_pos.xyz, 1.0f);
 
-    //frag_color = vec4(0.2f, 0.3f, 0.8f, 1.0f);
+    frag_color = vec4(0.1f, 0.35f, 0.8f, 1.0f);
 }

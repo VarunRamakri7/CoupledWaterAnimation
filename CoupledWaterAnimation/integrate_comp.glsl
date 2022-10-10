@@ -5,7 +5,7 @@
 #define PARTICLE_RADIUS 0.005f
 
 // For calculations
-#define DAMPING -0.5f // Boundary epsilon (particle radius)
+#define DAMPING -0.55f // Boundary epsilon (particle radius)
 
 layout (local_size_x = WORK_GROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
