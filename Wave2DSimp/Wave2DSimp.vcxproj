@@ -21,13 +21,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -146,8 +146,6 @@ copy /Y "$(ProjectDir)*.dll" "$(ProjectDir)dist\"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="Wave2D_cs.glsl" />
-    <None Include="Wave2D_fs.glsl" />
-    <None Include="Wave2D_vs.glsl" />
     <None Include="WaveMesh_fs.glsl" />
     <None Include="WaveMesh_vs.glsl" />
   </ItemGroup>
