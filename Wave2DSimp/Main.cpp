@@ -25,10 +25,8 @@
 #include "AttriblessRendering.h"
 #include "DebugCallback.h"
 
-
-Shader wave_quad_shader("Wave2D_vs.glsl", "Wave2D_fs.glsl");
 Shader wave_mesh_shader("WaveMesh_vs.glsl", "WaveMesh_fs.glsl");
-Shader* pShader = &wave_quad_shader;
+Shader* pShader = &wave_mesh_shader;
 
 ComputeShader WaveCS("Wave2D_cs.glsl");
 StencilImage2DTripleBuffered wave2d;
@@ -62,17 +60,6 @@ void draw_gui(GLFWwindow* window)
       if (ImGui::Button("Quit"))                          
       {
          glfwSetWindowShouldClose(window, GLFW_TRUE);
-      }  
-
-      static int shader_mode = pShader==&wave_mesh_shader;
-      if (ImGui::RadioButton("Quad Shader", &shader_mode, 0))
-      {
-         pShader = &wave_quad_shader;
-      }
-      ImGui::SameLine();
-      if (ImGui::RadioButton("Mesh Shader", &shader_mode, 1))
-      {
-         pShader = &wave_mesh_shader;
       }
 
       if (ImGui::SliderFloat("Lambda", &WaveUniforms.Lambda, 0.001f, 0.05f))
@@ -91,7 +78,6 @@ void draw_gui(GLFWwindow* window)
       ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
    ImGui::End();
 
- 
    Module::sDrawGuiAll();
 
    static bool show_test = false;
@@ -114,16 +100,13 @@ void display(GLFWwindow* window)
    pShader->UseProgram();
    wave2d.GetReadImage(0).BindTextureUnit();
 
-   if(pShader == &wave_quad_shader)
-   {
-      draw_attribless_quad();
-   }
    if (pShader == &wave_mesh_shader)
    {
       glm::mat4 M = glm::rotate(0.0f, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(1.0f));
       glm::mat4 V = glm::lookAt(glm::vec3(0.0f, -3.5f, 1.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
       glm::mat4 P = glm::perspective(40.0f, 1.0f, 0.1f, 100.0f);
       glm::mat4 PVM = P * V * M;
+
       //Set the value of the variable at a specific location
       const int PVM_loc = 0;
       glUniformMatrix4fv(PVM_loc, 1, false, glm::value_ptr(PVM));
@@ -173,7 +156,6 @@ void initOpenGL()
    glEnable(GL_DEPTH_TEST);
 
    wave_mesh_shader.Init();
-   wave_quad_shader.Init();
    
    bind_attribless_vao();
 
@@ -196,7 +178,7 @@ void reload_shader()
    }
    else
    {
-      glClearColor(0.35f, 0.35f, 0.35f, 0.0f);
+      glClearColor(0.15f, 0.15f, 0.15f, 0.0f);
    }
 
    WaveCS.Init();
