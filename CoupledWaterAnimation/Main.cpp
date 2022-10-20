@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "InitShader.h"    //Functions for loading shaders from text files
-#include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
+//#include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
 #include "VideoMux.h"      //Functions for saving videos
 
 #define NUM_PARTICLES 10000
@@ -64,8 +64,8 @@ struct SceneUniforms
 
 struct ConstantsUniform
 {
-    float mass = 0.05f; // Particle Mass
-    float smoothing_coeff = 10.0f; // Smoothing length coefficient for neighborhood
+    float mass = 10.0f; // Particle Mass
+    float smoothing_coeff = 5.0f; // Smoothing length coefficient for neighborhood
     float visc = 10000.0f; // Fluid viscosity
     float resting_rho = 12500.0f; // Resting density
 }ConstantsData;
@@ -326,11 +326,11 @@ std::vector<glm::vec4> make_cube()
     std::vector<glm::vec4> positions;
 
     // 20x20x20 Cube of particles within [0, 0.095] on all axes
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 10; i++)
     {
-        for (int j = 0; j < 20; j++)
+        for (int j = 0; j < 100; j++)
         {
-            for (int k = 0; k < 20; k++)
+            for (int k = 0; k < 10; k++)
             {
                 positions.push_back(glm::vec4((float)i * PARTICLE_RADIUS, (float)j * PARTICLE_RADIUS, (float)k * PARTICLE_RADIUS, 1.0f));
             }
@@ -350,11 +350,14 @@ std::vector<glm::vec4> make_grid()
     std::vector<glm::vec4> positions;
 
     // 100x100 Cube of particles within [0, 0.5] on all axes
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 10; i++)
     {
         for (int j = 0; j < 100; j++)
         {
-            positions.push_back(glm::vec4((float)i * PARTICLE_RADIUS, 0.0f, (float)j * PARTICLE_RADIUS, 1.0f));
+            for (int k = 0; k < 10; k++)
+            {
+                positions.push_back(glm::vec4((float)i * PARTICLE_RADIUS, (float)j * PARTICLE_RADIUS, (float)k * PARTICLE_RADIUS, 1.0f));
+            }
         }
     }
     //std::cout << "Position count: " << positions.size() << std::endl;
