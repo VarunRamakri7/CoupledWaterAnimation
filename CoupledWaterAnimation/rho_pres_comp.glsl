@@ -30,7 +30,7 @@ layout(std140, binding = 1) uniform ConstantsUniform
     float resting_rho; // Resting density
 };
 
-const float GAS_CONST = 2000.0f; // const for equation of state
+const float GAS_CONST = 4000.0f; // const for equation of state
 
 void main()
 {

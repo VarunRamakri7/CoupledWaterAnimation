@@ -143,7 +143,6 @@ void initOpenGL()
    glewInit();
    RegisterDebugCallback();
 
-
    //Print out information about the OpenGL version supported by the graphics driver.	
    std::cout << "Vendor: "       << glGetString(GL_VENDOR)                    << std::endl;
    std::cout << "Renderer: "     << glGetString(GL_RENDERER)                  << std::endl;

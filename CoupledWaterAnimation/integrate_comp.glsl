@@ -5,7 +5,7 @@
 #define PARTICLE_RADIUS 0.005f
 
 // For calculations
-#define DAMPING -0.55f // Boundary epsilon (particle radius)
+#define DAMPING 0.5f // Boundary epsilon (particle radius)
 
 layout (local_size_x = WORK_GROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
@@ -46,34 +46,34 @@ void main()
     if (new_pos.x - PARTICLE_RADIUS < lower.x)
     {
         new_pos.x = lower.x;
-        new_vel.x *= DAMPING;
+        new_vel.x *= -DAMPING;
     }
-    if (new_pos.x + PARTICLE_RADIUS > upper.x)
+    else if (new_pos.x + PARTICLE_RADIUS > upper.x)
     {
         new_pos.x = upper.x;
-        new_vel.x *= DAMPING;
+        new_vel.x *= -DAMPING;
     }
     
     if (new_pos.y - PARTICLE_RADIUS < lower.y)
     {
         new_pos.y = lower.y;
-        new_vel.y *= DAMPING;
+        new_vel.y *= -DAMPING;
     }
-    if (new_pos.y + PARTICLE_RADIUS > upper.y)
+    else if (new_pos.y + PARTICLE_RADIUS > upper.y)
     {
         new_pos.y = upper.y;
-        new_vel.y *= DAMPING;
+        new_vel.y *= -DAMPING;
     }
     
     if (new_pos.z - PARTICLE_RADIUS < lower.z)
     {
         new_pos.z = lower.z;
-        new_pos.z *= DAMPING;
+        new_pos.z *= -DAMPING;
     }
-    if (new_pos.z + PARTICLE_RADIUS > upper.z)
+    else if (new_pos.z + PARTICLE_RADIUS > upper.z)
     {
         new_pos.z = upper.z;
-        new_pos.z *= DAMPING;
+        new_pos.z *= -DAMPING;
     }
 
     // Assign calculated values

@@ -64,7 +64,7 @@ struct SceneUniforms
 
 struct ConstantsUniform
 {
-    float mass = 10.0f; // Particle Mass
+    float mass = 0.05f; // Particle Mass
     float smoothing_coeff = 5.0f; // Smoothing length coefficient for neighborhood
     float visc = 10000.0f; // Fluid viscosity
     float resting_rho = 12500.0f; // Resting density
@@ -72,7 +72,7 @@ struct ConstantsUniform
 
 struct BoundaryUniform
 {
-    glm::vec4 upper = glm::vec4(0.5f);
+    glm::vec4 upper = glm::vec4(1.0f);
     glm::vec4 lower = glm::vec4(-0.5f);
 }BoundaryData;
 
