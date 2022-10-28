@@ -65,9 +65,9 @@ struct SceneUniforms
 struct ConstantsUniform
 {
     float mass = 0.05f; // Particle Mass
-    float smoothing_coeff = 5.0f; // Smoothing length coefficient for neighborhood
-    float visc = 10000.0f; // Fluid viscosity
-    float resting_rho = 12500.0f; // Resting density
+    float smoothing_coeff = 4.0f; // Smoothing length coefficient for neighborhood
+    float visc = 3000.0f; // Fluid viscosity
+    float resting_rho = 1000.0f; // Resting density
 }ConstantsData;
 
 struct BoundaryUniform
