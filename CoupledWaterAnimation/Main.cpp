@@ -19,7 +19,7 @@
 #include "VideoMux.h"      //Functions for saving videos
 
 #define NUM_PARTICLES 10000
-#define PARTICLE_RADIUS 0.005f
+#define PARTICLE_RADIUS 0.03f
 #define WORK_GROUP_SIZE 1024
 #define NUM_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
 
@@ -143,11 +143,11 @@ void draw_gui(GLFWwindow* window)
 
     ImGui::Begin("Constants Window");
     ImGui::SliderFloat("Mass", &ConstantsData.mass, 0.01f, 10.0f);
-    ImGui::SliderFloat("Smoothing", &ConstantsData.smoothing_coeff, 7.0f, 10.0f);
-    ImGui::SliderFloat("Viscosity", &ConstantsData.visc, 10000.0f, 50000.0f);
-    ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 10000.0f, 50000.0f);
-    ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 2.0f);
-    ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -2.0f, -0.001f);
+    ImGui::SliderFloat("Smoothing", &ConstantsData.smoothing_coeff, 2.0f, 10.0f);
+    ImGui::SliderFloat("Viscosity", &ConstantsData.visc, 1000.0f, 5000.0f);
+    ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
+    ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
+    ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
     ImGui::End();
 
     //End ImGui Frame

@@ -2,10 +2,10 @@
 
 #define WORK_GROUP_SIZE 1024
 #define NUM_PARTICLES 10000
+#define PARTICLE_RADIUS 0.03f
 
 // For calculations
 #define PI 3.141592741f
-#define PARTICLE_RADIUS 0.03f
 
 layout (local_size_x = WORK_GROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
