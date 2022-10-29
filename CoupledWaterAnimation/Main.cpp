@@ -342,38 +342,13 @@ std::vector<glm::vec4> make_cube()
 }
 
 /// <summary>
-/// Make positions for a plane grid
-/// </summary>
-/// <returns>Vector of positions for the grid</returns>
-std::vector<glm::vec4> make_grid()
-{
-    std::vector<glm::vec4> positions;
-
-    // 100x100 Cube of particles within [0, 0.5] on all axes
-    for (int i = 0; i < 10; i++)
-    {
-        for (int j = 0; j < 100; j++)
-        {
-            for (int k = 0; k < 10; k++)
-            {
-                positions.push_back(glm::vec4((float)i * PARTICLE_RADIUS, (float)j * PARTICLE_RADIUS, (float)k * PARTICLE_RADIUS, 1.0f));
-            }
-        }
-    }
-    //std::cout << "Position count: " << positions.size() << std::endl;
-
-    return positions;
-}
-
-
-/// <summary>
 /// Initialize the SSBO with a cube of particles
 /// </summary>
 void init_particles()
 {
     // Initialize particle data
     std::vector<Particle> particles(NUM_PARTICLES);
-    std::vector<glm::vec4> grid_positions = make_grid(); // Get grid positions
+    std::vector<glm::vec4> grid_positions = make_cube(); // Get grid positions
     for (int i = 0; i < NUM_PARTICLES; i++)
     {
         particles[i].pos = grid_positions[i];
