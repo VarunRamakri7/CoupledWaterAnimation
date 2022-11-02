@@ -2,7 +2,7 @@
 
 #define WORK_GROUP_SIZE 1024
 #define NUM_PARTICLES 10000
-#define PARTICLE_RADIUS 0.03f
+#define PARTICLE_RADIUS 0.005f
 
 // For calculations
 #define PI 3.141592741f
@@ -39,7 +39,7 @@ void main()
 
     const float smoothing_length = smoothing_coeff * PARTICLE_RADIUS; // Smoothing length for neighbourhood
 	const float spiky = -45.0f / (PI * pow(smoothing_length, 6)); // Spiky kernal
-	const float laplacian = 45.0f / (PI * pow(smoothing_length, 6)); // Laplacian kernel
+	const float laplacian = -spiky; // Laplacian kernel
 
     // Compute all forces
     vec3 pres_force = vec3(0.0f);
@@ -56,8 +56,8 @@ void main()
         float r = length(delta); // Get length of the vector
         if (r < smoothing_length) // Check if particle is inside smoothing radius
         {
-			pres_force -= mass * (particles[i].extras[1] + particles[j].extras[1]) / (2.0f * particles[j].extras[0]) * spiky * pow(smoothing_length - r, 2) * normalize(delta); // Use Spiky Kernel
-			visc_force += mass * (particles[j].vel.xyz - particles[i].vel.xyz) / particles[j].extras[0] * laplacian * (smoothing_length - r); // Usee laplacian kernel
+			pres_force -= mass * (particles[i].extras[1] + particles[j].extras[1]) / (2.0f * particles[j].extras[0]) * spiky * pow(smoothing_length - r, 2) * normalize(delta); // Gradient of Spiky Kernel
+			visc_force += mass * (particles[j].vel.xyz - particles[i].vel.xyz) / particles[j].extras[0] * laplacian * (smoothing_length - r); // Laplacian of viscosity kernel
         }
     }
 	visc_force *= visc;

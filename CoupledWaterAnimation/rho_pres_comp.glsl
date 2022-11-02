@@ -2,7 +2,7 @@
 
 #define WORK_GROUP_SIZE 1024
 #define NUM_PARTICLES 10000
-#define PARTICLE_RADIUS 0.03f
+#define PARTICLE_RADIUS 0.005f
 
 // For calculations
 #define PI 3.141592741f
@@ -49,7 +49,7 @@ void main()
         float r = length(delta); // Get length of the vector
         if (r < smoothing_length) // Check if particle is inside smoothing radius
         {
-			rho += mass * 315.0f * pow(smoothing_length * smoothing_length - r * r, 3) / (64.0f * PI * pow(smoothing_length, 9)); // Use Poly5 kernal
+			rho += mass * 315.0f * pow(smoothing_length * smoothing_length - r * r, 3) / (64.0f * PI * pow(smoothing_length, 9)); // Use Poly6 kernal
         }
     }
     particles[i].extras[0] = rho; // Assign computed value

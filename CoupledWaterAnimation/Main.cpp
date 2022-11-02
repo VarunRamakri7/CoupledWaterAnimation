@@ -19,7 +19,7 @@
 #include "VideoMux.h"      //Functions for saving videos
 
 #define NUM_PARTICLES 10000
-#define PARTICLE_RADIUS 0.03f
+#define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
 #define NUM_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
 
@@ -64,7 +64,7 @@ struct SceneUniforms
 
 struct ConstantsUniform
 {
-    float mass = 0.05f; // Particle Mass
+    float mass = 0.02f; // Particle Mass
     float smoothing_coeff = 4.0f; // Smoothing length coefficient for neighborhood
     float visc = 3000.0f; // Fluid viscosity
     float resting_rho = 1000.0f; // Resting density
@@ -72,7 +72,7 @@ struct ConstantsUniform
 
 struct BoundaryUniform
 {
-    glm::vec4 upper = glm::vec4(1.0f);
+    glm::vec4 upper = glm::vec4(0.5f);
     glm::vec4 lower = glm::vec4(-0.5f);
 }BoundaryData;
 

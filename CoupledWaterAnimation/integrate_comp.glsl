@@ -2,7 +2,7 @@
 
 #define WORK_GROUP_SIZE 1024
 #define NUM_PARTICLES 10000
-#define PARTICLE_RADIUS 0.03f
+#define PARTICLE_RADIUS 0.005f
 
 // For calculations
 #define DAMPING 0.5f // Boundary epsilon (particle radius)
