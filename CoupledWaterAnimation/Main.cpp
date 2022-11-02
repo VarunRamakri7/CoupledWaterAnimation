@@ -42,7 +42,7 @@ GLuint particles_ssbo = -1;
 glm::vec3 eye = glm::vec3(10.0f, 2.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
 float angle = 0.75f;
-float scale = 2.5f;
+float scale = 5.0f;
 float aspect = 1.0f;
 bool recording = false;
 bool simulate = false;
@@ -73,7 +73,7 @@ struct ConstantsUniform
 struct BoundaryUniform
 {
     glm::vec4 upper = glm::vec4(0.5f, 1.0f, 0.5f, 1.0f);
-    glm::vec4 lower = glm::vec4(-0.1f);
+    glm::vec4 lower = glm::vec4(-0.1f, -0.35f, -0.1f, 1.0f);
 }BoundaryData;
 
 GLuint scene_ubo = -1;
