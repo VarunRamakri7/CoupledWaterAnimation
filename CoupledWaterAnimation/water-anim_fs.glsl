@@ -6,9 +6,9 @@ in vec4 particle_pos;
 
 out vec4 frag_color;
 
-const vec3 particle_col = vec3(0.1f, 0.35f, 0.8f); // Blue color
+const vec3 particle_col = vec3(0.1f, 0.65f, 0.8f); // Blue color
 const vec3 light_col = vec3(1.0f, 0.8f, 0.65f); // Warm light_col
-const vec3 light_pos = vec3(0.0f, -0.25f, 0.0f);
+const vec3 light_pos = vec3(0.0f, 0.5f, 0.0f);
 const float intensity = 10.0f;
 
 void main ()

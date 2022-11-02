@@ -72,8 +72,8 @@ struct ConstantsUniform
 
 struct BoundaryUniform
 {
-    glm::vec4 upper = glm::vec4(0.5f);
-    glm::vec4 lower = glm::vec4(-0.5f);
+    glm::vec4 upper = glm::vec4(0.5f, 1.0f, 0.5f, 1.0f);
+    glm::vec4 lower = glm::vec4(-0.1f);
 }BoundaryData;
 
 GLuint scene_ubo = -1;
@@ -194,10 +194,6 @@ void display(GLFWwindow* window)
         glDispatchCompute(NUM_WORK_GROUPS, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
-
-    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particles_ssbo);
-    //Particle* p = (Particle*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-    //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
     glUseProgram(shader_program);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);

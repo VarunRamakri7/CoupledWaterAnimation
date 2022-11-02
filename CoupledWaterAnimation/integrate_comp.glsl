@@ -5,7 +5,7 @@
 #define PARTICLE_RADIUS 0.005f
 
 // For calculations
-#define DAMPING 0.5f // Boundary epsilon (particle radius)
+#define DAMPING 0.3f // Boundary epsilon
 
 layout (local_size_x = WORK_GROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
@@ -30,7 +30,7 @@ layout(std140, binding = 2) uniform BoundaryUniform
     vec4 lower; // Lower bounds of particle area
 };
 
-const float dt = 1.0f / NUM_PARTICLES; // Time step
+const float dt = 0.0001f; //1.0f / NUM_PARTICLES; // Time step
 
 void main()
 {
@@ -43,37 +43,37 @@ void main()
     vec3 new_pos = particles[i].pos.xyz + dt * new_vel;
 
     // Boundary conditions
-    if (new_pos.x - PARTICLE_RADIUS < lower.x)
+    if (new_pos.x < lower.x)
     {
         new_pos.x = lower.x;
         new_vel.x *= -DAMPING;
     }
-    else if (new_pos.x + PARTICLE_RADIUS > upper.x)
+    else if (new_pos.x > upper.x)
     {
         new_pos.x = upper.x;
         new_vel.x *= -DAMPING;
     }
     
-    if (new_pos.y - PARTICLE_RADIUS < lower.y)
+    if (new_pos.y < lower.y)
     {
         new_pos.y = lower.y;
         new_vel.y *= -DAMPING;
     }
-    else if (new_pos.y + PARTICLE_RADIUS > upper.y)
+    else if (new_pos.y > upper.y)
     {
         new_pos.y = upper.y;
         new_vel.y *= -DAMPING;
     }
     
-    if (new_pos.z - PARTICLE_RADIUS < lower.z)
+    if (new_pos.z < lower.z)
     {
         new_pos.z = lower.z;
-        new_pos.z *= -DAMPING;
+        new_vel.z *= -DAMPING;
     }
-    else if (new_pos.z + PARTICLE_RADIUS > upper.z)
+    else if (new_pos.z > upper.z)
     {
         new_pos.z = upper.z;
-        new_pos.z *= -DAMPING;
+        new_vel.z *= -DAMPING;
     }
 
     // Assign calculated values
