@@ -18,6 +18,8 @@
 //#include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
 #include "VideoMux.h"      //Functions for saving videos
 
+#define PLANE_RES 1024
+
 #define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
@@ -38,6 +40,9 @@ GLuint shader_program = -1;
 GLuint compute_programs[3] = { -1, -1, -1 };
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
+
+GLuint plane_positions_vao = -1;
+GLuint plane_ssbo = -1;
 
 glm::vec3 eye = glm::vec3(10.0f, 2.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
@@ -254,7 +259,7 @@ void reload_shader()
     }
     else
     {
-        glClearColor(0.35f, 0.35f, 0.35f, 0.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
         if (shader_program != -1)
         {
