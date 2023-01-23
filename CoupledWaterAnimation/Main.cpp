@@ -15,15 +15,23 @@
 #include <vector>
 
 #include "InitShader.h"    //Functions for loading shaders from text files
-//#include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
+#include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
 #include "VideoMux.h"      //Functions for saving videos
+#include "Surf.h"
 
-#define PLANE_RES 1024
+#define RESTART_INDEX 65535
+#define PLANE_RES 128
 
 #define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
 #define NUM_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
+
+enum PASS
+{
+    PARTICLES,
+    WAVE
+};
 
 const int init_window_width = 720;
 const int init_window_height = 720;
@@ -41,8 +49,7 @@ GLuint compute_programs[3] = { -1, -1, -1 };
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
 
-GLuint plane_positions_vao = -1;
-GLuint plane_ssbo = -1;
+indexed_surf_vao strip_surf;
 
 glm::vec3 eye = glm::vec3(10.0f, 2.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
@@ -96,6 +103,7 @@ namespace UniformLocs
 {
     int M = 0; //model matrix
     int time = 1;
+    int pass = 2;
 }
 
 void draw_gui(GLFWwindow* window)
@@ -201,7 +209,14 @@ void display(GLFWwindow* window)
     }
 
     glUseProgram(shader_program);
-    glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
+
+    // Draw Plane Surface
+    glUniform1i(UniformLocs::pass, WAVE);
+    glBindVertexArray(strip_surf.vao);
+    strip_surf.Draw();
+
+    glUniform1i(UniformLocs::pass, PARTICLES);
+    glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
     if (recording == true)
     {
@@ -376,7 +391,7 @@ void init_particles()
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind SSBO
 }
 
-#define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
+#define BUFFER_OFFSET(offset)   ((GLvoid*) (offset))
 
 //Initialize OpenGL state. This function only gets called once.
 void initOpenGL()
@@ -397,9 +412,16 @@ void initOpenGL()
     glEnable(GL_POINT_SPRITE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
+    glEnable(GL_PRIMITIVE_RESTART);
+    glPrimitiveRestartIndex(RESTART_INDEX);
+
     init_particles();
 
     reload_shader();
+
+    strip_surf = create_indexed_surf_strip_vao(PLANE_RES); // Drawing indexed GL_TRIANGLE_STRIP with positions, tex_coords and normals interleaved in the vbo
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     //Create and initialize uniform buffers
 
