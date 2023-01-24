@@ -20,7 +20,7 @@
 #include "Surf.h"
 
 #define RESTART_INDEX 65535
-#define PLANE_RES 128
+#define WAVE_RES 128
 
 #define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
@@ -49,7 +49,7 @@ GLuint compute_programs[3] = { -1, -1, -1 };
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
 
-//indexed_surf_vao strip_surf;
+indexed_surf_vao strip_surf;
 
 glm::vec3 eye = glm::vec3(10.0f, 2.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
@@ -210,11 +210,14 @@ void display(GLFWwindow* window)
 
     glUseProgram(shader_program);
 
-    // TODO: Draw wave surface
+    // Draw wave surface
     glUniform1i(UniformLocs::pass, PARTICLES);
+    glBindVertexArray(strip_surf.vao);
+    strip_surf.Draw();
 
     // Draw Paerticles
     glUniform1i(UniformLocs::pass, PARTICLES);
+    glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
     if (recording == true)
@@ -417,6 +420,8 @@ void initOpenGL()
     init_particles();
 
     reload_shader();
+
+    strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
