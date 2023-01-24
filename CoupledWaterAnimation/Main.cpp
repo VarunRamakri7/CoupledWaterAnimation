@@ -187,11 +187,6 @@ void display(GLFWwindow* window)
     glm::mat4 P = glm::perspective(glm::pi<float>() / 4.0f, 1.0f, 0.1f, 100.0f);
     SceneData.PV = P * V;
 
-    // Draw wave surface
-    glUseProgram(wave_shader_program);
-    glBindVertexArray(strip_surf.vao);
-    strip_surf.Draw();
-
     //Set uniforms
     glUniformMatrix4fv(UniformLocs::M, 1, false, glm::value_ptr(M));
 
@@ -220,10 +215,15 @@ void display(GLFWwindow* window)
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
 
-    // Draw Paerticles
+    // Draw Particles
     glUseProgram(particle_shader_program);
     glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
+
+    // Draw wave surface
+    glUseProgram(wave_shader_program);
+    glBindVertexArray(strip_surf.vao);
+    strip_surf.Draw();
 
     if (recording == true)
     {
