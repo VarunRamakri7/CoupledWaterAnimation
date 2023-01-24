@@ -26,14 +26,5 @@ void main ()
     float r = length(gl_PointCoord - vec2(0.35f));
     if (r >= 0.35) discard;
 
-    // Calculate diffuse lighting
-    //vec3 normal = normalize(vec3(1.0f - pow(gl_FragCoord.x, 2) - pow(gl_FragCoord.y, 2))); // Get normal of particle
-    //vec3 light_dir = normalize(light_pos - inData.particle_pos.xyz);
-    //vec3 diffuse = max(dot(normal, light_dir), 0.0f) * light_col;
-    //diffuse *= intensity;
-
-    //frag_color = vec4(particle_col * diffuse, 1.0f);
-    //frag_color = vec4(particle_col, 1.0f);
-
     frag_color = vec4(pass == 0 ? particle_col : wave_col, 1.0f); // Draw color according to pass
 }
