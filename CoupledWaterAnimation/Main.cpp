@@ -20,7 +20,7 @@
 #include "Surf.h"
 
 #define RESTART_INDEX 65535
-#define WAVE_RES 128
+#define WAVE_RES 64
 
 #define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
@@ -38,13 +38,17 @@ const int init_window_height = 720;
 const char* const window_title = "Coupled Water Animation";
 
 // Shaders
-static const std::string vertex_shader("water-anim_vs.glsl");
-static const std::string fragment_shader("water-anim_fs.glsl");
+static const std::string particle_vs("water-anim_vs.glsl");
+static const std::string particle_fs("water-anim_fs.glsl");
+static const std::string wave_vs("wave_vs.glsl");
+static const std::string wave_fs("wave_fs.glsl");
+
 static const std::string rho_pres_com_shader("rho_pres_comp.glsl");
 static const std::string force_comp_shader("force_comp.glsl");
 static const std::string integrate_comp_shader("integrate_comp.glsl");
 
-GLuint shader_program = -1;
+GLuint particle_shader_program = -1;
+GLuint wave_shader_program = -1;
 GLuint compute_programs[3] = { -1, -1, -1 };
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
@@ -180,6 +184,12 @@ void display(GLFWwindow* window)
     glm::mat4 P = glm::perspective(glm::pi<float>() / 4.0f, 1.0f, 0.1f, 100.0f);
     SceneData.PV = P * V;
 
+    // Draw wave surface
+    glUseProgram(wave_shader_program);
+    //glUniform1i(UniformLocs::pass, WAVE);
+    glBindVertexArray(strip_surf.vao);
+    strip_surf.Draw();
+
     //Set uniforms
     glUniformMatrix4fv(UniformLocs::M, 1, false, glm::value_ptr(M));
 
@@ -208,15 +218,9 @@ void display(GLFWwindow* window)
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
 
-    glUseProgram(shader_program);
-
-    // Draw wave surface
-    glUniform1i(UniformLocs::pass, PARTICLES);
-    glBindVertexArray(strip_surf.vao);
-    strip_surf.Draw();
-
     // Draw Paerticles
-    glUniform1i(UniformLocs::pass, PARTICLES);
+    glUseProgram(particle_shader_program);
+    //glUniform1i(UniformLocs::pass, PARTICLES);
     glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
@@ -249,7 +253,8 @@ void idle()
 
 void reload_shader()
 {
-    GLuint new_shader = InitShader(vertex_shader.c_str(), fragment_shader.c_str());
+    GLuint new_particle_shader = InitShader(particle_vs.c_str(), particle_fs.c_str());
+    GLuint new_wave_shader = InitShader(wave_vs.c_str(), wave_fs.c_str());
 
     // Load compute shaders
     GLuint compute_shader_handle = InitShader(rho_pres_com_shader.c_str());
@@ -270,7 +275,7 @@ void reload_shader()
         compute_programs[2] = compute_shader_handle;
     }
 
-    if (new_shader == -1) // loading failed
+    if (new_particle_shader == -1) // loading failed
     {
         glClearColor(1.0f, 0.0f, 1.0f, 0.0f); //change clear color if shader can't be compiled
     }
@@ -278,14 +283,30 @@ void reload_shader()
     {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-        if (shader_program != -1)
+        if (particle_shader_program != -1)
         {
-            glDeleteProgram(shader_program);
+            glDeleteProgram(particle_shader_program);
         }
-        shader_program = new_shader;
+        particle_shader_program = new_particle_shader;
 
-        glLinkProgram(shader_program);
+        glLinkProgram(particle_shader_program);
     }
+
+    if (new_wave_shader == -1)
+    {
+        glClearColor(0.0f, 1.0f, 1.0f, 0.0f); //change clear color if shader can't be compiled
+    }
+    else
+    {
+        if (wave_shader_program != -1)
+        {
+            glDeleteProgram(wave_shader_program);
+        }
+        wave_shader_program = new_wave_shader;
+
+        glLinkProgram(wave_shader_program);
+    }
+
 }
 
 void init_particles();
@@ -423,7 +444,8 @@ void initOpenGL()
 
     strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPointSize(5.0f);
 
     //Create and initialize uniform buffers
 
