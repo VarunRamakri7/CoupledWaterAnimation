@@ -37,19 +37,22 @@ const int init_window_width = 720;
 const int init_window_height = 720;
 const char* const window_title = "Coupled Water Animation";
 
-// Shaders
+// Vertex and Fragment Shaders
 static const std::string particle_vs("water-anim_vs.glsl");
 static const std::string particle_fs("water-anim_fs.glsl");
 static const std::string wave_vs("wave_vs.glsl");
 static const std::string wave_fs("wave_fs.glsl");
 
+// Compute Shaders
 static const std::string rho_pres_com_shader("rho_pres_comp.glsl");
 static const std::string force_comp_shader("force_comp.glsl");
 static const std::string integrate_comp_shader("integrate_comp.glsl");
 
+// Shader programs
 GLuint particle_shader_program = -1;
 GLuint wave_shader_program = -1;
 GLuint compute_programs[3] = { -1, -1, -1 };
+
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
 
@@ -186,7 +189,6 @@ void display(GLFWwindow* window)
 
     // Draw wave surface
     glUseProgram(wave_shader_program);
-    //glUniform1i(UniformLocs::pass, WAVE);
     glBindVertexArray(strip_surf.vao);
     strip_surf.Draw();
 
@@ -220,7 +222,6 @@ void display(GLFWwindow* window)
 
     // Draw Paerticles
     glUseProgram(particle_shader_program);
-    //glUniform1i(UniformLocs::pass, PARTICLES);
     glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
