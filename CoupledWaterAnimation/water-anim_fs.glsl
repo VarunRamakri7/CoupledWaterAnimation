@@ -5,14 +5,6 @@ layout(location = 2) uniform int pass;
 
 in vec3 particle_pos;
 
-//in VertexData
-//{
-//	vec2 tex_coord;
-//	vec3 pw;       //world-space vertex position
-//	vec3 nw;   //world-space normal vector
-//	vec3 color;
-//} inData;
-
 out vec4 frag_color;
 
 const vec3 particle_col = vec3(0.1f, 0.65f, 0.8f); // Blue color
