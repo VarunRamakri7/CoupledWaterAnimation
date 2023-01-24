@@ -49,7 +49,7 @@ GLuint compute_programs[3] = { -1, -1, -1 };
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
 
-indexed_surf_vao strip_surf;
+//indexed_surf_vao strip_surf;
 
 glm::vec3 eye = glm::vec3(10.0f, 2.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
@@ -210,11 +210,10 @@ void display(GLFWwindow* window)
 
     glUseProgram(shader_program);
 
-    // Draw Plane Surface
-    glUniform1i(UniformLocs::pass, WAVE);
-    glBindVertexArray(strip_surf.vao);
-    strip_surf.Draw();
+    // TODO: Draw wave surface
+    glUniform1i(UniformLocs::pass, PARTICLES);
 
+    // Draw Paerticles
     glUniform1i(UniformLocs::pass, PARTICLES);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
@@ -418,8 +417,6 @@ void initOpenGL()
     init_particles();
 
     reload_shader();
-
-    strip_surf = create_indexed_surf_strip_vao(PLANE_RES); // Drawing indexed GL_TRIANGLE_STRIP with positions, tex_coords and normals interleaved in the vbo
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
