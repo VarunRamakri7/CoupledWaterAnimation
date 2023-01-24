@@ -39,7 +39,17 @@ const vec3 wave_col = vec3(1.0f, 0.0f, 0.0f); // Red color
 
 void main(void)
 {   
-   /*float w = 50.0;
+	//lighting();
+	//fragcolor = vec4(1.0, 0.0, 0.0, 1.0);
+	//fragcolor = vec4(inData.tex_coord, 0.0, 1.0); //debug view tex coords
+	//fragcolor = vec4(abs(nw), 1.0); //debug view normals
+
+	fragcolor = vec4(wave_col, 1.0f);
+}
+
+/*void lighting()
+{
+   float w = 50.0;
    vec2 uv = fract(inData.tex_coord*w);
    uv = abs(2.0*uv-vec2(1.0));
 
@@ -69,12 +79,5 @@ void main(void)
 
    vec4 instance_color = vec4(inData.color, 1.0);
 
-   fragcolor = ambient_term + diffuse_term + specular_term + instance_color;*/
-
-   //fragcolor = vec4(1.0, 0.0, 0.0, 1.0);
-   //fragcolor = vec4(inData.tex_coord, 0.0, 1.0); //debug view tex coords
-   //fragcolor = vec4(abs(nw), 1.0); //debug view normals
-
-   fragcolor = vec4(wave_col, 1.0f);
-}
-
+   fragcolor = ambient_term + diffuse_term + specular_term + instance_color;
+}*/
