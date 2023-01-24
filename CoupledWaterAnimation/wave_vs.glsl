@@ -20,7 +20,6 @@ out VertexData
 	vec3 pw;       //world-space vertex position
 	vec3 nw;   //world-space normal vector
 	vec3 color;
-	//float instance_num;
 } outData; 
 
 void main(void)

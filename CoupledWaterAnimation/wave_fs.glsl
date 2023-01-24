@@ -1,14 +1,14 @@
 #version 430
-layout(binding = 0) uniform sampler2D diffuse_tex; 
+//layout(binding = 0) uniform sampler2D diffuse_tex;
 layout(location = 1) uniform float time;
 
-layout(std140, binding = 0) uniform SceneUniforms
+/*layout(std140, binding = 0) uniform SceneUniforms
 {
    mat4 PV;	//camera projection * view matrix
    vec4 eye_w;	//world-space eye position
 };
 
-/*layout(std140, binding = 1) uniform LightUniforms
+layout(std140, binding = 1) uniform LightUniforms
 {
    vec4 La;	//ambient light color
    vec4 Ld;	//diffuse light color
@@ -30,7 +30,7 @@ in VertexData
    vec3 pw;       //world-space vertex position
    vec3 nw;   //world-space normal vector
    vec3 color;
-} inData;   //block is named 'inData'
+} inData;
 
 
 out vec4 fragcolor; //the output color for this fragment  
