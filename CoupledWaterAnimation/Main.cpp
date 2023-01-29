@@ -228,7 +228,7 @@ void display(GLFWwindow* window)
         glUseProgram(wave_shader_program); // Use wave shader program
         glBindVertexArray(strip_surf.vao);
         strip_surf.Draw();
-        
+
         glBindVertexArray(0); // Unbind VAO
     }
 
@@ -308,6 +308,8 @@ void reload_shader()
     }
     else
     {
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
         if (wave_shader_program != -1)
         {
             glDeleteProgram(wave_shader_program);
@@ -316,7 +318,6 @@ void reload_shader()
 
         glLinkProgram(wave_shader_program);
     }
-
 }
 
 void init_particles();
