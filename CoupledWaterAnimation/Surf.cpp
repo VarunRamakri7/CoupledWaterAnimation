@@ -40,8 +40,8 @@ float sinc2D(const glm::vec2& p)
 
 glm::vec3 surf(glm::mat3& M, int i, int j)
 {
-    glm::vec3 p = M * glm::vec3(float(i), float(j), 1.0f);
-    return glm::vec3(p.x, p.y, 10.0f * sinc2D(p));
+    glm::vec3 p = glm::vec3(float(i), float(j), 1.0f);
+    return p;//glm::vec3(p.x, p.y, 10.0f * sinc2D(p));
 }
 
 //Compute normal using finite differences
