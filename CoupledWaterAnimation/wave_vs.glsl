@@ -1,4 +1,5 @@
-#version 430            
+#version 430    
+
 layout(location = 0) uniform mat4 M;
 layout(location = 1) uniform float time;
 

@@ -14,7 +14,6 @@ layout(location = 0) in vec3 pos_attrib; //this variable holds the position of m
 
 out vec3 particle_pos;
 
-
 void main ()
 {
     gl_Position = PV * M * vec4(pos_attrib, 1.0f);

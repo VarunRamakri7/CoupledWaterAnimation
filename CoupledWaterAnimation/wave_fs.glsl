@@ -1,4 +1,5 @@
 #version 430
+
 //layout(binding = 0) uniform sampler2D diffuse_tex;
 layout(location = 1) uniform float time;
 
@@ -31,7 +32,6 @@ in VertexData
    vec3 nw;   //world-space normal vector
    vec3 color;
 } inData;
-
 
 out vec4 fragcolor; //the output color for this fragment  
 
