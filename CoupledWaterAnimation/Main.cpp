@@ -222,15 +222,15 @@ void display(GLFWwindow* window)
     glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
+    // Draw wave surface
     if (drawSurface)
     {
-        // Draw wave surface
-        glUseProgram(wave_shader_program);
+        glUseProgram(wave_shader_program); // Use wave shader program
         glBindVertexArray(strip_surf.vao);
         strip_surf.Draw();
+        
+        glBindVertexArray(0); // Unbind VAO
     }
-
-    glBindVertexArray(0); // Unbind VAO
 
     if (recording == true)
     {

@@ -212,7 +212,6 @@ indexed_surf_vao create_indexed_surf_strip_vao(int n)
     surf.num_indices = num_triangles * 3;
     surf.type = GL_UNSIGNED_INT;
 
-
     GLuint index_buffer = create_strip_index_buffer((unsigned int) n);
 
     //Separate pos, tex_coord and normal in vbo
