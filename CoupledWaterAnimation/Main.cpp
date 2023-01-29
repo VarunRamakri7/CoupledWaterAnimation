@@ -65,6 +65,7 @@ float scale = 5.0f;
 float aspect = 1.0f;
 bool recording = false;
 bool simulate = false;
+bool drawSurface = false;
 
 struct Particle
 {
@@ -157,6 +158,7 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Scale", &scale, 0.0001f, 20.0f);
     ImGui::SliderFloat3("Camera Eye", &eye[0], -10.0f, 10.0f);
     ImGui::SliderFloat3("Camera Center", &center[0], -10.0f, 10.0f);
+    ImGui::Checkbox("Draw Wave Surface", &drawSurface);
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
@@ -191,10 +193,10 @@ void display(GLFWwindow* window)
     glUniformMatrix4fv(UniformLocs::M, 1, false, glm::value_ptr(M));
 
     glBindBuffer(GL_UNIFORM_BUFFER, scene_ubo); //Bind the OpenGL UBO before we update the data.
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SceneData), &SceneData); //Upload the new uniform values.
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SceneUniforms), &SceneData); //Upload the new uniform values.
 
     glBindBuffer(GL_UNIFORM_BUFFER, constants_ubo); // Bind the OpenGL UBO before we update the data.
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ConstantsData), &ConstantsData); // Upload the new uniform values.
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ConstantsUniform), &ConstantsData); // Upload the new uniform values.
 
     glBindBuffer(GL_UNIFORM_BUFFER, boundary_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(BoundaryUniform), &BoundaryData); // Upload the new uniform values.
@@ -220,10 +222,15 @@ void display(GLFWwindow* window)
     glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
-    // Draw wave surface
-    glUseProgram(wave_shader_program);
-    glBindVertexArray(strip_surf.vao);
-    strip_surf.Draw();
+    if (drawSurface)
+    {
+        // Draw wave surface
+        glUseProgram(wave_shader_program);
+        glBindVertexArray(strip_surf.vao);
+        strip_surf.Draw();
+    }
+
+    glBindVertexArray(0); // Unbind VAO
 
     if (recording == true)
     {
@@ -276,6 +283,7 @@ void reload_shader()
         compute_programs[2] = compute_shader_handle;
     }
 
+    // Check particle shader program
     if (new_particle_shader == -1) // loading failed
     {
         glClearColor(1.0f, 0.0f, 1.0f, 0.0f); //change clear color if shader can't be compiled
@@ -293,6 +301,7 @@ void reload_shader()
         glLinkProgram(particle_shader_program);
     }
 
+    // Check wave shader program
     if (new_wave_shader == -1)
     {
         glClearColor(0.0f, 1.0f, 1.0f, 0.0f); //change clear color if shader can't be compiled
@@ -413,9 +422,10 @@ void init_particles()
     glEnableVertexAttribArray(0); // Enable attribute with location = 0 (vertex position) for VAO
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind SSBO
+    glBindVertexArray(0); // Unbind VAO
 }
 
-#define BUFFER_OFFSET(offset)   ((GLvoid*) (offset))
+#define BUFFER_OFFSET(offset) ((GLvoid*) (offset))
 
 //Initialize OpenGL state. This function only gets called once.
 void initOpenGL()
