@@ -70,7 +70,7 @@ GLuint create_indexed_strip_surf_vbo(int n_grid)
     const int num_vertices = n_grid * n_grid;
 
     std::vector<float> surf_verts;
-    surf_verts.reserve((3 + 2 + 3) * num_vertices);
+    surf_verts.reserve(3 * 4 * num_vertices);
 
     //Create matrix to transform indices to points
     glm::mat3 T = glm::translate(glm::mat3(0.0f), glm::vec2(-float(n_grid) / 2.0, -float(n_grid) / 2.0));
@@ -88,9 +88,9 @@ GLuint create_indexed_strip_surf_vbo(int n_grid)
             //float inst = i;
 
             //Insert triangles
-            surf_verts.push_back(p0.x);   surf_verts.push_back(p0.y); surf_verts.push_back(p0.z);
-            surf_verts.push_back(t0.x);   surf_verts.push_back(t0.y);
-            surf_verts.push_back(n0.x);   surf_verts.push_back(n0.y); surf_verts.push_back(n0.z);
+            surf_verts.push_back(p0.x);   surf_verts.push_back(p0.y); surf_verts.push_back(p0.z); surf_verts.push_back(0.0f);
+            surf_verts.push_back(t0.x);   surf_verts.push_back(t0.y); surf_verts.push_back(0.0f); surf_verts.push_back(0.0f);
+            surf_verts.push_back(n0.x);   surf_verts.push_back(n0.y); surf_verts.push_back(n0.z); surf_verts.push_back(0.0f);
         }
     }
 
@@ -100,6 +100,7 @@ GLuint create_indexed_strip_surf_vbo(int n_grid)
 
     //Upload from main memory to gpu memory.
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * surf_verts.size(), surf_verts.data(), GL_STATIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, vbo); // Upload data to Compute Shader at binding = 1
 
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -225,10 +226,10 @@ indexed_surf_vao create_indexed_surf_strip_vao(int n)
 	//glBindBuffer(GL_ARRAY_BUFFER, instancedVBO[0]);
 
     //Tell opengl how to get the attribute values out of the vbo (stride and offset).
-    const int stride = (3 + 2 + 3) * sizeof(float);
+    const int stride = 3 * 4 * sizeof(float);
     glVertexAttribPointer(AttribLocs::pos, 3, GL_FLOAT, false, stride, BUFFER_OFFSET(0));
-    glVertexAttribPointer(AttribLocs::tex_coord, 2, GL_FLOAT, false, stride, BUFFER_OFFSET(3 * sizeof(float)));
-    glVertexAttribPointer(AttribLocs::normal, 3, GL_FLOAT, false, stride, BUFFER_OFFSET((3 + 2) * sizeof(float)));
+    glVertexAttribPointer(AttribLocs::tex_coord, 2, GL_FLOAT, false, stride, BUFFER_OFFSET(4 * sizeof(float)));
+    glVertexAttribPointer(AttribLocs::normal, 3, GL_FLOAT, false, stride, BUFFER_OFFSET((2 * 4) * sizeof(float)));
 
 	GLuint offsetsVBP = create_instanced_offsets_vbo();
 	for (int i = 0; i < 4; i++)
