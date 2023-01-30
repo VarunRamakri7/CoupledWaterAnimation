@@ -20,7 +20,7 @@
 #include "Surf.h"
 
 #define RESTART_INDEX 65535
-#define WAVE_RES 64
+#define WAVE_RES 32
 
 #define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
@@ -65,7 +65,7 @@ float scale = 5.0f;
 float aspect = 1.0f;
 bool recording = false;
 bool simulate = false;
-bool drawSurface = false;
+bool drawSurface = true;
 
 struct Particle
 {
@@ -190,7 +190,8 @@ void display(GLFWwindow* window)
     SceneData.PV = P * V;
 
     //Set uniforms
-    glUniformMatrix4fv(UniformLocs::M, 1, false, glm::value_ptr(M));
+    glProgramUniformMatrix4fv(particle_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M));
+    glProgramUniformMatrix4fv(wave_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M));
 
     glBindBuffer(GL_UNIFORM_BUFFER, scene_ubo); //Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SceneUniforms), &SceneData); //Upload the new uniform values.
@@ -229,8 +230,9 @@ void display(GLFWwindow* window)
         glBindVertexArray(strip_surf.vao);
         strip_surf.Draw();
 
-        glBindVertexArray(0); // Unbind VAO
     }
+    
+    glBindVertexArray(0); // Unbind VAO
 
     if (recording == true)
     {
