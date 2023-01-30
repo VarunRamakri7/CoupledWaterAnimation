@@ -18,6 +18,7 @@
 #include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
 #include "VideoMux.h"      //Functions for saving videos
 #include "Surf.h"
+#include "StencilImage2DTripleBuffered.h"
 #include "DebugCallback.h"
 
 #define RESTART_INDEX 65535
@@ -59,6 +60,7 @@ GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
 
 indexed_surf_vao strip_surf;
+StencilImage2DTripleBuffered wave2d;
 
 glm::vec3 eye = glm::vec3(7.0f, 4.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
