@@ -60,6 +60,9 @@
     <ClCompile Include="Surf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DebugCallback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VideoMux.h">
@@ -99,6 +102,9 @@
       <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="Surf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugCallback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
