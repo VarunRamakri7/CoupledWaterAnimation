@@ -48,11 +48,12 @@ static const std::string wave_fs("wave_fs.glsl");
 static const std::string rho_pres_com_shader("rho_pres_comp.glsl");
 static const std::string force_comp_shader("force_comp.glsl");
 static const std::string integrate_comp_shader("integrate_comp.glsl");
+static const std::string wave_comp_shader("wave_comp.glsl");
 
 // Shader programs
 GLuint particle_shader_program = -1;
 GLuint wave_shader_program = -1;
-GLuint compute_programs[3] = { -1, -1, -1 };
+GLuint compute_programs[4] = { -1, -1, -1, -1 };
 
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
@@ -221,6 +222,9 @@ void display(GLFWwindow* window)
         glUseProgram(compute_programs[2]); // Use integration calculation program
         glDispatchCompute(NUM_WORK_GROUPS, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glUseProgram(compute_programs[3]); // Use Wave computation program
+        glDispatchCompute(NUM_WORK_GROUPS, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
 
     // Draw Particles
@@ -289,6 +293,12 @@ void reload_shader()
     if (compute_shader_handle != -1)
     {
         compute_programs[2] = compute_shader_handle;
+    }
+
+    compute_shader_handle = InitShader(wave_comp_shader.c_str());
+    if (compute_shader_handle != -1)
+    {
+        compute_programs[3] = compute_shader_handle;
     }
 
     // Check particle shader program

@@ -92,5 +92,5 @@ void main()
     particles[i].vel.xyz = new_vel;
     particles[i].pos.xyz = new_pos;
 
-    waves[i].pos.y = 10.0f;
+    //waves[i].pos.y = 10.0f;
 }
