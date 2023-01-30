@@ -13,6 +13,7 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 #define RESTART_INDEX 65535
+#define START_INDEX 0.1f
 
 namespace AttribLocs
 {
@@ -40,7 +41,7 @@ float sinc2D(const glm::vec2& p)
 
 glm::vec3 surf(glm::mat3& M, int i, int j)
 {
-    glm::vec3 p = glm::vec3(float(i), float(j), 1.0f);
+    glm::vec3 p = glm::vec3(float(i), -1.0f, float(j));
     return p;//glm::vec3(p.x, p.y, 10.0f * sinc2D(p));
 }
 
@@ -72,8 +73,8 @@ GLuint create_indexed_strip_surf_vbo(int n_grid)
     surf_verts.reserve((3 + 2 + 3) * num_vertices);
 
     //Create matrix to transform indices to points
-    glm::mat3 T = glm::translate(glm::mat3(1.0f), glm::vec2(-float(n_grid) / 2.0, -float(n_grid) / 2.0));
-    glm::mat3 S = glm::scale(glm::mat3(1.0f), glm::vec2(20.0f / n_grid));
+    glm::mat3 T = glm::translate(glm::mat3(0.0f), glm::vec2(-float(n_grid) / 2.0, -float(n_grid) / 2.0));
+    glm::mat3 S = glm::scale(glm::mat3(1.0f), glm::vec2(50.0f / n_grid));
     glm::mat3 M = S * T;
 
     //Insert positions
@@ -81,9 +82,9 @@ GLuint create_indexed_strip_surf_vbo(int n_grid)
     {
         for (int j = 0; j < n_grid; j++)
         {
-            glm::vec3 p0 = surf(M, i, j);
+            glm::vec3 p0 = surf(M, START_INDEX * i, START_INDEX * j);
             glm::vec2 t0 = glm::vec2(float(i), float(j)) / float(n_grid - 1);
-            glm::vec3 n0 = normal(M, i, j);
+            glm::vec3 n0 = normal(M, START_INDEX * i, START_INDEX * j);
             //float inst = i;
 
             //Insert triangles
