@@ -20,7 +20,7 @@
 #include "Surf.h"
 
 #define RESTART_INDEX 65535
-#define WAVE_RES 32
+#define WAVE_RES 128
 
 #define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
@@ -58,10 +58,11 @@ GLuint particles_ssbo = -1;
 
 indexed_surf_vao strip_surf;
 
-glm::vec3 eye = glm::vec3(10.0f, 2.0f, 0.0f);
+glm::vec3 eye = glm::vec3(7.0f, 4.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
 float angle = 0.75f;
-float scale = 5.0f;
+float particle_scale = 5.0f;
+float wave_scale = 0.2f;
 float aspect = 1.0f;
 bool recording = false;
 bool simulate = false;
@@ -92,8 +93,8 @@ struct ConstantsUniform
 
 struct BoundaryUniform
 {
-    glm::vec4 upper = glm::vec4(0.5f, 1.0f, 0.5f, 1.0f);
-    glm::vec4 lower = glm::vec4(-0.1f, -0.35f, -0.1f, 1.0f);
+    glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 1.0f);
+    glm::vec4 lower = glm::vec4(-0.001f, -0.04f, -0.001f, 1.0f);
 }BoundaryData;
 
 GLuint scene_ubo = -1;
@@ -155,7 +156,8 @@ void draw_gui(GLFWwindow* window)
     }
 
     ImGui::SliderFloat("View angle", &angle, -glm::pi<float>(), +glm::pi<float>());
-    ImGui::SliderFloat("Scale", &scale, 0.0001f, 20.0f);
+    ImGui::SliderFloat("Particle Scale", &particle_scale, 0.0001f, 20.0f);
+    ImGui::SliderFloat("Wave Scale", &wave_scale, 0.0001f, 1.0f);
     ImGui::SliderFloat3("Camera Eye", &eye[0], -10.0f, 10.0f);
     ImGui::SliderFloat3("Camera Center", &center[0], -10.0f, 10.0f);
     ImGui::Checkbox("Draw Wave Surface", &drawSurface);
@@ -184,14 +186,16 @@ void display(GLFWwindow* window)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     SceneData.eye_w = glm::vec4(eye, 1.0f);
-    glm::mat4 M = glm::rotate(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(scale));
     glm::mat4 V = glm::lookAt(glm::vec3(SceneData.eye_w), center, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 P = glm::perspective(glm::pi<float>() / 4.0f, 1.0f, 0.1f, 100.0f);
     SceneData.PV = P * V;
 
     //Set uniforms
-    glProgramUniformMatrix4fv(particle_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M));
-    glProgramUniformMatrix4fv(wave_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M));
+    glm::mat4 M = glm::rotate(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(particle_scale));
+    glProgramUniformMatrix4fv(particle_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set particle Model Matrix
+
+    M = glm::rotate(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(wave_scale));
+    glProgramUniformMatrix4fv(wave_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set Wave Model Matrix
 
     glBindBuffer(GL_UNIFORM_BUFFER, scene_ubo); //Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SceneUniforms), &SceneData); //Upload the new uniform values.
