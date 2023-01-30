@@ -99,14 +99,24 @@ struct BoundaryUniform
     glm::vec4 lower = glm::vec4(-0.001f, -0.01f, -0.001f, 1.0f);
 }BoundaryData;
 
+struct WaveUniforms
+{
+    float Lambda = 0.01f;
+    float Atten = 0.9995f;
+    float Beta = 0.001f;
+
+} WaveData;
+
 GLuint scene_ubo = -1;
 GLuint constants_ubo = -1;
 GLuint boundary_ubo = -1;
+GLuint wave_ubo = -1;
 namespace UboBinding
 {
     int scene = 0;
     int constants = 1;
     int boundary = 2;
+    int wave = 3;
 }
 
 //Locations for the uniforms which are not in uniform blocks
@@ -174,6 +184,9 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
     ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
     ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
+    ImGui::SliderFloat("Lamba", &WaveData.Lambda, 0.1f, 10.0f);
+    ImGui::SliderFloat("Attenuation", &WaveData.Atten, 0.1f, 10.0f);
+    ImGui::SliderFloat("Beta", &WaveData.Beta, 0.1f, 10.0f);
     ImGui::End();
 
     //End ImGui Frame
@@ -208,6 +221,9 @@ void display(GLFWwindow* window)
     glBindBuffer(GL_UNIFORM_BUFFER, boundary_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(BoundaryUniform), &BoundaryData); // Upload the new uniform values.
 
+    glBindBuffer(GL_UNIFORM_BUFFER, wave_ubo); // Bind the OpenGL UBO before we update the data.
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(WaveUniforms), &WaveData); // Upload the new uniform values.
+
     glBindBuffer(GL_UNIFORM_BUFFER, 0); //unbind the ubo
 
     // Use compute shader
@@ -238,7 +254,6 @@ void display(GLFWwindow* window)
         glUseProgram(wave_shader_program); // Use wave shader program
         glBindVertexArray(strip_surf.vao);
         strip_surf.Draw();
-
     }
     
     glBindVertexArray(0); // Unbind VAO
@@ -492,10 +507,17 @@ void initOpenGL()
     glBufferData(GL_UNIFORM_BUFFER, sizeof(ConstantsUniform), nullptr, GL_STREAM_DRAW); //Allocate memory for the buffer, but don't copy (since pointer is null).
     glBindBufferBase(GL_UNIFORM_BUFFER, UboBinding::constants, constants_ubo); //Associate this uniform buffer with the uniform block in the shader that has the same binding.
 
+    // For BoundaryUniform
     glGenBuffers(1, &boundary_ubo);
     glBindBuffer(GL_UNIFORM_BUFFER, boundary_ubo);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(BoundaryUniform), nullptr, GL_STREAM_DRAW); //Allocate memory for the buffer, but don't copy (since pointer is null).
     glBindBufferBase(GL_UNIFORM_BUFFER, UboBinding::boundary, boundary_ubo); //Associate this uniform buffer with the uniform block in the shader that has the same binding.
+
+    // For WaveUniforms
+    glGenBuffers(1, &wave_ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, wave_ubo);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(WaveUniforms), nullptr, GL_STREAM_DRAW); //Allocate memory for the buffer, but don't copy (since pointer is null).
+    glBindBufferBase(GL_UNIFORM_BUFFER, UboBinding::wave, wave_ubo); //Associate this uniform buffer with the uniform block in the shader that has the same binding.
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

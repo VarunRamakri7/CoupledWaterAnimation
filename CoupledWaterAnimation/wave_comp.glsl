@@ -1,10 +1,9 @@
 #version 440
 
-#define WORK_GROUP_SIZE 1024
 #define WAVE_RES 512
 #define PARTICLE_RADIUS 0.005f
 
-layout (local_size_x = WORK_GROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 32, local_size_y = 32) in;
 
 layout(location = 0) uniform mat4 M;
 
@@ -39,12 +38,18 @@ layout(std140, binding = 2) uniform BoundaryUniform
     vec4 lower; // Lower bounds of particle area
 };
 
+layout(std140, binding = 3) uniform WaveUniforms
+{
+   float Lambda;
+   float Atten;
+   float Beta;   
+};
+
 const float dt = 0.0001f; // Time step
 
 void main()
 {
-    uint i = gl_GlobalInvocationID.x;
-    if(i >= WAVE_RES) return;
+	ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
 
-    waves[i].pos.y = 10.0f;
+    waves[gid.x].pos = vec4(Lambda, Atten, Beta, 0.0f);
 }
