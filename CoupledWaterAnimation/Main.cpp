@@ -21,7 +21,7 @@
 #include "DebugCallback.h"
 
 #define RESTART_INDEX 65535
-#define WAVE_RES 128
+#define WAVE_RES 512
 
 #define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
@@ -63,7 +63,7 @@ glm::vec3 eye = glm::vec3(7.0f, 4.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
 float angle = 0.75f;
 float particle_scale = 5.0f;
-float wave_scale = 0.2f;
+float wave_scale = 0.047f;
 float aspect = 1.0f;
 bool recording = false;
 bool simulate = false;
@@ -95,7 +95,7 @@ struct ConstantsUniform
 struct BoundaryUniform
 {
     glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 1.0f);
-    glm::vec4 lower = glm::vec4(-0.001f, -0.04f, -0.001f, 1.0f);
+    glm::vec4 lower = glm::vec4(-0.001f, -0.01f, -0.001f, 1.0f);
 }BoundaryData;
 
 GLuint scene_ubo = -1;
