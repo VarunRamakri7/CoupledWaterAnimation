@@ -11,6 +11,7 @@ layout(local_size_x = 32, local_size_y = 32) in;
 
 //layout (binding = 3) uniform sampler2D uInitImage;
 
+layout(location = 1) uniform float time;
 layout(location = 3) uniform int mode;
 
 const int MODE_INIT = 0;
