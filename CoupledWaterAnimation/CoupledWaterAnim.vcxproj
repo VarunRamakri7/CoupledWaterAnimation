@@ -190,6 +190,7 @@
     <None Include="rho_pres_comp.glsl" />
     <None Include="water-anim_fs.glsl" />
     <None Include="water-anim_vs.glsl" />
+    <None Include="wave_comp.glsl" />
     <None Include="wave_fs.glsl" />
     <None Include="wave_vs.glsl" />
   </ItemGroup>
