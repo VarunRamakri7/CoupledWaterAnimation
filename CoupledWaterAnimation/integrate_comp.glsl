@@ -19,9 +19,21 @@ struct Particle
     vec4 extras; // 0 - rho, 1 - pressure, 2 - age
 };
 
+struct Wave
+{
+    vec4 pos;
+    vec4 tex_coords;
+    vec4 normals;
+};
+
 layout(std430, binding = 0) buffer PARTICLES
 {
     Particle particles[];
+};
+
+layout(std430, binding = 1) buffer WAVE
+{
+    Wave waves[];
 };
 
 layout(std140, binding = 2) uniform BoundaryUniform
@@ -79,4 +91,6 @@ void main()
     // Assign calculated values
     particles[i].vel.xyz = new_vel;
     particles[i].pos.xyz = new_pos;
+
+    waves[i].pos.y = 10.0f;
 }

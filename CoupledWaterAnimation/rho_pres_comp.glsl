@@ -17,9 +17,21 @@ struct Particle
     vec4 extras; // 0 - rho, 1 - pressure, 2 - age
 };
 
+struct Wave
+{
+    vec4 pos;
+    vec4 tex_coords;
+    vec4 normals;
+};
+
 layout(std430, binding = 0) buffer PARTICLES
 {
     Particle particles[];
+};
+
+layout(std430, binding = 1) buffer WAVE
+{
+    Wave waves[];
 };
 
 layout(std140, binding = 1) uniform ConstantsUniform
