@@ -70,6 +70,14 @@ bool recording = false;
 bool simulate = false;
 bool drawSurface = true;
 
+enum WaveMode
+{
+    INIT,
+    INIT_FROM_TEX,
+    EVOLVE
+};
+int waveMode = INIT;
+
 struct Particle
 {
     glm::vec4 pos;
@@ -122,9 +130,10 @@ namespace UboBinding
 //Locations for the uniforms which are not in uniform blocks
 namespace UniformLocs
 {
-    int M = 0; //model matrix
+    int M = 0; // model matrix
     int time = 1;
     int pass = 2;
+    int mode = 3; // Wave Mode
 }
 
 void draw_gui(GLFWwindow* window)
@@ -225,6 +234,8 @@ void display(GLFWwindow* window)
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(WaveUniforms), &WaveData); // Upload the new uniform values.
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0); //unbind the ubo
+
+    //glUniform1i(UniformLocs::mode, INIT); // Set Wave Mood
 
     // Use compute shader
     if (simulate)

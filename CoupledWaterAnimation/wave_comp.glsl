@@ -5,7 +5,17 @@
 
 layout(local_size_x = 32, local_size_y = 32) in;
 
-layout(location = 0) uniform mat4 M;
+//layout(rgba32f, binding = 0) readonly restrict uniform image2D uInputImage0; //wave at time t-1
+//layout(rgba32f, binding = 1) readonly restrict uniform image2D uInputImage1; //wave at time t-2
+//layout(rgba32f, binding = 2) writeonly restrict uniform image2D uOutputImage; //wave at time t
+
+//layout (binding = 3) uniform sampler2D uInitImage;
+
+layout(location = 3) uniform int mode;
+
+const int MODE_INIT = 0;
+const int MODE_INIT_FROM_TEXTURE = 1;
+const int MODE_EVOLVE = 2;
 
 struct Particle
 {
