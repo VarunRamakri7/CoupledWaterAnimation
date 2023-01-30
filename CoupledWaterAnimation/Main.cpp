@@ -18,6 +18,7 @@
 #include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
 #include "VideoMux.h"      //Functions for saving videos
 #include "Surf.h"
+#include "DebugCallback.h"
 
 #define RESTART_INDEX 65535
 #define WAVE_RES 128
@@ -262,7 +263,8 @@ void idle()
     time_sec += 1.0f / 60.0f;
 
     //Pass time_sec value to the shaders
-    glUniform1f(UniformLocs::time, time_sec);
+    glProgramUniform1f(particle_shader_program, UniformLocs::time, time_sec);
+    glProgramUniform1f(wave_shader_program, UniformLocs::time, time_sec);
 }
 
 void reload_shader()
@@ -438,6 +440,7 @@ void init_particles()
 void initOpenGL()
 {
     glewInit();
+    RegisterDebugCallback();
 
     int max_work_groups = -1;
     glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max_work_groups);
