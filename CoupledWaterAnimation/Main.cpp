@@ -27,7 +27,8 @@
 #define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
-#define NUM_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
+#define PART_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
+#define WAVE_WORK_GROUPS 32 // Work group size for wave compute shader
 
 enum PASS
 {
@@ -49,17 +50,18 @@ static const std::string wave_fs("wave_fs.glsl");
 static const std::string rho_pres_com_shader("rho_pres_comp.glsl");
 static const std::string force_comp_shader("force_comp.glsl");
 static const std::string integrate_comp_shader("integrate_comp.glsl");
-static const std::string wave_comp_shader("wave_comp.glsl");
+//static const std::string wave_comp_shader("wave_comp.glsl");
 
 // Shader programs
 GLuint particle_shader_program = -1;
 GLuint wave_shader_program = -1;
-GLuint compute_programs[4] = { -1, -1, -1, -1 };
+GLuint compute_programs[3] = { -1, -1, -1 };// , -1 };
 
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
 
 indexed_surf_vao strip_surf;
+ComputeShader waveCS("wave_comp.glsl");
 StencilImage2DTripleBuffered wave2d;
 
 glm::vec3 eye = glm::vec3(7.0f, 4.0f, 0.0f);
@@ -200,6 +202,8 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Beta", &WaveData.Beta, 0.1f, 10.0f);
     ImGui::End();
 
+    //Module::sDrawGuiAll();
+
     //End ImGui Frame
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -243,17 +247,17 @@ void display(GLFWwindow* window)
     if (simulate)
     {
         glUseProgram(compute_programs[0]); // Use density and pressure calculation program
-        glDispatchCompute(NUM_WORK_GROUPS, 1, 1);
+        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         glUseProgram(compute_programs[1]); // Use force calculation program
-        glDispatchCompute(NUM_WORK_GROUPS, 1, 1);
+        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         glUseProgram(compute_programs[2]); // Use integration calculation program
-        glDispatchCompute(NUM_WORK_GROUPS, 1, 1);
+        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        glUseProgram(compute_programs[3]); // Use Wave computation program
-        glDispatchCompute(NUM_WORK_GROUPS, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        //glUseProgram(compute_programs[3]); // Use Wave computation program
+        //glDispatchCompute(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1);
+        //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
 
     // Draw Particles
@@ -265,7 +269,9 @@ void display(GLFWwindow* window)
     if (drawSurface)
     {
         glUseProgram(wave_shader_program); // Use wave shader program
+        wave2d.GetReadImage(0).BindTextureUnit();
         glBindVertexArray(strip_surf.vao);
+        glm::ivec3 size = wave2d.GetReadImage(0).GetSize();
         strip_surf.Draw();
     }
     
@@ -297,6 +303,8 @@ void idle()
     //Pass time_sec value to the shaders
     glProgramUniform1f(particle_shader_program, UniformLocs::time, time_sec);
     glProgramUniform1f(wave_shader_program, UniformLocs::time, time_sec);
+
+    Module::sComputeAll();
 }
 
 void reload_shader()
@@ -323,11 +331,12 @@ void reload_shader()
         compute_programs[2] = compute_shader_handle;
     }
 
-    compute_shader_handle = InitShader(wave_comp_shader.c_str());
+    /*compute_shader_handle = InitShader(wave_comp_shader.c_str());
     if (compute_shader_handle != -1)
     {
         compute_programs[3] = compute_shader_handle;
-    }
+    }*/
+    waveCS.Init();
 
     // Check particle shader program
     if (new_particle_shader == -1) // loading failed
@@ -393,18 +402,24 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
             break;
         }
     }
+
+    Module::sKeyboardAll(key, scancode, action, mods);
 }
 
 //This function gets called when the mouse moves over the window.
 void mouse_cursor(GLFWwindow* window, double x, double y)
 {
     //std::cout << "cursor pos: " << x << ", " << y << std::endl;
+    Module::sMouseCursorAll(glm::vec2(x, y));
 }
 
 //This function gets called when a mouse button is pressed.
 void mouse_button(GLFWwindow* window, int button, int action, int mods)
 {
     //std::cout << "button : "<< button << ", action: " << action << ", mods: " << mods << std::endl;
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    Module::sMouseButtonAll(button, action, mods, glm::vec2(x, y));
 }
 
 void resize(GLFWwindow* window, int width, int height)
@@ -501,6 +516,11 @@ void initOpenGL()
 
     reload_shader();
 
+    waveCS.SetMaxWorkGroupSize(glm::ivec3(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1));
+    waveCS.Init();
+
+    wave2d.SetShader(waveCS);
+
     strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -533,6 +553,8 @@ void initOpenGL()
     glBindBufferBase(GL_UNIFORM_BUFFER, UboBinding::wave, wave_ubo); //Associate this uniform buffer with the uniform block in the shader that has the same binding.
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    Module::sInitAll();
 }
 
 //C++ programs start executing in the main() function.
