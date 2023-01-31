@@ -1,4 +1,4 @@
-#version 440
+#version 450
 
 #define WAVE_RES 512
 #define PARTICLE_RADIUS 0.005f
