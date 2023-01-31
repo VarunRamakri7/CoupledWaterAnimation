@@ -17,7 +17,7 @@ layout(location = 3) uniform int uMode;
 const int MODE_INIT = 0;
 const int MODE_INIT_FROM_TEXTURE = 1;
 const int MODE_EVOLVE = 2;
-const int MODE_TEST = 3;
+const int MODE_TEST = 10;
 
 struct Particle
 {

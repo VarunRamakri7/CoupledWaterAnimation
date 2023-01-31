@@ -26,6 +26,7 @@ struct StencilImage2DTripleBuffered :public Module
    const int MODE_INIT = 0;
    const int MODE_INIT_FROM_TEXTURE = 1;
    const int MODE_EVOLVE = 2;
+   const int MODE_TEST = 10;
 
    const int INIT_TEXTURE_UNIT = 3;
 
