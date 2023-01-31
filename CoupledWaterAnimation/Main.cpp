@@ -206,7 +206,7 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Beta", &WaveData.Beta, 0.1f, 10.0f);
     ImGui::End();
 
-    //Module::sDrawGuiAll();
+    Module::sDrawGuiAll();
 
     //End ImGui Frame
     ImGui::Render();
@@ -308,7 +308,6 @@ void idle()
         
         Module::sComputeAll();
     }
-
 }
 
 void reload_shader()
@@ -520,6 +519,7 @@ void initOpenGL()
 
     reload_shader();
 
+    waveCS.SetGridSize(glm::ivec3(WAVE_RES));
     waveCS.SetMaxWorkGroupSize(glm::ivec3(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1));
     wave2d.SetShader(waveCS);
 
