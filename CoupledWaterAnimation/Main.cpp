@@ -73,7 +73,9 @@ float wave_scale = 0.047f;
 float aspect = 1.0f;
 bool recording = false;
 bool simulate = false;
+
 bool drawSurface = true;
+bool drawParticles = true;
 
 enum WaveMode
 {
@@ -187,6 +189,7 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat3("Camera Eye", &eye[0], -10.0f, 10.0f);
     ImGui::SliderFloat3("Camera Center", &center[0], -10.0f, 10.0f);
     ImGui::Checkbox("Draw Wave Surface", &drawSurface);
+    ImGui::Checkbox("Draw Particles", &drawParticles);
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
@@ -262,9 +265,12 @@ void display(GLFWwindow* window)
     }
 
     // Draw Particles
-    glUseProgram(particle_shader_program);
-    glBindVertexArray(particle_position_vao);
-    glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
+    if (drawParticles)
+    {
+        glUseProgram(particle_shader_program);
+        glBindVertexArray(particle_position_vao);
+        glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
+    }
 
     // Draw wave surface
     if (drawSurface)
