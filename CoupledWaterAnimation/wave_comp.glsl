@@ -79,7 +79,9 @@ void main()
 	ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 size = imageSize(uOutputImage);
 
-	if(any(greaterThanEqual(gid.xy, size))) return;
+	waves[gid.x].pos = vec4(Lambda, Atten, Beta, 0.0f);
+
+	/*if(any(greaterThanEqual(gid.xy, size))) return;
 
 	switch(mode)
 	{
@@ -94,7 +96,7 @@ void main()
 		case MODE_EVOLVE:
 			EvolveWave(gid, size);
 		break;
-	}
+	}*/
 }
 
 void InitFromImage(ivec2 coord)
