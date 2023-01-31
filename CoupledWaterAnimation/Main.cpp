@@ -81,8 +81,7 @@ enum WaveMode
 {
     INIT,
     INIT_FROM_TEX,
-    EVOLVE,
-    TEST
+    EVOLVE
 };
 int waveMode = INIT;
 
@@ -246,23 +245,6 @@ void display(GLFWwindow* window)
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0); //unbind the ubo
 
-    // Use compute shader
-    if (simulate)
-    {
-        glUseProgram(compute_programs[0]); // Use density and pressure calculation program
-        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        glUseProgram(compute_programs[1]); // Use force calculation program
-        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        glUseProgram(compute_programs[2]); // Use integration calculation program
-        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        //glUseProgram(compute_programs[3]); // Use Wave computation program
-        //glDispatchCompute(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1);
-        //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    }
-
     // Draw Particles
     if (drawParticles)
     {
@@ -275,7 +257,6 @@ void display(GLFWwindow* window)
     if (drawSurface)
     {
         glUseProgram(wave_shader_program); // Use wave shader program
-        waveCS.SetMode(TEST); // Set mode as Test
         wave2d.GetReadImage(0).BindTextureUnit();
         glm::ivec3 size = wave2d.GetReadImage(0).GetSize();
         glBindVertexArray(strip_surf.vao);
@@ -309,7 +290,25 @@ void idle()
     glProgramUniform1f(particle_shader_program, UniformLocs::time, time_sec);
     glProgramUniform1f(wave_shader_program, UniformLocs::time, time_sec);
 
-    Module::sComputeAll();
+    // Dispatch compute shaders
+    if (simulate)
+    {
+        glUseProgram(compute_programs[0]); // Use density and pressure calculation program
+        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glUseProgram(compute_programs[1]); // Use force calculation program
+        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glUseProgram(compute_programs[2]); // Use integration calculation program
+        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        //glUseProgram(compute_programs[3]); // Use Wave computation program
+        //glDispatchCompute(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1);
+        //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        
+        Module::sComputeAll();
+    }
+
 }
 
 void reload_shader()
@@ -522,8 +521,6 @@ void initOpenGL()
     reload_shader();
 
     waveCS.SetMaxWorkGroupSize(glm::ivec3(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1));
-    waveCS.Init();
-
     wave2d.SetShader(waveCS);
 
     strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
