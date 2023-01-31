@@ -276,6 +276,7 @@ void display(GLFWwindow* window)
     if (drawSurface)
     {
         glUseProgram(wave_shader_program); // Use wave shader program
+        wave2d.GetReadImage(0).BindTextureUnit();
         glm::ivec3 size = wave2d.GetReadImage(0).GetSize();
         glBindVertexArray(strip_surf.vao);
         strip_surf.Draw();
