@@ -97,7 +97,7 @@ void StencilImage2DTripleBuffered::Compute()
 void StencilImage2DTripleBuffered::DrawGui()
 {
    ImGui::Begin(pShader->GetName().c_str());
-   if (ImGui::Button("Reinit"))
+   /*if (ImGui::Button("Reinit"))
    {
       Reinit();
    }
@@ -120,7 +120,11 @@ void StencilImage2DTripleBuffered::DrawGui()
          pShader->SetGridSize(new_size);
          mGridSize = glm::ivec2(new_size);
       }
-   }
+   }*/
+
+   ImGui::Image((void*)mImage[0].GetTexture(), ImVec2(mImage[0].GetSize().x, mImage[0].GetSize().y), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+   ImGui::Image((void*)mImage[1].GetTexture(), ImVec2(mImage[1].GetSize().x, mImage[1].GetSize().y), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+   ImGui::Image((void*)mImage[2].GetTexture(), ImVec2(mImage[2].GetSize().x, mImage[2].GetSize().y), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 
    ImGui::End();
 }

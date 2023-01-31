@@ -90,6 +90,11 @@ void ImageTexture::Resize(glm::ivec3 size)
    }
 }
 
+GLuint ImageTexture::GetTexture()
+{
+    return mTexture;
+}
+
 #include <algorithm>
 
 void SwapUnits(ImageTexture& i0, ImageTexture& i1)

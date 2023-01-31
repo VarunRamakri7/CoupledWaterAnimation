@@ -27,6 +27,7 @@ class ImageTexture
       void SetSize(glm::ivec3 size);
       glm::ivec3 GetSize() {return mSize;}
       void Resize(glm::ivec3 size);
+      GLuint GetTexture();
 
    private:
       GLuint mTexture = -1;
