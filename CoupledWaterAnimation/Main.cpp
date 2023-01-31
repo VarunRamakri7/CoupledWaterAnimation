@@ -67,6 +67,7 @@ StencilImage2DTripleBuffered wave2d;
 glm::vec3 eye = glm::vec3(7.0f, 4.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
 float angle = 0.75f;
+//float wave_angle = 0.75f;
 float particle_scale = 5.0f;
 float wave_scale = 0.047f;
 float aspect = 1.0f;
@@ -147,8 +148,6 @@ void draw_gui(GLFWwindow* window)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    //UniformGui(shader_program);
-
     //Draw Gui
     ImGui::Begin("Debug window");
     if (ImGui::Button("Quit"))
@@ -182,7 +181,9 @@ void draw_gui(GLFWwindow* window)
 
     ImGui::SliderFloat("View angle", &angle, -glm::pi<float>(), +glm::pi<float>());
     ImGui::SliderFloat("Particle Scale", &particle_scale, 0.0001f, 20.0f);
+    //ImGui::SliderFloat("Particle Angle", &angle, 0.0f, 180.0f);
     ImGui::SliderFloat("Wave Scale", &wave_scale, 0.0001f, 1.0f);
+    //ImGui::SliderFloat("Wave Angle", &wave_angle, 0.0f, 180.0f);
     ImGui::SliderFloat3("Camera Eye", &eye[0], -10.0f, 10.0f);
     ImGui::SliderFloat3("Camera Center", &center[0], -10.0f, 10.0f);
     ImGui::Checkbox("Draw Wave Surface", &drawSurface);
@@ -269,9 +270,8 @@ void display(GLFWwindow* window)
     if (drawSurface)
     {
         glUseProgram(wave_shader_program); // Use wave shader program
-        wave2d.GetReadImage(0).BindTextureUnit();
-        glBindVertexArray(strip_surf.vao);
         glm::ivec3 size = wave2d.GetReadImage(0).GetSize();
+        glBindVertexArray(strip_surf.vao);
         strip_surf.Draw();
     }
     
@@ -295,8 +295,6 @@ void display(GLFWwindow* window)
 
 void idle()
 {
-    //time_sec = static_cast<float>(glfwGetTime());
-
     static float time_sec = 0.0f;
     time_sec += 1.0f / 60.0f;
 
@@ -522,8 +520,8 @@ void initOpenGL()
     wave2d.SetShader(waveCS);
 
     strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
-
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     glPointSize(5.0f);
 
     //Create and initialize uniform buffers
