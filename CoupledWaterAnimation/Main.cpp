@@ -81,7 +81,8 @@ enum WaveMode
 {
     INIT,
     INIT_FROM_TEX,
-    EVOLVE
+    EVOLVE,
+    TEST
 };
 int waveMode = INIT;
 
@@ -245,8 +246,6 @@ void display(GLFWwindow* window)
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0); //unbind the ubo
 
-    //glUniform1i(UniformLocs::mode, INIT); // Set Wave Mood
-
     // Use compute shader
     if (simulate)
     {
@@ -276,6 +275,7 @@ void display(GLFWwindow* window)
     if (drawSurface)
     {
         glUseProgram(wave_shader_program); // Use wave shader program
+        waveCS.SetMode(TEST); // Set mode as Test
         wave2d.GetReadImage(0).BindTextureUnit();
         glm::ivec3 size = wave2d.GetReadImage(0).GetSize();
         glBindVertexArray(strip_surf.vao);

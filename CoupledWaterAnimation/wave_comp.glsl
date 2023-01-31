@@ -12,11 +12,12 @@ layout(rgba32f, binding = 2) writeonly restrict uniform image2D uOutputImage; //
 layout (binding = 3) uniform sampler2D uInitImage;
 
 layout(location = 1) uniform float time;
-layout(location = 3) uniform int mode;
+layout(location = 3) uniform int uMode;
 
 const int MODE_INIT = 0;
 const int MODE_INIT_FROM_TEXTURE = 1;
 const int MODE_EVOLVE = 2;
+const int MODE_TEST = 3;
 
 struct Particle
 {
@@ -79,11 +80,9 @@ void main()
 	ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 size = imageSize(uOutputImage);
 
-	waves[gid.x].pos = vec4(Lambda, Atten, Beta, 0.0f);
+	if(any(greaterThanEqual(gid.xy, size))) return;
 
-	/*if(any(greaterThanEqual(gid.xy, size))) return;
-
-	switch(mode)
+	switch(uMode)
 	{
 		case MODE_INIT:
 			InitWave(gid);
@@ -96,7 +95,10 @@ void main()
 		case MODE_EVOLVE:
 			EvolveWave(gid, size);
 		break;
-	}*/
+		case MODE_TEST:
+			waves[gid.x].pos = vec4(Lambda, Atten, Beta, 0.0f);
+			break;
+	}
 }
 
 void InitFromImage(ivec2 coord)
