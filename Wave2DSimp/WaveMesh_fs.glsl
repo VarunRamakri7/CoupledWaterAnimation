@@ -16,23 +16,3 @@ void main(void)
 	fragcolor = vec4(mix(color1, color0, v.x));
 	//fragcolor = vec4(1.0);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
