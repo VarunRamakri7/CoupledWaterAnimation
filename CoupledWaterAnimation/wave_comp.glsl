@@ -100,8 +100,7 @@ void main()
 			// Iterate through wave vertices
 			for(int i = 0; i < waves.length(); i++)
 			{
-				//waves[i].pos = vec4(Lambda, Atten, Beta, 0.0f);
-				waves[i].pos.y = attributes[2];
+				waves[i].pos.y = attributes.z;
 			}
 			break;
 	}
