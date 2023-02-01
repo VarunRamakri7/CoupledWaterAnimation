@@ -116,9 +116,10 @@ struct BoundaryUniform
 
 struct WaveUniforms
 {
-    float Lambda = 0.01f;
-    float Atten = 0.9995f;
-    float Beta = 0.001f;
+    glm::vec4 attributes = glm::vec4(0.01f, 0.995f, 0.001f, 0.0f);
+    //float Lambda = 0.01f;
+    //float Atten = 0.9995f;
+    //float Beta = 0.001f;
 
 } WaveData;
 
@@ -201,9 +202,9 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
     ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
     ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
-    ImGui::SliderFloat("Lamba", &WaveData.Lambda, 0.1f, 10.0f);
-    ImGui::SliderFloat("Attenuation", &WaveData.Atten, 0.1f, 10.0f);
-    ImGui::SliderFloat("Beta", &WaveData.Beta, 0.1f, 10.0f);
+    ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.1f, 10.0f);
+    ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.1f, 10.0f);
+    ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.1f, 10.0f);
     ImGui::End();
 
     Module::sDrawGuiAll();

@@ -52,9 +52,10 @@ layout(std140, binding = 2) uniform BoundaryUniform
 
 layout(std140, binding = 3) uniform WaveUniforms
 {
-   float Lambda;
-   float Atten;
-   float Beta;   
+	vec4 attributes; // Lambda, Attenuation, Beta
+   //float Lambda;
+   //float Atten;
+   //float Beta;   
 };
 
 const float dt = 0.0001f; // Time step
@@ -100,7 +101,7 @@ void main()
 			for(int i = 0; i < waves.length(); i++)
 			{
 				//waves[i].pos = vec4(Lambda, Atten, Beta, 0.0f);
-				waves[i].pos.z = Beta;
+				waves[i].pos.y = attributes[2];
 			}
 			break;
 	}
@@ -127,8 +128,10 @@ void InitWave(ivec2 coord)
 void EvolveWave(ivec2 coord, ivec2 size)
 {
 	neighborhood n = get_clamp(coord);
-	vec4 w = (2.0 - 4.0 * Lambda - Beta) * n.c0 + Lambda * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0 - Beta) * n.c1;
-	w = Atten*w;
+	vec4 w = (2.0 - 4.0 * attributes[0] - attributes[2]) * n.c0 + attributes[0] * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0 - attributes[2]) * n.c1;
+	w = attributes[1] * w;
+	//vec4 w = (2.0 - 4.0 * Lambda - Beta) * n.c0 + Lambda * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0 - Beta) * n.c1;
+	//w = Atten*w;
     imageStore(uOutputImage, coord, w);
 }
 
