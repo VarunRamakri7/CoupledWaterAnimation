@@ -207,7 +207,7 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.1f, 10.0f);
     ImGui::End();
 
-    Module::sDrawGuiAll();
+    //Module::sDrawGuiAll();
 
     //End ImGui Frame
     ImGui::Render();
