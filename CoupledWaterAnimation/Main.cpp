@@ -440,7 +440,7 @@ std::vector<glm::vec4> make_cube()
 {
     std::vector<glm::vec4> positions;
 
-    // 20x20x20 Cube of particles within [0, 0.095] on all axes
+    // 10x100x10 Cube of particles within [0, 0.05] on XZ and [0, 0.5] on Y
     for (int i = 0; i < 10; i++)
     {
         for (int j = 0; j < 100; j++)
@@ -520,7 +520,6 @@ void initOpenGL()
 
     reload_shader();
 
-    waveCS.SetGridSize(glm::ivec3(WAVE_RES));
     waveCS.SetMaxWorkGroupSize(glm::ivec3(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1));
     wave2d.SetShader(waveCS);
 
@@ -528,6 +527,8 @@ void initOpenGL()
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     glPointSize(5.0f);
+
+    Module::sInitAll();
 
     //Create and initialize uniform buffers
 
@@ -557,7 +558,6 @@ void initOpenGL()
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    Module::sInitAll();
 }
 
 //C++ programs start executing in the main() function.
