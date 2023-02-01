@@ -9,9 +9,9 @@ layout(std140, binding = 0) uniform SceneUniforms
    vec4 eye_w;	//world-space eye position
 };
 
-layout(location = 0) in vec3 pos_attrib; //this variable holds the position of mesh vertices
-layout(location = 1) in vec2 tex_coord_attrib;
-layout(location = 2) in vec3 normal_attrib;
+layout(location = 0) in vec4 pos_attrib; //this variable holds the position of mesh vertices
+layout(location = 1) in vec4 tex_coord_attrib;
+layout(location = 2) in vec4 normal_attrib;
 layout(location = 3) in vec3 color_attrib;
 layout(location = 4) in mat4 offset_attrib;
 
@@ -25,12 +25,12 @@ out VertexData
 
 void main(void)
 {
-	gl_Position = PV * M * offset_attrib * vec4(pos_attrib, 1.0); //transform vertices and send result into pipeline
+	gl_Position = PV * M * offset_attrib * vec4(pos_attrib.xyz, 1.0); //transform vertices and send result into pipeline
 	
 	//Use dot notation to access members of the interface block
-	outData.tex_coord = tex_coord_attrib;           //send tex_coord to fragment shader
-	outData.pw = vec3(M * vec4(pos_attrib, 1.0));		//world-space vertex position
-	outData.nw = vec3(M * vec4(normal_attrib, 0.0));	//world-space normal vector
+	outData.tex_coord = tex_coord_attrib.xy;           //send tex_coord to fragment shader
+	outData.pw = vec3(M * vec4(pos_attrib.xyz, 1.0));		//world-space vertex position
+	outData.nw = vec3(M * vec4(normal_attrib.xyz, 0.0));	//world-space normal vector
 	outData.color = color_attrib;
 }
 

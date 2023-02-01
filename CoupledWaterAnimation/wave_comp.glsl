@@ -96,7 +96,12 @@ void main()
 			EvolveWave(gid, size);
 		break;
 		case MODE_TEST:
-			waves[gid.x].pos = vec4(Lambda, Atten, Beta, 0.0f);
+			// Iterate through wave vertices
+			for(int i = 0; i < waves.length(); i++)
+			{
+				//waves[i].pos = vec4(Lambda, Atten, Beta, 0.0f);
+				waves[i].pos.z = Beta;
+			}
 			break;
 	}
 }
