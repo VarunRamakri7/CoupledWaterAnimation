@@ -30,7 +30,7 @@ void main(void)
 	vec4 pos = vec4(pos_attrib.xyz, 1.0);
 
 	float height = textureLod(diffuse_tex, tex_coord_attrib.xy, 0.0).r;
-	pos.y = 4.0 * height;
+	pos.y = 50.0 * height;
 
 	gl_Position = PV * M * offset_attrib * pos; //transform vertices and send result into pipeline
 
