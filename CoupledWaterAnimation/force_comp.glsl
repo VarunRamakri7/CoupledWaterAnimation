@@ -20,7 +20,7 @@ struct Particle
 struct Wave
 {
     vec4 pos;
-    vec4 tex_coords;
+    vec4 tex_coords; // XY - UV, ZW - Grid coordinate
     vec4 normals;
 };
 

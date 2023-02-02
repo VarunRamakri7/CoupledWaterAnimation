@@ -30,7 +30,7 @@ struct Particle
 struct Wave
 {
     vec4 pos;
-    vec4 tex_coords;
+    vec4 tex_coords; // XY - UV, ZW - Grid coordinate
     vec4 normals;
 };
 
@@ -110,6 +110,14 @@ void InitFromImage(ivec2 coord)
 {
 	vec4 vout = texelFetch(uInitImage, coord, 0);
 	imageStore(uOutputImage, coord, vout);
+
+	/*for(int i = 0; i < waves.length(); i++)
+	{
+		if(ivec2(waves[i].tex_coords.zw) == coord)
+		{
+			waves[i].pos = vout;
+		}
+	}*/
 }
 
 void InitWave(ivec2 coord)
@@ -122,6 +130,14 @@ void InitWave(ivec2 coord)
 	float d = min(distance(coord, cen0), distance(coord, cen1));
 	vout.x = 0.5*smoothstep(3.0, 0.0, d);
 	imageStore(uOutputImage, coord, vout);
+
+	/*for(int i = 0; i < waves.length(); i++)
+	{
+		if(ivec2(waves[i].tex_coords.zw) == coord)
+		{
+			waves[i].pos = vout;
+		}
+	}*/
 }
 
 void EvolveWave(ivec2 coord, ivec2 size)
@@ -132,6 +148,14 @@ void EvolveWave(ivec2 coord, ivec2 size)
 	//vec4 w = (2.0 - 4.0 * Lambda - Beta) * n.c0 + Lambda * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0 - Beta) * n.c1;
 	//w = Atten*w;
     imageStore(uOutputImage, coord, w);
+
+	/*for(int i = 0; i < waves.length(); i++)
+	{
+		if(ivec2(waves[i].tex_coords.zw) == coord)
+		{
+			waves[i].pos = w;
+		}
+	}*/
 }
 
 ivec2 clamp_coord(ivec2 coord)
