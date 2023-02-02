@@ -111,7 +111,7 @@ struct ConstantsUniform
 struct BoundaryUniform
 {
     glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 1.0f);
-    glm::vec4 lower = glm::vec4(-0.001f, -0.13f, -0.001f, 1.0f);
+    glm::vec4 lower = glm::vec4(0.0f, -0.13f, 0.0f, 1.0f);
 }BoundaryData;
 
 struct WaveUniforms
@@ -437,14 +437,16 @@ std::vector<glm::vec4> make_cube()
 {
     std::vector<glm::vec4> positions;
 
-    // 10x100x10 Cube of particles within [0, 0.05] on XZ and [0, 0.5] on Y
-    for (int i = 0; i < 10; i++)
+    const float spacing = ConstantsData.smoothing_coeff * 0.5f * PARTICLE_RADIUS;
+
+    // 25x16x25 Cube of particles within [0, 0.25] on XZ and [0, 0.16] on Y
+    for (int i = 0; i < 25; i++)
     {
-        for (int j = 0; j < 100; j++)
+        for (int j = 0; j < 16; j++)
         {
-            for (int k = 0; k < 10; k++)
+            for (int k = 0; k < 25; k++)
             {
-                positions.push_back(glm::vec4((float)i * PARTICLE_RADIUS, (float)j * PARTICLE_RADIUS, (float)k * PARTICLE_RADIUS, 1.0f));
+                positions.push_back(glm::vec4(i * spacing, j * spacing, k * spacing, 1.0f));
             }
         }
     }
