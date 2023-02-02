@@ -18,14 +18,17 @@
 #include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
 #include "VideoMux.h"      //Functions for saving videos
 #include "Surf.h"
+#include "StencilImage2DTripleBuffered.h"
+#include "DebugCallback.h"
 
 #define RESTART_INDEX 65535
-#define PLANE_RES 128
+#define WAVE_RES 512
 
 #define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
-#define NUM_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
+#define PART_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
+#define WAVE_WORK_GROUPS 32 // Work group size for wave compute shader
 
 enum PASS
 {
@@ -37,27 +40,50 @@ const int init_window_width = 720;
 const int init_window_height = 720;
 const char* const window_title = "Coupled Water Animation";
 
-// Shaders
-static const std::string vertex_shader("water-anim_vs.glsl");
-static const std::string fragment_shader("water-anim_fs.glsl");
+// Vertex and Fragment Shaders
+static const std::string particle_vs("water-anim_vs.glsl");
+static const std::string particle_fs("water-anim_fs.glsl");
+static const std::string wave_vs("wave_vs.glsl");
+static const std::string wave_fs("wave_fs.glsl");
+
+// Compute Shaders
 static const std::string rho_pres_com_shader("rho_pres_comp.glsl");
 static const std::string force_comp_shader("force_comp.glsl");
 static const std::string integrate_comp_shader("integrate_comp.glsl");
+//static const std::string wave_comp_shader("wave_comp.glsl");
 
-GLuint shader_program = -1;
-GLuint compute_programs[3] = { -1, -1, -1 };
+// Shader programs
+GLuint particle_shader_program = -1;
+GLuint wave_shader_program = -1;
+GLuint compute_programs[3] = { -1, -1, -1 };// , -1 };
+
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
 
-//indexed_surf_vao strip_surf;
+indexed_surf_vao strip_surf;
+ComputeShader waveCS("wave_comp.glsl");
+StencilImage2DTripleBuffered wave2d;
 
-glm::vec3 eye = glm::vec3(10.0f, 2.0f, 0.0f);
+glm::vec3 eye = glm::vec3(7.0f, 4.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
 float angle = 0.75f;
-float scale = 5.0f;
+//float wave_angle = 0.75f;
+float particle_scale = 5.0f;
+float wave_scale = 0.047f;
 float aspect = 1.0f;
 bool recording = false;
 bool simulate = false;
+
+bool drawSurface = true;
+bool drawParticles = true;
+
+enum WaveMode
+{
+    INIT,
+    INIT_FROM_TEX,
+    EVOLVE
+};
+int waveMode = INIT;
 
 struct Particle
 {
@@ -84,26 +110,34 @@ struct ConstantsUniform
 
 struct BoundaryUniform
 {
-    glm::vec4 upper = glm::vec4(0.5f, 1.0f, 0.5f, 1.0f);
-    glm::vec4 lower = glm::vec4(-0.1f, -0.35f, -0.1f, 1.0f);
+    glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 1.0f);
+    glm::vec4 lower = glm::vec4(-0.001f, -0.13f, -0.001f, 1.0f);
 }BoundaryData;
+
+struct WaveUniforms
+{
+    glm::vec4 attributes = glm::vec4(0.01f, 0.995f, 0.001f, 0.0f); // Lambda, Attenuation, Beta
+} WaveData;
 
 GLuint scene_ubo = -1;
 GLuint constants_ubo = -1;
 GLuint boundary_ubo = -1;
+GLuint wave_ubo = -1;
 namespace UboBinding
 {
     int scene = 0;
     int constants = 1;
     int boundary = 2;
+    int wave = 3;
 }
 
 //Locations for the uniforms which are not in uniform blocks
 namespace UniformLocs
 {
-    int M = 0; //model matrix
+    int M = 0; // model matrix
     int time = 1;
     int pass = 2;
+    int mode = 3; // Wave Mode
 }
 
 void draw_gui(GLFWwindow* window)
@@ -112,8 +146,6 @@ void draw_gui(GLFWwindow* window)
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-
-    //UniformGui(shader_program);
 
     //Draw Gui
     ImGui::Begin("Debug window");
@@ -147,9 +179,14 @@ void draw_gui(GLFWwindow* window)
     }
 
     ImGui::SliderFloat("View angle", &angle, -glm::pi<float>(), +glm::pi<float>());
-    ImGui::SliderFloat("Scale", &scale, 0.0001f, 20.0f);
+    ImGui::SliderFloat("Particle Scale", &particle_scale, 0.0001f, 20.0f);
+    //ImGui::SliderFloat("Particle Angle", &angle, 0.0f, 180.0f);
+    ImGui::SliderFloat("Wave Scale", &wave_scale, 0.0001f, 1.0f);
+    //ImGui::SliderFloat("Wave Angle", &wave_angle, 0.0f, 180.0f);
     ImGui::SliderFloat3("Camera Eye", &eye[0], -10.0f, 10.0f);
     ImGui::SliderFloat3("Camera Center", &center[0], -10.0f, 10.0f);
+    ImGui::Checkbox("Draw Wave Surface", &drawSurface);
+    ImGui::Checkbox("Draw Particles", &drawParticles);
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
@@ -161,7 +198,12 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
     ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
     ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
+    ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.1f, 0.45f);
+    ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.1f, 1.0f);
+    ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.1f, 1.0f);
     ImGui::End();
+
+    Module::sDrawGuiAll();
 
     //End ImGui Frame
     ImGui::Render();
@@ -175,47 +217,50 @@ void display(GLFWwindow* window)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     SceneData.eye_w = glm::vec4(eye, 1.0f);
-    glm::mat4 M = glm::rotate(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(scale));
     glm::mat4 V = glm::lookAt(glm::vec3(SceneData.eye_w), center, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 P = glm::perspective(glm::pi<float>() / 4.0f, 1.0f, 0.1f, 100.0f);
     SceneData.PV = P * V;
 
     //Set uniforms
-    glUniformMatrix4fv(UniformLocs::M, 1, false, glm::value_ptr(M));
+    glm::mat4 M = glm::rotate(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(particle_scale));
+    glProgramUniformMatrix4fv(particle_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set particle Model Matrix
+
+    M = glm::rotate(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(wave_scale));
+    glProgramUniformMatrix4fv(wave_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set Wave Model Matrix
 
     glBindBuffer(GL_UNIFORM_BUFFER, scene_ubo); //Bind the OpenGL UBO before we update the data.
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SceneData), &SceneData); //Upload the new uniform values.
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SceneUniforms), &SceneData); //Upload the new uniform values.
 
     glBindBuffer(GL_UNIFORM_BUFFER, constants_ubo); // Bind the OpenGL UBO before we update the data.
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ConstantsData), &ConstantsData); // Upload the new uniform values.
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ConstantsUniform), &ConstantsData); // Upload the new uniform values.
 
     glBindBuffer(GL_UNIFORM_BUFFER, boundary_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(BoundaryUniform), &BoundaryData); // Upload the new uniform values.
 
+    glBindBuffer(GL_UNIFORM_BUFFER, wave_ubo); // Bind the OpenGL UBO before we update the data.
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(WaveUniforms), &WaveData); // Upload the new uniform values.
+
     glBindBuffer(GL_UNIFORM_BUFFER, 0); //unbind the ubo
 
-    // Use compute shader
-    if (simulate)
+    // Draw Particles
+    if (drawParticles)
     {
-        glUseProgram(compute_programs[0]); // Use density and pressure calculation program
-        glDispatchCompute(NUM_WORK_GROUPS, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        glUseProgram(compute_programs[1]); // Use force calculation program
-        glDispatchCompute(NUM_WORK_GROUPS, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        glUseProgram(compute_programs[2]); // Use integration calculation program
-        glDispatchCompute(NUM_WORK_GROUPS, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glUseProgram(particle_shader_program);
+        glBindVertexArray(particle_position_vao);
+        glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
     }
 
-    glUseProgram(shader_program);
-
-    // TODO: Draw wave surface
-    glUniform1i(UniformLocs::pass, PARTICLES);
-
-    // Draw Paerticles
-    glUniform1i(UniformLocs::pass, PARTICLES);
-    glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
+    // Draw wave surface
+    if (drawSurface)
+    {
+        glUseProgram(wave_shader_program); // Use wave shader program
+        wave2d.GetReadImage(0).BindTextureUnit();
+        glm::ivec3 size = wave2d.GetReadImage(0).GetSize();
+        glBindVertexArray(strip_surf.vao);
+        strip_surf.Draw();
+    }
+    
+    glBindVertexArray(0); // Unbind VAO
 
     if (recording == true)
     {
@@ -235,18 +280,37 @@ void display(GLFWwindow* window)
 
 void idle()
 {
-    //time_sec = static_cast<float>(glfwGetTime());
-
     static float time_sec = 0.0f;
     time_sec += 1.0f / 60.0f;
 
     //Pass time_sec value to the shaders
-    glUniform1f(UniformLocs::time, time_sec);
+    glProgramUniform1f(particle_shader_program, UniformLocs::time, time_sec);
+    glProgramUniform1f(wave_shader_program, UniformLocs::time, time_sec);
+
+    // Dispatch compute shaders
+    if (simulate)
+    {
+        glUseProgram(compute_programs[0]); // Use density and pressure calculation program
+        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glUseProgram(compute_programs[1]); // Use force calculation program
+        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glUseProgram(compute_programs[2]); // Use integration calculation program
+        glDispatchCompute(PART_WORK_GROUPS, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        //glUseProgram(compute_programs[3]); // Use Wave computation program
+        //glDispatchCompute(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1);
+        //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        
+        Module::sComputeAll();
+    }
 }
 
 void reload_shader()
 {
-    GLuint new_shader = InitShader(vertex_shader.c_str(), fragment_shader.c_str());
+    GLuint new_particle_shader = InitShader(particle_vs.c_str(), particle_fs.c_str());
+    GLuint new_wave_shader = InitShader(wave_vs.c_str(), wave_fs.c_str());
 
     // Load compute shaders
     GLuint compute_shader_handle = InitShader(rho_pres_com_shader.c_str());
@@ -267,7 +331,15 @@ void reload_shader()
         compute_programs[2] = compute_shader_handle;
     }
 
-    if (new_shader == -1) // loading failed
+    /*compute_shader_handle = InitShader(wave_comp_shader.c_str());
+    if (compute_shader_handle != -1)
+    {
+        compute_programs[3] = compute_shader_handle;
+    }*/
+    waveCS.Init();
+
+    // Check particle shader program
+    if (new_particle_shader == -1) // loading failed
     {
         glClearColor(1.0f, 0.0f, 1.0f, 0.0f); //change clear color if shader can't be compiled
     }
@@ -275,13 +347,31 @@ void reload_shader()
     {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-        if (shader_program != -1)
+        if (particle_shader_program != -1)
         {
-            glDeleteProgram(shader_program);
+            glDeleteProgram(particle_shader_program);
         }
-        shader_program = new_shader;
+        particle_shader_program = new_particle_shader;
 
-        glLinkProgram(shader_program);
+        glLinkProgram(particle_shader_program);
+    }
+
+    // Check wave shader program
+    if (new_wave_shader == -1)
+    {
+        glClearColor(0.0f, 1.0f, 1.0f, 0.0f); //change clear color if shader can't be compiled
+    }
+    else
+    {
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+        if (wave_shader_program != -1)
+        {
+            glDeleteProgram(wave_shader_program);
+        }
+        wave_shader_program = new_wave_shader;
+
+        glLinkProgram(wave_shader_program);
     }
 }
 
@@ -300,6 +390,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
         case 'R':
             init_particles();
             reload_shader();
+            wave2d.Reinit();
             break;
 
         case 'p':
@@ -312,18 +403,24 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
             break;
         }
     }
+
+    Module::sKeyboardAll(key, scancode, action, mods);
 }
 
 //This function gets called when the mouse moves over the window.
 void mouse_cursor(GLFWwindow* window, double x, double y)
 {
     //std::cout << "cursor pos: " << x << ", " << y << std::endl;
+    Module::sMouseCursorAll(glm::vec2(x, y));
 }
 
 //This function gets called when a mouse button is pressed.
 void mouse_button(GLFWwindow* window, int button, int action, int mods)
 {
     //std::cout << "button : "<< button << ", action: " << action << ", mods: " << mods << std::endl;
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    Module::sMouseButtonAll(button, action, mods, glm::vec2(x, y));
 }
 
 void resize(GLFWwindow* window, int width, int height)
@@ -340,7 +437,7 @@ std::vector<glm::vec4> make_cube()
 {
     std::vector<glm::vec4> positions;
 
-    // 20x20x20 Cube of particles within [0, 0.095] on all axes
+    // 10x100x10 Cube of particles within [0, 0.05] on XZ and [0, 0.5] on Y
     for (int i = 0; i < 10; i++)
     {
         for (int j = 0; j < 100; j++)
@@ -388,14 +485,16 @@ void init_particles()
     glEnableVertexAttribArray(0); // Enable attribute with location = 0 (vertex position) for VAO
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind SSBO
+    glBindVertexArray(0); // Unbind VAO
 }
 
-#define BUFFER_OFFSET(offset)   ((GLvoid*) (offset))
+#define BUFFER_OFFSET(offset) ((GLvoid*) (offset))
 
 //Initialize OpenGL state. This function only gets called once.
 void initOpenGL()
 {
     glewInit();
+    RegisterDebugCallback();
 
     int max_work_groups = -1;
     glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max_work_groups);
@@ -418,7 +517,15 @@ void initOpenGL()
 
     reload_shader();
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    waveCS.SetMaxWorkGroupSize(glm::ivec3(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1));
+    wave2d.SetShader(waveCS);
+
+    strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    glPointSize(5.0f);
+
+    Module::sInitAll();
 
     //Create and initialize uniform buffers
 
@@ -434,12 +541,20 @@ void initOpenGL()
     glBufferData(GL_UNIFORM_BUFFER, sizeof(ConstantsUniform), nullptr, GL_STREAM_DRAW); //Allocate memory for the buffer, but don't copy (since pointer is null).
     glBindBufferBase(GL_UNIFORM_BUFFER, UboBinding::constants, constants_ubo); //Associate this uniform buffer with the uniform block in the shader that has the same binding.
 
+    // For BoundaryUniform
     glGenBuffers(1, &boundary_ubo);
     glBindBuffer(GL_UNIFORM_BUFFER, boundary_ubo);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(BoundaryUniform), nullptr, GL_STREAM_DRAW); //Allocate memory for the buffer, but don't copy (since pointer is null).
     glBindBufferBase(GL_UNIFORM_BUFFER, UboBinding::boundary, boundary_ubo); //Associate this uniform buffer with the uniform block in the shader that has the same binding.
 
+    // For WaveUniforms
+    glGenBuffers(1, &wave_ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, wave_ubo);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(WaveUniforms), nullptr, GL_STREAM_DRAW); //Allocate memory for the buffer, but don't copy (since pointer is null).
+    glBindBufferBase(GL_UNIFORM_BUFFER, UboBinding::wave, wave_ubo); //Associate this uniform buffer with the uniform block in the shader that has the same binding.
+
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 }
 
 //C++ programs start executing in the main() function.
