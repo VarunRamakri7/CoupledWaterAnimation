@@ -1,7 +1,7 @@
 #version 440
 
 #define WORK_GROUP_SIZE 1024
-#define NUM_PARTICLES 10000
+#define NUM_PARTICLES 5000
 #define PARTICLE_RADIUS 0.005f
 
 // For calculations
@@ -42,7 +42,7 @@ layout(std140, binding = 2) uniform BoundaryUniform
     vec4 lower; // Lower bounds of particle area
 };
 
-const float dt = 0.00008f; //1.0f / NUM_PARTICLES; // Time step
+const float dt = 0.00008f; // Time step
 
 void main()
 {
@@ -91,6 +91,4 @@ void main()
     // Assign calculated values
     particles[i].vel.xyz = new_vel;
     particles[i].pos.xyz = new_pos;
-
-    //waves[i].pos.y = 10.0f;
 }

@@ -24,17 +24,11 @@
 #define RESTART_INDEX 65535
 #define WAVE_RES 512
 
-#define NUM_PARTICLES 10000
+#define NUM_PARTICLES 5000
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
 #define PART_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
-#define WAVE_WORK_GROUPS 32 // Work group size for wave compute shader
-
-enum PASS
-{
-    PARTICLES,
-    WAVE
-};
+#define MAX_WAVE_WORK_GROUPS 32 // Work group size for wave compute shader
 
 const int init_window_width = 720;
 const int init_window_height = 720;
@@ -50,12 +44,11 @@ static const std::string wave_fs("wave_fs.glsl");
 static const std::string rho_pres_com_shader("rho_pres_comp.glsl");
 static const std::string force_comp_shader("force_comp.glsl");
 static const std::string integrate_comp_shader("integrate_comp.glsl");
-//static const std::string wave_comp_shader("wave_comp.glsl");
 
 // Shader programs
 GLuint particle_shader_program = -1;
 GLuint wave_shader_program = -1;
-GLuint compute_programs[3] = { -1, -1, -1 };// , -1 };
+GLuint compute_programs[3] = { -1, -1, -1 };
 
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
@@ -111,7 +104,7 @@ struct ConstantsUniform
 struct BoundaryUniform
 {
     glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 1.0f);
-    glm::vec4 lower = glm::vec4(0.0f, -0.13f, 0.0f, 1.0f);
+    glm::vec4 lower = glm::vec4(0.0f, -0.015f, 0.0f, 1.0f);
 }BoundaryData;
 
 struct WaveUniforms
@@ -299,9 +292,6 @@ void idle()
         glUseProgram(compute_programs[2]); // Use integration calculation program
         glDispatchCompute(PART_WORK_GROUPS, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        //glUseProgram(compute_programs[3]); // Use Wave computation program
-        //glDispatchCompute(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1);
-        //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         
         Module::sComputeAll();
     }
@@ -437,12 +427,12 @@ std::vector<glm::vec4> make_cube()
 {
     std::vector<glm::vec4> positions;
 
-    const float spacing = ConstantsData.smoothing_coeff * 0.5f * PARTICLE_RADIUS;
+    const float spacing = ConstantsData.smoothing_coeff * PARTICLE_RADIUS;
 
     // 25x16x25 Cube of particles within [0, 0.25] on XZ and [0, 0.16] on Y
     for (int i = 0; i < 25; i++)
     {
-        for (int j = 0; j < 16; j++)
+        for (int j = 0; j < 8; j++)
         {
             for (int k = 0; k < 25; k++)
             {
@@ -519,7 +509,7 @@ void initOpenGL()
 
     reload_shader();
 
-    waveCS.SetMaxWorkGroupSize(glm::ivec3(WAVE_WORK_GROUPS, WAVE_WORK_GROUPS, 1));
+    waveCS.SetMaxWorkGroupSize(glm::ivec3(MAX_WAVE_WORK_GROUPS, MAX_WAVE_WORK_GROUPS, 1));
     wave2d.SetShader(waveCS);
 
     strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
