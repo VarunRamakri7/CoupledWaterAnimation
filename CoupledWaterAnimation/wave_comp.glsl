@@ -97,11 +97,6 @@ void main()
 			EvolveWave(gid, size);
 		break;
 		case MODE_TEST:
-			// Iterate through wave vertices
-			for(int i = 0; i < waves.length(); i++)
-			{
-				waves[i].pos.y = attributes.z;
-			}
 			break;
 	}
 }
