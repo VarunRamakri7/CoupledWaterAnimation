@@ -111,16 +111,12 @@ struct ConstantsUniform
 struct BoundaryUniform
 {
     glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 1.0f);
-    glm::vec4 lower = glm::vec4(-0.001f, -0.013f, -0.001f, 1.0f);
+    glm::vec4 lower = glm::vec4(-0.001f, -0.13f, -0.001f, 1.0f);
 }BoundaryData;
 
 struct WaveUniforms
 {
-    glm::vec4 attributes = glm::vec4(0.01f, 0.995f, 0.001f, 0.0f);
-    //float Lambda = 0.01f;
-    //float Atten = 0.9995f;
-    //float Beta = 0.001f;
-
+    glm::vec4 attributes = glm::vec4(0.01f, 0.995f, 0.001f, 0.0f); // Lambda, Attenuation, Beta
 } WaveData;
 
 GLuint scene_ubo = -1;
@@ -207,7 +203,7 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.1f, 1.0f);
     ImGui::End();
 
-    //Module::sDrawGuiAll();
+    Module::sDrawGuiAll();
 
     //End ImGui Frame
     ImGui::Render();
