@@ -202,9 +202,9 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
     ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
     ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
-    ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.1f, 10.0f);
-    ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.1f, 10.0f);
-    ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.1f, 10.0f);
+    ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.1f, 1.0f);
+    ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.1f, 1.0f);
+    ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.1f, 1.0f);
     ImGui::End();
 
     //Module::sDrawGuiAll();
@@ -394,6 +394,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
         case 'R':
             init_particles();
             reload_shader();
+            wave2d.Reinit();
             break;
 
         case 'p':
