@@ -42,7 +42,7 @@ layout(std140, binding = 2) uniform BoundaryUniform
     vec4 lower; // Lower bounds of particle area
 };
 
-const float dt = 0.0001f; //1.0f / NUM_PARTICLES; // Time step
+const float dt = 0.00008f; //1.0f / NUM_PARTICLES; // Time step
 
 void main()
 {
