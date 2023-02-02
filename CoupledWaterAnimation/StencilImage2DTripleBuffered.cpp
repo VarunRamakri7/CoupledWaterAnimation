@@ -81,8 +81,8 @@ void StencilImage2DTripleBuffered::Compute()
    if (mEvolve == false) return;
    if (pShader == nullptr) return;
 
-   //pShader->SetMode(MODE_EVOLVE); // Set mode to evolve
-   pShader->SetMode(MODE_TEST); // Set mode to test
+   pShader->SetMode(MODE_EVOLVE); // Set mode to evolve
+   //pShader->SetMode(MODE_TEST); // Set mode to test
 
    mImage[mReadIndex[0]].BindImageTexture(GL_READ_ONLY);
    mImage[mReadIndex[1]].BindImageTexture(GL_READ_ONLY);
