@@ -192,8 +192,8 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
     ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
     ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.1f, 0.45f);
-    ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.1f, 1.0f);
-    ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.1f, 1.0f);
+    ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.9f, 1.0f);
+    ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
     ImGui::End();
 
     Module::sDrawGuiAll();
