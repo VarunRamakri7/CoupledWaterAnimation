@@ -1,6 +1,6 @@
 #version 450
 
-layout(binding = 0) uniform sampler2D diffuse_tex;
+layout(binding = 0) uniform sampler2D wave_tex;
 layout(location = 1) uniform float time;
 
 in VertexData
@@ -25,7 +25,7 @@ void main(void)
 
 	//fragcolor = vec4(wave_col, 1.0f);
 
-	vec4 v = texture(diffuse_tex, inData.tex_coord);
+	vec4 v = texture(wave_tex, inData.tex_coord);
 	v.x = smoothstep(-0.01, 0.01, v.x);
 	
 	fragcolor = vec4(mix(color1, color0, v.x));

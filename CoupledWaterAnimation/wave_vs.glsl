@@ -9,7 +9,7 @@ layout(std140, binding = 0) uniform SceneUniforms
    vec4 eye_w; // Camera eye in world-space
 };
 
-layout(binding = 0) uniform sampler2D diffuse_tex;
+layout(binding = 0) uniform sampler2D wave_tex;
 
 layout(location = 0) in vec4 pos_attrib;
 layout(location = 1) in vec4 tex_coord_attrib;
@@ -29,7 +29,7 @@ void main(void)
 {
 	vec4 pos = vec4(pos_attrib.xyz, 1.0);
 
-	float height = textureLod(diffuse_tex, tex_coord_attrib.xy, 0.0).r;
+	float height = textureLod(wave_tex, tex_coord_attrib.xy, 0.0).r;
 	pos.y = 50.0f * height;
 
 	gl_Position = PV * M * pos;
