@@ -24,7 +24,7 @@
 #define RESTART_INDEX 65535
 #define WAVE_RES 512
 
-#define NUM_PARTICLES 5000
+#define NUM_PARTICLES 2500
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
 #define PART_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
@@ -427,12 +427,12 @@ std::vector<glm::vec4> make_cube()
 {
     std::vector<glm::vec4> positions;
 
-    const float spacing = ConstantsData.smoothing_coeff * PARTICLE_RADIUS;
+    const float spacing = ConstantsData.smoothing_coeff * 0.5f * PARTICLE_RADIUS;
 
     // 25x16x25 Cube of particles within [0, 0.25] on XZ and [0, 0.16] on Y
     for (int i = 0; i < 25; i++)
     {
-        for (int j = 0; j < 8; j++)
+        for (int j = 0; j < 4; j++)
         {
             for (int k = 0; k < 25; k++)
             {

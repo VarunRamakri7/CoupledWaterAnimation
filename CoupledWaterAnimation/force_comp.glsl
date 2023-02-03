@@ -1,13 +1,15 @@
 #version 440
 
 #define WORK_GROUP_SIZE 1024
-#define NUM_PARTICLES 5000
+#define NUM_PARTICLES 2500
 #define PARTICLE_RADIUS 0.005f
 
 // For calculations
 #define PI 3.141592741f
 
 layout (local_size_x = WORK_GROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
+
+layout(binding = 0) uniform sampler2D wave_tex;
 
 struct Particle
 {
