@@ -35,8 +35,8 @@ const int init_window_height = 720;
 const char* const window_title = "Coupled Water Animation";
 
 // Vertex and Fragment Shaders
-static const std::string particle_vs("water-anim_vs.glsl");
-static const std::string particle_fs("water-anim_fs.glsl");
+static const std::string particle_vs("particle_vs.glsl");
+static const std::string particle_fs("particle_fs.glsl");
 static const std::string wave_vs("wave_vs.glsl");
 static const std::string wave_fs("wave_fs.glsl");
 
