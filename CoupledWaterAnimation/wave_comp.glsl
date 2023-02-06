@@ -53,9 +53,6 @@ layout(std140, binding = 2) uniform BoundaryUniform
 layout(std140, binding = 3) uniform WaveUniforms
 {
 	vec4 attributes; // Lambda, Attenuation, Beta
-   //float Lambda;
-   //float Atten;
-   //float Beta;   
 };
 
 const float dt = 0.0001f; // Time step
@@ -97,11 +94,6 @@ void main()
 			EvolveWave(gid, size);
 		break;
 		case MODE_TEST:
-			// Iterate through wave vertices
-			for(int i = 0; i < waves.length(); i++)
-			{
-				waves[i].pos.y = attributes.z;
-			}
 			break;
 	}
 }
@@ -110,14 +102,6 @@ void InitFromImage(ivec2 coord)
 {
 	vec4 vout = texelFetch(uInitImage, coord, 0);
 	imageStore(uOutputImage, coord, vout);
-
-	/*for(int i = 0; i < waves.length(); i++)
-	{
-		if(ivec2(waves[i].tex_coords.zw) == coord)
-		{
-			waves[i].pos = vout;
-		}
-	}*/
 }
 
 void InitWave(ivec2 coord)
@@ -130,14 +114,6 @@ void InitWave(ivec2 coord)
 	float d = min(distance(coord, cen0), distance(coord, cen1));
 	vout.x = 0.5*smoothstep(3.0, 0.0, d);
 	imageStore(uOutputImage, coord, vout);
-
-	/*for(int i = 0; i < waves.length(); i++)
-	{
-		if(ivec2(waves[i].tex_coords.zw) == coord)
-		{
-			waves[i].pos = vout;
-		}
-	}*/
 }
 
 void EvolveWave(ivec2 coord, ivec2 size)
@@ -145,17 +121,8 @@ void EvolveWave(ivec2 coord, ivec2 size)
 	neighborhood n = get_clamp(coord);
 	vec4 w = (2.0 - 4.0 * attributes[0] - attributes[2]) * n.c0 + attributes[0] * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0 - attributes[2]) * n.c1;
 	w = attributes[1] * w;
-	//vec4 w = (2.0 - 4.0 * Lambda - Beta) * n.c0 + Lambda * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0 - Beta) * n.c1;
-	//w = Atten*w;
-    imageStore(uOutputImage, coord, w);
 
-	/*for(int i = 0; i < waves.length(); i++)
-	{
-		if(ivec2(waves[i].tex_coords.zw) == coord)
-		{
-			waves[i].pos = w;
-		}
-	}*/
+    imageStore(uOutputImage, coord, w);
 }
 
 ivec2 clamp_coord(ivec2 coord)

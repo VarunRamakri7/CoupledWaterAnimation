@@ -122,9 +122,5 @@ void StencilImage2DTripleBuffered::DrawGui()
       }
    }
 
-   //ImGui::Image((void*)mImage[0].GetTexture(), ImVec2(mImage[0].GetSize().x, mImage[0].GetSize().y), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
-   //ImGui::Image((void*)mImage[1].GetTexture(), ImVec2(mImage[1].GetSize().x, mImage[1].GetSize().y), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
-   //ImGui::Image((void*)mImage[2].GetTexture(), ImVec2(mImage[2].GetSize().x, mImage[2].GetSize().y), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
-
    ImGui::End();
 }
