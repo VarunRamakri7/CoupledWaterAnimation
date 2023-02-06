@@ -9,7 +9,7 @@
 
 layout (local_size_x = WORK_GROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
-layout(rgba32f, binding = 2) readonly restrict uniform image2D uOutputImage; //wave at time t
+//layout(rgba32f, binding = 2) readonly restrict uniform sampler2D uOutputImage; //wave at time t
 
 layout(binding = 0) uniform sampler2D wave_tex;
 
@@ -56,9 +56,10 @@ void main()
     
     // Make wave particle
     ivec2 gid = ivec2(gl_GlobalInvocationID.xy); // Get coordinate for wave
-    wave_particle.pos = imageLoad(uOutputImage, gid); // Read wave from image
+    wave_particle.pos = vec4(0.0f); 
+    wave_particle.pos.y = 50.0f * textureLod(wave_tex, gid, 0.0f).r;// Read wave from texture
     wave_particle.vel = vec4(0.0f, 1.0f, 0.0f, 0.0f); // Constant upward velocity
-    wave_particle.force = vec4(0.0f, 5000.0f, 0.0f, 0.0f); // Constant upward force
+    wave_particle.force = vec4(0.0f, 100.0f, 0.0f, 0.0f); // Constant upward force
     wave_particle.extras = vec4(0.0f); // No density, pressure, and age
 
     const float smoothing_length = smoothing_coeff * PARTICLE_RADIUS; // Smoothing length for neighbourhood
@@ -88,9 +89,9 @@ void main()
     // Add force from ghost wave particle
     vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave and particle
     float wave_r = length(wave_delta); // Get length of the wave vector
-    pres_force -= mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
-    //visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) /wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
-	
+    //pres_force += mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
+    //visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) / wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
+
     visc_force *= visc;
 
 	vec3 grav_force = particles[i].extras[0] * G;
