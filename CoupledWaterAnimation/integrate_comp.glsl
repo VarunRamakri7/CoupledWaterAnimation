@@ -1,4 +1,4 @@
-#version 440
+#version 450
 
 #define WORK_GROUP_SIZE 1024
 #define NUM_PARTICLES 2500
