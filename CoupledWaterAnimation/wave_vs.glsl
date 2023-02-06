@@ -15,7 +15,7 @@ layout(location = 0) in vec4 pos_attrib;
 layout(location = 1) in vec4 tex_coord_attrib;
 layout(location = 2) in vec4 normal_attrib;
 layout(location = 3) in vec3 color_attrib;
-layout(location = 4) in mat4 offset_attrib;
+//layout(location = 4) in mat4 offset_attrib;
 
 out VertexData
 {
