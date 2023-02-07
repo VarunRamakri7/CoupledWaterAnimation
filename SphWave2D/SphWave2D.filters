@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="InitShader.cpp" />
+    <ClCompile Include="LoadMesh.cpp" />
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\examples\imgui_impl_glfw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\examples\imgui_impl_opengl3.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="LoadTexture.cpp" />
+    <ClCompile Include="AttriblessRendering.cpp" />
+    <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="ComputeShader.cpp" />
+    <ClCompile Include="ImageTexture.cpp" />
+    <ClCompile Include="DebugCallback.cpp" />
+    <ClCompile Include="StencilImage2D.cpp" />
+    <ClCompile Include="Module.cpp" />
+    <ClCompile Include="ImagePicker.cpp" />
+    <ClCompile Include="StencilImage2DTripleBuffered.cpp" />
+    <ClCompile Include="Shader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="InitShader.h" />
+    <ClInclude Include="LoadMesh.h" />
+    <ClInclude Include="imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\examples\imgui_impl_glfw.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\examples\imgui_impl_opengl3.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTexture.h" />
+    <ClInclude Include="AttriblessRendering.h" />
+    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="ComputeShader.h" />
+    <ClInclude Include="ImageTexture.h" />
+    <ClInclude Include="DebugCallback.h" />
+    <ClInclude Include="Main.h" />
+    <ClInclude Include="StencilImage2D.h" />
+    <ClInclude Include="Module.h" />
+    <ClInclude Include="ImagePicker.h" />
+    <ClInclude Include="StencilImage2DTripleBuffered.h" />
+    <ClInclude Include="Shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{6cc9bf06-0f5e-48ac-b0ae-58f80771a55b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{52ff0d67-cb15-4979-bc89-1d3cbd7a3c04}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Wave2D_fs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Wave2D_vs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Wave2D_cs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="WaveMesh_fs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="WaveMesh_vs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
