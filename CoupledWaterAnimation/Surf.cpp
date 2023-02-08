@@ -88,7 +88,7 @@ GLuint create_indexed_strip_surf_vbo(int n_grid)
             //float inst = i;
 
             //Insert triangles
-            surf_verts.push_back(p0.x);   surf_verts.push_back(p0.y); surf_verts.push_back(p0.z); surf_verts.push_back(0.0f);
+            surf_verts.push_back(p0.x);   surf_verts.push_back(p0.y); surf_verts.push_back(p0.z); surf_verts.push_back(1.0f);
             surf_verts.push_back(t0.x);   surf_verts.push_back(t0.y); surf_verts.push_back(i); surf_verts.push_back(j);
             surf_verts.push_back(n0.x);   surf_verts.push_back(n0.y); surf_verts.push_back(n0.z); surf_verts.push_back(0.0f);
         }
