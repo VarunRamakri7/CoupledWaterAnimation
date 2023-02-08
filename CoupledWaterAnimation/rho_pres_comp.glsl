@@ -84,13 +84,13 @@ void main()
 	wave_particle.pos = particles[i].pos; // Set the same position as the current particle
 	wave_particle.pos.y = lower.y - (PARTICLE_RADIUS + PARTICLE_RADIUS); // Set height of particle just below the wave surface
 	wave_particle.vel = vec4(WaveVelocity(coord).xzy, 0.0f); // Calculate velocity of the wave at this point
-	
+
 	vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
 
 	wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
 	wave_particle.extras = vec4(100.0f * resting_rho, 0.00000178f, 0.0f, 0.0f); // Density, pressure, and age
 
-	// Add force from ghost wave particle
+	// Add density from ghost wave particle
 	vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle
 	float wave_r = max(0.0f, length(wave_delta));
 	if(wave_r < 0.5f * smoothing_length)
