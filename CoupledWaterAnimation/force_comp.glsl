@@ -54,7 +54,7 @@ layout(std140, binding = 2) uniform BoundaryUniform
 
 const vec3 G = vec3(0.0f, -9806.65f, 0.0f); // Gravity force
 const ivec2 texture_size = textureSize(wave_tex, 0);
-const float dt = 0.001f; // Time step
+const float dt = 0.0000001f; // Time step
 
 Particle wave_particle;
 
@@ -117,16 +117,13 @@ void main()
 
 vec3 WaveVelocity(ivec2 uv)
 {
-    float h = 0.01f; // Small step
+    const float h = 0.01f; // Small step
 
-    float height = texture(wave_tex, uv).r;
+	float height = texture(wave_tex, uv).r;
 
-    float heightX = texture(wave_tex, vec2(uv.x + h, uv.y)).r;
-    float heightY = texture(wave_tex, vec2(uv.x, uv.y + h)).r;
-    float heightZ = texture(wave_tex, uv).r;
-    float heightZX = texture(wave_tex, vec2(uv.x + h, uv.y)).r;
-    float heightZY = texture(wave_tex, vec2(uv.x, uv.y + h)).r;
+	float heightX = texture(wave_tex, vec2(uv.x + h, uv.y)).r;
+	float heightY = texture(wave_tex, vec2(uv.x, uv.y + h)).r;
 
-    vec3 velocity = vec3((heightX - height) / dt, (heightY - height) / dt, (heightZX + heightZY - 2.0 * heightZ) / (dt * dt));
+	vec3 velocity = vec3((heightX - height) / dt, (heightY - height) / dt, (heightY - heightX) / h);
 	return velocity;
 }
