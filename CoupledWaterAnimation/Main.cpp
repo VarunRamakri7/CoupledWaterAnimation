@@ -427,9 +427,9 @@ std::vector<glm::vec4> make_cube()
 {
     std::vector<glm::vec4> positions;
 
-    const float spacing = ConstantsData.smoothing_coeff * 0.5f * PARTICLE_RADIUS;
+    const float spacing = ConstantsData.smoothing_coeff * PARTICLE_RADIUS;
 
-    // 25x16x25 Cube of particles within [0, 0.25] on XZ and [0, 0.16] on Y
+    // 25x4x25 Cube of particles above the wave surface
     for (int i = 0; i < 25; i++)
     {
         for (int j = 0; j < 4; j++)
