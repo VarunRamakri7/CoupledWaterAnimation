@@ -54,7 +54,8 @@ layout(std140, binding = 2) uniform BoundaryUniform
 
 const vec3 G = vec3(0.0f, -9806.65f, 0.0f); // Gravity force
 const ivec2 texture_size = textureSize(wave_tex, 0);
-const float dt = 0.0000001f; // Time step
+const float dt = 0.000005f; // Time step
+const float impulseStrength = 100.0f;
 
 Particle wave_particle;
 
@@ -91,23 +92,33 @@ void main()
 
 	// Make wave particle
 	ivec2 coord = ivec2(particles[i].pos.xz) / texture_size; // Get XZ coordinate of particle
-	wave_particle.pos = particles[i].pos; // Set the same position as the current particle
-	wave_particle.pos.y = lower.y - (2.0f * PARTICLE_RADIUS); // Set height of particle just below the wave surface
-	wave_particle.vel = vec4(WaveVelocity(coord).xzy, 0.0f); // Calculate velocity of the wave at this point
-	
-	vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
-	
-	wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
-	wave_particle.extras = vec4(100.0f * resting_rho, particles[i].extras[1], 0.0f, 0.0f); // Density, pressure, and age
-	
-	// Add force from ghost wave particle
-	vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle
-	float wave_r = max(0.0f, length(wave_delta));
-	if(wave_r < 0.5f * smoothing_length)
+	//wave_particle.pos = particles[i].pos; // Set the same position as the current particle
+	//wave_particle.pos.y = lower.y + smoothing_length; // Set height of particle just below the wave surface
+	//wave_particle.vel = vec4(WaveVelocity(coord).xzy, 0.0f); // Calculate velocity of the wave at this point
+	//
+	//vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
+	//
+	//wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
+	//wave_particle.extras = vec4(100.0f * resting_rho, particles[i].extras[1], 0.0f, 0.0f); // Density, pressure, and age
+	//
+	//// Add force from ghost wave particle
+	//vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle
+	//float wave_r = abs(length(wave_delta));
+	//if(wave_r < 0.25f * smoothing_length)
+	//{
+	//	pres_force -= mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
+	//	visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) / wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
+	//}
+
+	// Apply impulse to particle
+	float height = texture(wave_tex, coord).r;
+	if (particles[i].pos.y < height)
 	{
-		pres_force -= mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
-		visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) / wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
+		vec3 impulse = vec3(0.0f, impulseStrength * mass, 0.0f);
+		particles[i].vel.xyz += impulse / mass;
 	}
+
+
 	visc_force *= visc;
 
 	// Combine all forces
