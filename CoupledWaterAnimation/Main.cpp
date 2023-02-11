@@ -24,7 +24,7 @@
 #define RESTART_INDEX 65535
 #define WAVE_RES 512
 
-#define NUM_PARTICLES 2500
+#define NUM_PARTICLES 5000
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
 #define PART_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
@@ -104,7 +104,7 @@ struct ConstantsUniform
 struct BoundaryUniform
 {
     glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 1.0f);
-    glm::vec4 lower = glm::vec4(0.0f, -0.015f, 0.0f, 1.0f);
+    glm::vec4 lower = glm::vec4(0.0f, -0.05f, 0.0f, 1.0f);
 }BoundaryData;
 
 struct WaveUniforms
@@ -428,11 +428,12 @@ std::vector<glm::vec4> make_cube()
     std::vector<glm::vec4> positions;
 
     const float spacing = ConstantsData.smoothing_coeff * 0.5f * PARTICLE_RADIUS;
+    //const float spacing = ConstantsData.smoothing_coeff * PARTICLE_RADIUS;
 
     // 25x4x25 Cube of particles above the wave surface
     for (int i = 0; i < 25; i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < 8; j++)
         {
             for (int k = 0; k < 25; k++)
             {

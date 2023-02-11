@@ -1,7 +1,7 @@
 #version 450
 
 #define WORK_GROUP_SIZE 1024
-#define NUM_PARTICLES 2500
+#define NUM_PARTICLES 5000
 #define PARTICLE_RADIUS 0.005f
 
 // For calculations
@@ -112,7 +112,7 @@ void main()
 
 	// Apply impulse to particle
 	float height = texture(wave_tex, coord).r;
-	if (particles[i].pos.y < height)
+	if (height > 0.005f && particles[i].pos.y < height)
 	{
 		vec3 impulse = vec3(0.0f, impulseStrength * mass, 0.0f);
 		particles[i].vel.xyz += impulse / mass;
