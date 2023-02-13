@@ -104,7 +104,7 @@ struct ConstantsUniform
 struct BoundaryUniform
 {
     glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 1.0f);
-    glm::vec4 lower = glm::vec4(0.0f, -0.05f, 0.0f, 1.0f);
+    glm::vec4 lower = glm::vec4(0.0f, -0.02f, 0.0f, 1.0f);
 }BoundaryData;
 
 struct WaveUniforms

@@ -52,7 +52,7 @@ layout(std140, binding = 2) uniform BoundaryUniform
 
 const float GAS_CONST = 4000.0f; // const for equation of state
 const ivec2 texture_size = textureSize(wave_tex, 0);
-const float dt = 0.00008f; // Time step
+const float dt = 0.00007f; // Time step
 
 Particle wave_particle;
 

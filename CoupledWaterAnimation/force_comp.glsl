@@ -54,7 +54,7 @@ layout(std140, binding = 2) uniform BoundaryUniform
 
 const vec3 G = vec3(0.0f, -9806.65f, 0.0f); // Gravity force
 const ivec2 texture_size = textureSize(wave_tex, 0);
-const float dt = 0.000005f; // Time step
+const float dt = 0.00007f; // Time step
 
 Particle wave_particle;
 
