@@ -1,7 +1,7 @@
 #version 450
 
 #define WORK_GROUP_SIZE 1024
-#define NUM_PARTICLES 5000
+#define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
 
 // For calculations

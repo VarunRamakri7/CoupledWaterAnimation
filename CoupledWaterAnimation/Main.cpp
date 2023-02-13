@@ -24,7 +24,7 @@
 #define RESTART_INDEX 65535
 #define WAVE_RES 512
 
-#define NUM_PARTICLES 5000
+#define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
 #define PART_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
@@ -96,7 +96,7 @@ struct SceneUniforms
 struct ConstantsUniform
 {
     float mass = 0.02f; // Particle Mass
-    float smoothing_coeff = 4.0f; // Smoothing length coefficient for neighborhood
+    float smoothing_coeff = 2.0f; // Smoothing length coefficient for neighborhood
     float visc = 3000.0f; // Fluid viscosity
     float resting_rho = 1000.0f; // Resting density
 }ConstantsData;
@@ -428,12 +428,11 @@ std::vector<glm::vec4> make_cube()
     std::vector<glm::vec4> positions;
 
     const float spacing = ConstantsData.smoothing_coeff * 0.5f * PARTICLE_RADIUS;
-    //const float spacing = ConstantsData.smoothing_coeff * PARTICLE_RADIUS;
 
     // 25x4x25 Cube of particles above the wave surface
     for (int i = 0; i < 25; i++)
     {
-        for (int j = 0; j < 8; j++)
+        for (int j = 0; j < 16; j++)
         {
             for (int k = 0; k < 25; k++)
             {
