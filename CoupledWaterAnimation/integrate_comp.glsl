@@ -88,6 +88,7 @@ void main()
         new_vel.z *= -DAMPING;
     }
 
+
     // Assign calculated values
     particles[i].vel.xyz = new_vel;
     particles[i].pos.xyz = new_pos;

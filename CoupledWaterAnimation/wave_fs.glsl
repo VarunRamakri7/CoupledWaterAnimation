@@ -18,7 +18,7 @@ const vec4 color0 = vec4(1.0f, 0.95f, 0.85, 1.0f); // Whitish-Red
 const vec4 color1 = vec4(0.9f, 0.6f, 0.0f, 1.0f); // Purple
 
 void main(void)
-{   
+{
 	vec4 v = texture(wave_tex, inData.tex_coord);
 	v.x = smoothstep(-0.01, 0.01, v.x);
 	
