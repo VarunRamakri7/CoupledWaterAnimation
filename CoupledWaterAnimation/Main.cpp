@@ -428,15 +428,20 @@ std::vector<glm::vec4> make_cube()
     std::vector<glm::vec4> positions;
 
     const float spacing = ConstantsData.smoothing_coeff * 0.5f * PARTICLE_RADIUS;
+    //const float spacing = (BoundaryData.upper.x - BoundaryData.lower.x) / 25;
+    
+    const float mid = (BoundaryData.upper.x + BoundaryData.lower.x) / 4.0f;
 
-    // 25x4x25 Cube of particles above the wave surface
+    // 25x16x25 Cube of particles above the wave surface
     for (int i = 0; i < 25; i++)
     {
         for (int j = 0; j < 16; j++)
         {
             for (int k = 0; k < 25; k++)
             {
-                positions.push_back(glm::vec4(i * spacing, j * spacing, k * spacing, 1.0f));
+                float x = mid + i * spacing;
+                float z = mid + k * spacing;
+                positions.push_back(glm::vec4(x, j * spacing, z, 1.0f));
             }
         }
     }
@@ -456,9 +461,9 @@ void init_particles()
     for (int i = 0; i < NUM_PARTICLES; i++)
     {
         particles[i].pos = grid_positions[i];
-        particles[i].vel = glm::vec4(0.0f); // Constant velocity along Y-Axis
-        particles[i].force = glm::vec4(0.0f); // Gravity along the Y-Axis
-        particles[i].extras = glm::vec4(0.0f); // 0 - rho, 1 - pressure, 2 - age
+        particles[i].vel = glm::vec4(0.0f); // // No initial velocity
+        particles[i].force = glm::vec4(0.0f); // No initial force
+        particles[i].extras = glm::vec4(ConstantsData.resting_rho, 0.0f, 0.0f, 0.0f); // 0 - rho, 1 - pressure, 2 - age
     }
     //std::cout << "Particles count: " << particles.size() << std::endl;
 
