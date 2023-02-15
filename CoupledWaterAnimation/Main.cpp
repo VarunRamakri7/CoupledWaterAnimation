@@ -427,17 +427,17 @@ std::vector<glm::vec4> make_cube()
 {
     std::vector<glm::vec4> positions;
 
-    const float spacing = ConstantsData.smoothing_coeff * 0.5f * PARTICLE_RADIUS;
+    const float spacing = ConstantsData.smoothing_coeff * 0.85f * PARTICLE_RADIUS;
     //const float spacing = (BoundaryData.upper.x - BoundaryData.lower.x) / 25;
-    
-    const float mid = (BoundaryData.upper.x + BoundaryData.lower.x) / 4.0f;
 
-    // 25x16x25 Cube of particles above the wave surface
-    for (int i = 0; i < 25; i++)
+
+    // 50x4x50 cuboid of particles above the wave surface
+    const float mid = 0.0f; // (BoundaryData.upper.x + BoundaryData.lower.x) / 4.0f;
+    for (int i = 0; i < 50; i++)
     {
-        for (int j = 0; j < 16; j++)
+        for (int j = 0; j < 4; j++)
         {
-            for (int k = 0; k < 25; k++)
+            for (int k = 0; k < 50; k++)
             {
                 float x = mid + i * spacing;
                 float z = mid + k * spacing;
