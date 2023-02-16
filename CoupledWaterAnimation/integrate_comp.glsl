@@ -90,9 +90,10 @@ void main()
         new_vel.z *= -DAMPING;
     }
 
+    // Check if particle is below surface
     if (new_pos.y < 0.0f)
     {
-        new_pos.y = texture(wave_tex, new_pos.xz).r + PARTICLE_RADIUS; // Place particle on wave
+        new_pos.y = texture(wave_tex, new_pos.xz * 2.0f).r - PARTICLE_RADIUS; // Place particle on wave
     }
 
     // Assign calculated values
