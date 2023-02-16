@@ -52,6 +52,11 @@ layout(std140, binding = 2) uniform BoundaryUniform
     vec4 lower; // Lower bounds of particle area
 };
 
+layout(std140, binding = 3) uniform WaveUniforms
+{
+	vec4 attributes; // Lambda, Attenuation, Beta
+};
+
 const vec3 G = vec3(0.0f, -9806.65f, 0.0f); // Gravity force
 const ivec2 texture_size = textureSize(wave_tex, 0);
 const float dt = 0.00007f; // Time step
@@ -89,8 +94,10 @@ void main()
 		}
 	}
 
+	ivec2 coord = ivec2(particles[i].pos.xz);// / texture_size; // Get XZ coordinate of particle
+	float height = texture(wave_tex, coord).r;
+
 	// Make wave particle
-	ivec2 coord = ivec2(particles[i].pos.xz) / texture_size; // Get XZ coordinate of particle
 	wave_particle.pos = particles[i].pos; // Set the same position as the current particle
 	wave_particle.pos.y = lower.y + smoothing_length; // Set height of particle just below the wave surface
 	wave_particle.vel = vec4(WaveVelocity(coord).xzy, 0.0f); // Calculate velocity of the wave at this point
@@ -103,18 +110,52 @@ void main()
 	// Add force from ghost wave particle
 	vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle
 	float wave_r = abs(length(wave_delta));
-	float height = texture(wave_tex, coord).r;
 	if(height > 0.005f && particles[i].pos.y < height && wave_r < 0.25f * smoothing_length)
 	{
 		pres_force -= mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
 		visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) / wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
 	}
 
+	// Compute the normal of the wave at the particle's position
+	//float left_height = texture(wave_tex, coord - vec2(smoothing_length, 0)).r;
+	//float right_height = texture(wave_tex, coord + vec2(smoothing_length, 0)).r;
+	//float bottom_height = texture(wave_tex, coord - vec2(0, smoothing_length)).r;
+	//float top_height = texture(wave_tex, coord + vec2(0, smoothing_length)).r;
+	//vec3 normal = vec3(left_height - right_height, 2.0 * smoothing_length, bottom_height - top_height);
+	//
+	//float projected_area = dot(normal, -G); // Project the particle's surface area in the direction of the wave normal
+	//vec3 wave_force = vec3(0.0f);
+	//if (projected_area > 0.0)
+	//{
+	//	float wave_speed = sqrt(G.y * attributes[0] / (2.0 * PI)); // Compute the phase speed of the wave
+	//
+	//	vec2 dx = vec2(0.01, 0.0); // small step in x direction
+	//	vec2 dy = vec2(0.0, 0.01); // small step in y direction
+	//	float h0 = texture(wave_tex, coord).r;
+	//	float hx = texture(wave_tex, particles[i].pos.xy + dx).r;
+	//	float hy = texture(wave_tex, particles[i].pos.xy + dy).r;
+	//	vec3 wx = vec3(dx.x, hx - h0, 0.0);
+	//	vec3 wy = vec3(0.0, hy - h0, dy.y);
+	//	vec3 wave_vector = cross(wx, wy);
+	//	vec3 wave_normal = normalize(wave_vector);
+	//	vec3 wave_dir = cross(wave_normal, vec3(0.0, 1.0, 0.0));
+	//
+	//	float wave_phase = dot(normal, wave_dir) * wave_speed; // Compute the phase of the wave at the particle's position
+	//	float particle_phase = mod(wave_phase, 2.0 * PI); // Compute the particle's phase relative to the wave
+	//	float phase_diff = wave_phase - particle_phase; // Compute the phase difference between the wave and the particle
+	//
+	//	// Compute the force on the particle due to the wave
+	//	float wave_height = 200.0f * sin(wave_phase); // Compute the height of the wave at the particle's position
+	//	float depth = height - particles[i].pos.y; // Compute the depth of the particle below the wave surface
+	//	float h = max(0.0, smoothing_length - depth); // Compute the overlapping height of the particle with the wave
+	//	wave_force = -h * projected_area * wave_speed * wave_speed * normal * (1.0 + cos(phase_diff));
+	//}
+
 	visc_force *= visc;
 
 	// Combine all forces
 	vec3 grav_force = particles[i].extras[0] * G;
-	particles[i].force.xyz = pres_force + visc_force + grav_force;
+	particles[i].force.xyz = pres_force + visc_force + grav_force + wave_force;
 }
 
 vec3 WaveVelocity(ivec2 uv)
