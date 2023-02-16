@@ -131,7 +131,7 @@ void main()
 
 	// Combine all forces
 	vec3 grav_force = particles[i].extras[0] * G;
-	particles[i].force.xyz = pres_force + visc_force + grav_force + WaveForce(i, coord);
+	particles[i].force.xyz = pres_force + visc_force + grav_force;// + WaveForce(i, coord);
 }
 
 vec3 WaveVelocity(vec2 uv)
@@ -198,6 +198,7 @@ vec3 WaveNormal(vec2 uv)
 	return normalize(gradient);
 }
 
+// TODO: Fix calculation
 vec3 WaveForce(uint i, vec2 uv)
 {
 	vec3 force = vec3(0.0);
@@ -205,10 +206,10 @@ vec3 WaveForce(uint i, vec2 uv)
 	if (h > 0.0)
 	{
 		float k = 2.0 * PI / attributes[0];
-		float w = sqrt(0.986f * k);
+		float w = sqrt(0.01f * G.y * k);
 		vec3 wave_velocity = vec3(w / k, 0.0f, w / k);
 		float speed = dot(particles[i].vel.xyz, normalize(wave_velocity));
-		float drag_coeff = 0.4f;// * resting_rho * PARTICLE_RADIUS * PARTICLE_RADIUS * speed;
+		float drag_coeff = 0.4f; //* resting_rho * PARTICLE_RADIUS * PARTICLE_RADIUS * speed;
 		force += -drag_coeff * (particles[i].vel.xyz - wave_velocity);
 		force += -G * particles[i].extras[0] * WaveNormal(uv) * h;
 		if (h > 0.05f)
