@@ -103,30 +103,29 @@ void main()
 		}
 	}
 
-	vec2 coord = particles[i].pos.xz / texture_size; // Get XZ coordinate of particle
+	vec2 coord = particles[i].pos.xz * 2.0f; // Get XZ coordinate of particle
 	float height = texture(wave_tex, coord).r; // Sample height of wave
 
 	// Make wave particle
-	height = -1.0f;
-	if (height > 0.5f)
-	{
-		wave_particle.pos = particles[i].pos; // Set the same position as the current particle
-		wave_particle.pos.y = lower.y + smoothing_length; // Set height of particle just below the wave surface
-		wave_particle.vel = vec4(WaveVelocity(coord).xzy, 0.0f); // Calculate velocity of the wave at this point
-	
-		vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
-		wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
-		wave_particle.extras = vec4(10.0f * resting_rho, particles[i].extras[1], 0.0f, 0.0f); // Density, pressure, and age
-	
-		// Add force from ghost wave particle
-		vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle
-		float wave_r = abs(length(wave_delta));
-		if(particles[i].pos.y < height && wave_r < 0.25f * smoothing_length)
-		{
-			pres_force -= mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
-			visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) / wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
-		}
-	}
+	//if (height > 0.05f)
+	//{
+	//	wave_particle.pos = particles[i].pos; // Set the same position as the current particle
+	//	wave_particle.pos.y = lower.y + smoothing_length; // Set height of particle just below the wave surface
+	//	wave_particle.vel = vec4(WaveVelocity(coord).xzy, 0.0f); // Calculate velocity of the wave at this point
+	//
+	//	vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
+	//	wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
+	//	wave_particle.extras = vec4(10.0f * resting_rho, particles[i].extras[1], 0.0f, 0.0f); // Density, pressure, and age
+	//
+	//	// Add force from ghost wave particle
+	//	vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle
+	//	float wave_r = abs(length(wave_delta));
+	//	if(particles[i].pos.y < height && wave_r < 0.25f * smoothing_length)
+	//	{
+	//		pres_force -= mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
+	//		visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) / wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
+	//	}
+	//}
 
 	visc_force *= visc;
 
@@ -209,7 +208,7 @@ vec3 WaveForce(uint i, vec2 uv)
 		float w = sqrt(0.986f * k);
 		vec3 wave_velocity = vec3(w / k, 0.0f, w / k);
 		float speed = dot(particles[i].vel.xyz, normalize(wave_velocity));
-		float drag_coeff = 0.1f;// * resting_rho * PARTICLE_RADIUS * PARTICLE_RADIUS * speed;
+		float drag_coeff = 0.4f;// * resting_rho * PARTICLE_RADIUS * PARTICLE_RADIUS * speed;
 		force += -drag_coeff * (particles[i].vel.xyz - wave_velocity);
 		force += -G * particles[i].extras[0] * WaveNormal(uv) * h;
 		if (h > 0.05f)
