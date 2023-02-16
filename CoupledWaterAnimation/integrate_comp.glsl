@@ -9,6 +9,8 @@
 
 layout (local_size_x = WORK_GROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
+layout(binding = 0) uniform sampler2D wave_tex;
+
 layout(location = 0) uniform mat4 M;
 
 struct Particle
@@ -42,7 +44,7 @@ layout(std140, binding = 2) uniform BoundaryUniform
     vec4 lower; // Lower bounds of particle area
 };
 
-const float dt = 0.00007f; // Time step
+const float dt = 0.00005f; // Time step
 
 void main()
 {
@@ -86,6 +88,11 @@ void main()
     {
         new_pos.z = upper.z;
         new_vel.z *= -DAMPING;
+    }
+
+    if (new_pos.y < 0.0f)
+    {
+        new_pos.y = texture(wave_tex, new_pos.xz).r + PARTICLE_RADIUS; // Place particle on wave
     }
 
     // Assign calculated values
