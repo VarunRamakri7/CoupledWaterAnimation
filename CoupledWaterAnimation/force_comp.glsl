@@ -59,11 +59,20 @@ layout(std140, binding = 3) uniform WaveUniforms
 
 const vec3 G = vec3(0.0f, -9806.65f, 0.0f); // Gravity force
 const ivec2 texture_size = textureSize(wave_tex, 0);
-const float dt = 0.00007f; // Time step
+const vec2 normalized_tex_size = normalize(texture_size);
+const float dt = 0.00005f; // Time step
+const float eps = 0.00001f;
 
 Particle wave_particle;
 
-vec3 WaveVelocity(ivec2 uv);
+vec3 WaveVelocity(vec2 uv);
+vec3 WaveGradient(vec2 uv);
+vec2 WaveVector(vec2 uv);
+float WaveOmega(vec2 uv);
+vec2 WaveDirection(vec2 uv);
+float WaveDisplacement(vec3 pos, vec2 uv);
+vec3 WaveNormal(vec2 uv);
+vec3 WaveForce(uint i, vec2 uv);
 
 void main()
 {
@@ -94,71 +103,39 @@ void main()
 		}
 	}
 
-	ivec2 coord = ivec2(particles[i].pos.xz);// / texture_size; // Get XZ coordinate of particle
-	float height = texture(wave_tex, coord).r;
+	vec2 coord = particles[i].pos.xz / texture_size; // Get XZ coordinate of particle
+	float height = texture(wave_tex, coord).r; // Sample height of wave
 
 	// Make wave particle
-	wave_particle.pos = particles[i].pos; // Set the same position as the current particle
-	wave_particle.pos.y = lower.y + smoothing_length; // Set height of particle just below the wave surface
-	wave_particle.vel = vec4(WaveVelocity(coord).xzy, 0.0f); // Calculate velocity of the wave at this point
-	
-	//vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
-	//
-	//wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
-	wave_particle.extras = vec4(100.0f * resting_rho, particles[i].extras[1], 0.0f, 0.0f); // Density, pressure, and age
-	
-	// Add force from ghost wave particle
-	vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle
-	float wave_r = abs(length(wave_delta));
-	if(height > 0.005f && particles[i].pos.y < height && wave_r < 0.25f * smoothing_length)
+	height = -1.0f;
+	if (height > 0.5f)
 	{
-		pres_force -= mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
-		visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) / wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
+		wave_particle.pos = particles[i].pos; // Set the same position as the current particle
+		wave_particle.pos.y = lower.y + smoothing_length; // Set height of particle just below the wave surface
+		wave_particle.vel = vec4(WaveVelocity(coord).xzy, 0.0f); // Calculate velocity of the wave at this point
+	
+		vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
+		wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
+		wave_particle.extras = vec4(10.0f * resting_rho, particles[i].extras[1], 0.0f, 0.0f); // Density, pressure, and age
+	
+		// Add force from ghost wave particle
+		vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle
+		float wave_r = abs(length(wave_delta));
+		if(particles[i].pos.y < height && wave_r < 0.25f * smoothing_length)
+		{
+			pres_force -= mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
+			visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) / wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
+		}
 	}
-
-	// Compute the normal of the wave at the particle's position
-	//float left_height = texture(wave_tex, coord - vec2(smoothing_length, 0)).r;
-	//float right_height = texture(wave_tex, coord + vec2(smoothing_length, 0)).r;
-	//float bottom_height = texture(wave_tex, coord - vec2(0, smoothing_length)).r;
-	//float top_height = texture(wave_tex, coord + vec2(0, smoothing_length)).r;
-	//vec3 normal = vec3(left_height - right_height, 2.0 * smoothing_length, bottom_height - top_height);
-	//
-	//float projected_area = dot(normal, -G); // Project the particle's surface area in the direction of the wave normal
-	//vec3 wave_force = vec3(0.0f);
-	//if (projected_area > 0.0)
-	//{
-	//	float wave_speed = sqrt(G.y * attributes[0] / (2.0 * PI)); // Compute the phase speed of the wave
-	//
-	//	vec2 dx = vec2(0.01, 0.0); // small step in x direction
-	//	vec2 dy = vec2(0.0, 0.01); // small step in y direction
-	//	float h0 = texture(wave_tex, coord).r;
-	//	float hx = texture(wave_tex, particles[i].pos.xy + dx).r;
-	//	float hy = texture(wave_tex, particles[i].pos.xy + dy).r;
-	//	vec3 wx = vec3(dx.x, hx - h0, 0.0);
-	//	vec3 wy = vec3(0.0, hy - h0, dy.y);
-	//	vec3 wave_vector = cross(wx, wy);
-	//	vec3 wave_normal = normalize(wave_vector);
-	//	vec3 wave_dir = cross(wave_normal, vec3(0.0, 1.0, 0.0));
-	//
-	//	float wave_phase = dot(normal, wave_dir) * wave_speed; // Compute the phase of the wave at the particle's position
-	//	float particle_phase = mod(wave_phase, 2.0 * PI); // Compute the particle's phase relative to the wave
-	//	float phase_diff = wave_phase - particle_phase; // Compute the phase difference between the wave and the particle
-	//
-	//	// Compute the force on the particle due to the wave
-	//	float wave_height = 200.0f * sin(wave_phase); // Compute the height of the wave at the particle's position
-	//	float depth = height - particles[i].pos.y; // Compute the depth of the particle below the wave surface
-	//	float h = max(0.0, smoothing_length - depth); // Compute the overlapping height of the particle with the wave
-	//	wave_force = -h * projected_area * wave_speed * wave_speed * normal * (1.0 + cos(phase_diff));
-	//}
 
 	visc_force *= visc;
 
 	// Combine all forces
 	vec3 grav_force = particles[i].extras[0] * G;
-	particles[i].force.xyz = pres_force + visc_force + grav_force + wave_force;
+	particles[i].force.xyz = pres_force + visc_force + grav_force + WaveForce(i, coord);
 }
 
-vec3 WaveVelocity(ivec2 uv)
+vec3 WaveVelocity(vec2 uv)
 {
     const float h = 0.01f; // Small step
 
@@ -169,4 +146,78 @@ vec3 WaveVelocity(ivec2 uv)
 
 	vec3 velocity = vec3((heightX - height) / dt, (heightY - height) / dt, (heightY - heightX) / h);
 	return velocity;
+}
+
+// Gradient of the wave
+vec3 WaveGradient(vec2 uv)
+{
+	vec3 grad = vec3(texture(wave_tex, uv + vec2(eps, 0.0)).rg - texture(wave_tex, uv - vec2(eps, 0.0)).rg, 0.0);
+	grad += vec3(0.0, texture(wave_tex, uv + vec2(0.0, eps)).r - texture(wave_tex, uv - vec2(0.0, eps)).r, 0.0);
+	
+	return grad;
+}
+
+vec2 WaveVector(vec2 uv)
+{
+	vec3 grad = WaveGradient(uv);
+	return (2.0f * PI / texture_size.x * vec2(-grad.x, -grad.y));
+}
+
+// Angular frequency of wave
+float WaveOmega(vec2 uv)
+{
+	const float g = 9.81f; // gravitational acceleration
+	float depth = texture(wave_tex, uv).r; // depth of the water
+	float k_mag = length(WaveVector(uv));
+
+	return sqrt(g * k_mag * tanh(k_mag * depth));
+}
+
+// Direction of propogation
+vec2 WaveDirection(vec2 uv)
+{
+	return normalize(WaveVector(uv) / WaveOmega(uv));
+}
+
+float WaveDisplacement(vec3 pos, vec2 uv)
+{
+	return (50.0f * cos(WaveVector(uv).y * dot(WaveDirection(uv), pos.xy) + WaveOmega(uv) * dt));
+}
+
+// Normal to the wave at the given coordinate
+vec3 WaveNormal(vec2 uv)
+{
+	const float dx = 1.0f;
+
+	float hL = texture(wave_tex, ivec2(uv.x - dx, uv.y)).r;
+	float hR = texture(wave_tex, ivec2(uv.x + dx, uv.y)).r;
+	float hB = texture(wave_tex, ivec2(uv.x, uv.y - dx)).r;
+	float hT = texture(wave_tex, ivec2(uv.x, uv.y + dx)).r;
+
+	vec3 gradient = vec3(hL - hR, 2.0, hB - hT);
+
+	return normalize(gradient);
+}
+
+vec3 WaveForce(uint i, vec2 uv)
+{
+	vec3 force = vec3(0.0);
+	float h = particles[i].pos.y - texture(wave_tex, uv).r;
+	if (h > 0.0)
+	{
+		float k = 2.0 * PI / attributes[0];
+		float w = sqrt(0.986f * k);
+		vec3 wave_velocity = vec3(w / k, 0.0f, w / k);
+		float speed = dot(particles[i].vel.xyz, normalize(wave_velocity));
+		float drag_coeff = 0.1f;// * resting_rho * PARTICLE_RADIUS * PARTICLE_RADIUS * speed;
+		force += -drag_coeff * (particles[i].vel.xyz - wave_velocity);
+		force += -G * particles[i].extras[0] * WaveNormal(uv) * h;
+		if (h > 0.05f)
+		{
+			particles[i].extras[0] -= 50.0f;
+			particles[i].extras[1] += 0.05f;
+		}
+	}
+
+	return force;
 }
