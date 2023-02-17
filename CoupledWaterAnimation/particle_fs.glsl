@@ -16,7 +16,7 @@ const vec4 color1 = vec4(0.9f, 0.6f, 0.0f, 1.0f); // Purple
 
 void main ()
 {
-	//if (particle_pos.y < 0.0f) discard; // Ignore particles that are below surface
+	if (particle_pos.y < 0.0f) discard; // Ignore particles that are below surface
 
 	// Make circular particles
     float r = length(gl_PointCoord - vec2(0.35f));
