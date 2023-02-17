@@ -58,8 +58,8 @@ layout(std140, binding = 3) uniform WaveUniforms
 };
 
 const vec3 G = vec3(0.0f, -9806.65f, 0.0f); // Gravity force
+const float smoothing_length = smoothing_coeff * PARTICLE_RADIUS; // Smoothing length for neighbourhood
 const ivec2 texture_size = textureSize(wave_tex, 0);
-const vec2 normalized_tex_size = normalize(texture_size);
 const float dt = 0.00005f; // Time step
 const float eps = 0.00001f;
 
@@ -79,14 +79,13 @@ void main()
 	uint i = gl_GlobalInvocationID.x;
 	if(i >= NUM_PARTICLES) return;
 
-	const float smoothing_length = smoothing_coeff * PARTICLE_RADIUS; // Smoothing length for neighbourhood
+	// Kernels
 	const float spiky = -45.0f / (PI * pow(smoothing_length, 6)); // Spiky kernal
 	const float laplacian = -spiky; // Laplacian kernel
 
 	// Compute all forces
 	vec3 pres_force = vec3(0.0f);
 	vec3 visc_force = vec3(0.0f);
-	
 	for (uint j = 0; j < NUM_PARTICLES; j++)
 	{
 		if (i == j)
@@ -105,26 +104,27 @@ void main()
 
 	vec2 coord = particles[i].pos.xz * 2.0f; // Get XZ coordinate of particle
 	float height = texture(wave_tex, coord).r; // Sample height of wave
-	// Make wave particle
-	//if (height > 0.05f)
-	//{
-	//	wave_particle.pos = particles[i].pos; // Set the same position as the current particle
-	//	wave_particle.pos.y = lower.y + smoothing_length; // Set height of particle just below the wave surface
-	//	wave_particle.vel = vec4(WaveVelocity(coord).xzy, 0.0f); // Calculate velocity of the wave at this point
-	//
-	//	vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
-	//	wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
-	//	wave_particle.extras = vec4(10.0f * resting_rho, particles[i].extras[1], 0.0f, 0.0f); // Density, pressure, and age
-	//
-	//	// Add force from ghost wave particle
-	//	vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle
-	//	float wave_r = abs(length(wave_delta));
-	//	if(particles[i].pos.y < height && wave_r < 0.25f * smoothing_length)
-	//	{
-	//		pres_force -= mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
-	//		visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) / wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
-	//	}
-	//}
+
+	// Make ghost wave particle
+	if (height > 0.05f)
+	{
+		wave_particle.pos = particles[i].pos; // Set the same position as the current particle
+		wave_particle.pos.y = lower.y + smoothing_length; // Set height of particle just below the wave surface
+		wave_particle.vel = vec4(WaveVelocity(coord), 0.0f); // Calculate velocity of the wave at this point
+	
+		vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
+		wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
+		wave_particle.extras = vec4(500.0f * resting_rho, particles[i].extras[1], 0.0f, 0.0f); // Density, pressure, and age
+	
+		// Add force from ghost wave particle
+		vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle
+		float wave_r = abs(length(wave_delta));
+		if(wave_r < smoothing_length)
+		{
+			pres_force -= mass * (particles[i].extras[1] + wave_particle.extras[1]) / (2.0f * wave_particle.extras[0]) * spiky * pow(smoothing_length - wave_r, 2) * normalize(wave_delta); // Gradient of Spiky Kernel
+			visc_force += mass * (wave_particle.vel.xyz - particles[i].vel.xyz) / wave_particle.extras[0] * laplacian * (smoothing_length - wave_r); // Laplacian of viscosity kernel
+		}
+	}
 
 	visc_force *= visc;
 
