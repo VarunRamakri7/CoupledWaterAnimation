@@ -105,7 +105,6 @@ void main()
 
 	vec2 coord = particles[i].pos.xz * 2.0f; // Get XZ coordinate of particle
 	float height = texture(wave_tex, coord).r; // Sample height of wave
-
 	// Make wave particle
 	//if (height > 0.05f)
 	//{
@@ -193,7 +192,7 @@ vec3 WaveNormal(vec2 uv)
 	float hB = texture(wave_tex, ivec2(uv.x, uv.y - dx)).r;
 	float hT = texture(wave_tex, ivec2(uv.x, uv.y + dx)).r;
 
-	vec3 gradient = vec3(hL - hR, 2.0, hB - hT);
+	vec3 gradient = vec3(hL - hR, 0.0f, hB - hT);
 
 	return normalize(gradient);
 }
@@ -203,19 +202,19 @@ vec3 WaveForce(uint i, vec2 uv)
 {
 	vec3 force = vec3(0.0);
 	float h = particles[i].pos.y - texture(wave_tex, uv).r;
-	if (h > 0.0)
+	if (h > 0.0f)
 	{
 		float k = 2.0 * PI / attributes[0];
 		float w = sqrt(0.01f * G.y * k);
 		vec3 wave_velocity = vec3(w / k, 0.0f, w / k);
-		float speed = dot(particles[i].vel.xyz, normalize(wave_velocity));
-		float drag_coeff = 0.4f; //* resting_rho * PARTICLE_RADIUS * PARTICLE_RADIUS * speed;
-		force += -drag_coeff * (particles[i].vel.xyz - wave_velocity);
+		float speed = 100.0f;//dot(particles[i].vel.xyz, normalize(wave_velocity));
+		float drag_coeff = 0.5f * resting_rho * PARTICLE_RADIUS * PARTICLE_RADIUS * speed;
+		force = -drag_coeff * (particles[i].vel.xyz - wave_velocity);
 		force += -G * particles[i].extras[0] * WaveNormal(uv) * h;
-		if (h > 0.05f)
+		if (h > 0.05f) // Foam threshold
 		{
-			particles[i].extras[0] -= 50.0f;
-			particles[i].extras[1] += 0.05f;
+			particles[i].extras[0] -= 100.0f; // Density decrease
+			particles[i].extras[1] += 50.0f; // Foam amount
 		}
 	}
 
