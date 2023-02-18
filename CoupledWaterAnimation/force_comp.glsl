@@ -68,10 +68,8 @@ Particle wave_particle;
 vec3 WaveVelocity(vec2 uv);
 vec3 WaveGradient(vec2 uv);
 vec2 WaveVector(vec2 uv);
-float WaveOmega(vec2 uv);
-vec2 WaveDirection(vec2 uv);
-float WaveDisplacement(vec3 pos, vec2 uv);
 vec3 WaveNormal(vec2 uv);
+float WaveLength(vec2 uv);
 vec3 WaveForce(uint i, vec2 uv);
 
 void main()
@@ -161,40 +159,34 @@ vec2 WaveVector(vec2 uv)
 	return (2.0f * PI / texture_size.x * vec2(-grad.x, -grad.y));
 }
 
-// Angular frequency of wave
-float WaveOmega(vec2 uv)
-{
-	const float g = 9.81f; // gravitational acceleration
-	float depth = texture(wave_tex, uv).r; // depth of the water
-	float k_mag = length(WaveVector(uv));
-
-	return sqrt(g * k_mag * tanh(k_mag * depth));
-}
-
-// Direction of propogation
-vec2 WaveDirection(vec2 uv)
-{
-	return normalize(WaveVector(uv) / WaveOmega(uv));
-}
-
-float WaveDisplacement(vec3 pos, vec2 uv)
-{
-	return (50.0f * cos(WaveVector(uv).y * dot(WaveDirection(uv), pos.xy) + WaveOmega(uv) * dt));
-}
-
 // Normal to the wave at the given coordinate
 vec3 WaveNormal(vec2 uv)
 {
-	const float dx = 1.0f;
+	float height = texture(wave_tex, uv).r;
 
-	float hL = texture(wave_tex, ivec2(uv.x - dx, uv.y)).r;
-	float hR = texture(wave_tex, ivec2(uv.x + dx, uv.y)).r;
-	float hB = texture(wave_tex, ivec2(uv.x, uv.y - dx)).r;
-	float hT = texture(wave_tex, ivec2(uv.x, uv.y + dx)).r;
+    vec3 dx = vec3(1.0, 0.0, texture(wave_tex, uv + vec2(1.0, 0.0)).r - height);
+    vec3 dy = vec3(0.0, 1.0, texture(wave_tex, uv + vec2(0.0, 1.0)).r - height);
 
-	vec3 gradient = vec3(hL - hR, 0.0f, hB - hT);
+    return cross(dy, dx);
+}
 
-	return normalize(gradient);
+float WaveLength(vec2 uv)
+{
+	// Sample the heightfield at the particle's position
+	float h_center = texture(wave_tex, uv).r;
+
+	// Sample neighboring pixels to estimate the wavelength
+	float h_right = texture(wave_tex, uv + vec2(1.0, 0.0) * texture_size).r;
+	float h_left = texture(wave_tex, uv - vec2(1.0, 0.0) * texture_size).r;
+	float h_top = texture(wave_tex, uv + vec2(0.0, 1.0) * texture_size).r;
+	float h_bottom = texture(wave_tex, uv - vec2(0.0, 1.0) * texture_size).r;
+
+	// Estimate the x and y wavelengths using the distances between samples
+	float lambda_x = 2.0 * texture_size.x / (h_right - h_left);
+	float lambda_y = 2.0 * texture_size.y / (h_top - h_bottom);
+
+	// Use the average wavelength as the final estimate
+	return 0.5f * (lambda_x + lambda_y);
 }
 
 // TODO: Fix calculation
