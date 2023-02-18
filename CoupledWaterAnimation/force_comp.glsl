@@ -128,7 +128,9 @@ void main()
 
 	// Combine all forces
 	vec3 grav_force = particles[i].extras[0] * G;
-	particles[i].force.xyz = pres_force + visc_force + grav_force;// + WaveForce(i, coord);
+	vec3 torque = cross(particles[i].pos.xyz, particles[i].force.xyz);
+	torque *= 0.25f; // Rotational coefficient
+	particles[i].force.xyz = pres_force + visc_force + grav_force + torque;// + WaveForce(i, coord);
 }
 
 vec3 WaveVelocity(vec2 uv)
