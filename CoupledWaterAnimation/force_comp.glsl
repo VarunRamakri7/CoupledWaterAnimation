@@ -130,13 +130,15 @@ void main()
 	vec3 torque = cross(particles[i].pos.xyz, particles[i].force.xyz);
 	torque *= 0.25f; // Rotational coefficient
 
-	// Apply a drag force from the wave to the particles
+	// Drag force from the wave on the particles
 	vec3 rel_vel = particles[i].vel.xyz - WaveVelocity(coord); // Relative velocity
 	vec3 drag_force = -0.25f * rel_vel;
 
+	vec3 wave_force = -height * WaveNormal(coord) * 0.5f; // Force from the wave in the opposite direction of the wave
+
 	// Combine all forces
 	vec3 grav_force = particles[i].extras[0] * G;
-	particles[i].force.xyz = pres_force + visc_force + grav_force + torque + drag_force;// + WaveForce(i, coord);
+	particles[i].force.xyz = pres_force + visc_force + grav_force + torque + drag_force + wave_force;// + WaveForce(i, coord);
 }
 
 vec3 WaveVelocity(vec2 uv)
