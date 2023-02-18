@@ -56,8 +56,6 @@ const float dt = 0.00005f; // Time step
 
 Particle wave_particle;
 
-vec3 WaveVelocity(ivec2 uv);
-
 void main()
 {
     uint i = gl_GlobalInvocationID.x;
