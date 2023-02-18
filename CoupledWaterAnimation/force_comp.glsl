@@ -108,7 +108,7 @@ void main()
 	{
 		wave_particle.pos = particles[i].pos; // Set the same position as the current particle
 		wave_particle.pos.y = lower.y + smoothing_length; // Set height of particle just below the wave surface
-		wave_particle.vel = vec4(WaveVelocity(coord), 0.0f); // Calculate velocity of the wave at this point
+		wave_particle.vel = vec4(normalize(WaveVelocity(coord)), 0.0f); // Calculate velocity of the wave at this point
 	
 		vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
 		wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
@@ -140,7 +140,7 @@ vec3 WaveVelocity(vec2 uv)
 	float heightX = texture(wave_tex, vec2(uv.x + h, uv.y)).r;
 	float heightY = texture(wave_tex, vec2(uv.x, uv.y + h)).r;
 
-	vec3 velocity = vec3((heightX - height) / dt, (heightY - height) / dt, (heightY - heightX) / h);
+	vec3 velocity = vec3((heightX - height) / dt, (heightY - height) / dt, (heightX - heightY) / h);
 	return velocity;
 }
 
