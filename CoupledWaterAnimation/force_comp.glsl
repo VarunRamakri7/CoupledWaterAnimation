@@ -61,16 +61,11 @@ const vec3 G = vec3(0.0f, -9806.65f, 0.0f); // Gravity force
 const float smoothing_length = smoothing_coeff * PARTICLE_RADIUS; // Smoothing length for neighbourhood
 const ivec2 texture_size = textureSize(wave_tex, 0);
 const float dt = 0.00005f; // Time step
-const float eps = 0.00001f;
 
 Particle wave_particle;
 
 vec3 WaveVelocity(vec2 uv);
-vec3 WaveGradient(vec2 uv);
-vec2 WaveVector(vec2 uv);
 vec3 WaveNormal(vec2 uv);
-float WaveLength(vec2 uv);
-vec3 WaveForce(uint i, vec2 uv);
 
 void main()
 {
@@ -134,7 +129,7 @@ void main()
 	vec3 rel_vel = particles[i].vel.xyz - WaveVelocity(coord); // Relative velocity
 	vec3 drag_force = -0.25f * rel_vel;
 
-	vec3 wave_force = -height * WaveNormal(coord) * 0.5f; // Force from the wave in the opposite direction of the wave
+	vec3 wave_force = -height * WaveNormal(coord) * 0.5f; // Approximate force from the wave in the opposite direction
 
 	// Combine all forces
 	vec3 grav_force = particles[i].extras[0] * G;
@@ -154,21 +149,6 @@ vec3 WaveVelocity(vec2 uv)
 	return velocity;
 }
 
-// Gradient of the wave
-vec3 WaveGradient(vec2 uv)
-{
-	vec3 grad = vec3(texture(wave_tex, uv + vec2(eps, 0.0)).rg - texture(wave_tex, uv - vec2(eps, 0.0)).rg, 0.0);
-	grad += vec3(0.0, texture(wave_tex, uv + vec2(0.0, eps)).r - texture(wave_tex, uv - vec2(0.0, eps)).r, 0.0);
-	
-	return grad;
-}
-
-vec2 WaveVector(vec2 uv)
-{
-	vec3 grad = WaveGradient(uv);
-	return (2.0f * PI / texture_size.x * vec2(-grad.x, -grad.y));
-}
-
 // Normal to the wave at the given coordinate
 vec3 WaveNormal(vec2 uv)
 {
@@ -178,47 +158,4 @@ vec3 WaveNormal(vec2 uv)
     vec3 dy = vec3(0.0, 1.0, texture(wave_tex, uv + vec2(0.0, 1.0)).r - height);
 
     return cross(dy, dx);
-}
-
-float WaveLength(vec2 uv)
-{
-	// Sample the heightfield at the particle's position
-	float h_center = texture(wave_tex, uv).r;
-
-	// Sample neighboring pixels to estimate the wavelength
-	float h_right = texture(wave_tex, uv + vec2(1.0, 0.0) * texture_size).r;
-	float h_left = texture(wave_tex, uv - vec2(1.0, 0.0) * texture_size).r;
-	float h_top = texture(wave_tex, uv + vec2(0.0, 1.0) * texture_size).r;
-	float h_bottom = texture(wave_tex, uv - vec2(0.0, 1.0) * texture_size).r;
-
-	// Estimate the x and y wavelengths using the distances between samples
-	float lambda_x = 2.0 * texture_size.x / (h_right - h_left);
-	float lambda_y = 2.0 * texture_size.y / (h_top - h_bottom);
-
-	// Use the average wavelength as the final estimate
-	return 0.5f * (lambda_x + lambda_y);
-}
-
-// TODO: Fix calculation
-vec3 WaveForce(uint i, vec2 uv)
-{
-	vec3 force = vec3(0.0);
-	float h = particles[i].pos.y - texture(wave_tex, uv).r;
-	if (h > 0.0f)
-	{
-		float k = 2.0 * PI / attributes[0];
-		float w = sqrt(0.01f * G.y * k);
-		vec3 wave_velocity = vec3(w / k, 0.0f, w / k);
-		float speed = 100.0f;//dot(particles[i].vel.xyz, normalize(wave_velocity));
-		float drag_coeff = 0.5f * resting_rho * PARTICLE_RADIUS * PARTICLE_RADIUS * speed;
-		force = -drag_coeff * (particles[i].vel.xyz - wave_velocity);
-		force += -G * particles[i].extras[0] * WaveNormal(uv) * h;
-		if (h > 0.05f) // Foam threshold
-		{
-			particles[i].extras[0] -= 100.0f; // Density decrease
-			particles[i].extras[1] += 50.0f; // Foam amount
-		}
-	}
-
-	return force;
 }
