@@ -78,7 +78,7 @@ void main()
 	if(i >= NUM_PARTICLES) return;
 
 	// Kernels
-	const float spiky = -45.0f / (PI * pow(smoothing_length, 6)); // Spiky kernal
+	const float spiky = -20.0f / (PI * pow(smoothing_length, 6)); // Spiky kernal
 	const float laplacian = -spiky; // Laplacian kernel
 
 	// Compute all forces
