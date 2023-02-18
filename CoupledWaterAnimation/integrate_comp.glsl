@@ -62,7 +62,7 @@ void main()
     if(length(new_vel) > 25.0f)
     {
         // Decrease and damp attributes to emulate foam-like behaviour
-        particles[i].force *= 0.1f;
+        particles[i].force *= 0.5f;
         particles[i].extras[0] *= 0.1f;
         particles[i].extras[1] *= 0.25f;
         new_vel *= 0.1f;
