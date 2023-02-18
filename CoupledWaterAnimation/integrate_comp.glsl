@@ -56,8 +56,17 @@ void main()
     vec3 new_vel = particles[i].vel.xyz + dt * acceleration;
     vec3 new_pos = particles[i].pos.xyz + dt * new_vel;
 
-    // Add damping to the particle velocity
-    new_vel *= 1.0f - DAMPING * dt;
+    new_vel *= 1.0f - DAMPING * dt; // Damp particle velocity
+
+    // Make particle behave like foam
+    if(length(new_vel) > 25.0f)
+    {
+        // Decrease and damp attributes to emulate foam-like behaviour
+        particles[i].force *= 0.1f;
+        particles[i].extras[0] *= 0.1f;
+        particles[i].extras[1] *= 0.25f;
+        new_vel *= 0.1f;
+    }
 
     // Boundary conditions
     if (new_pos.x < lower.x)
