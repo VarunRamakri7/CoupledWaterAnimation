@@ -99,7 +99,7 @@ void InitWave(ivec2 coord)
 	ivec2 cen1 = ivec2(0.75*size);
 
 	float d = min(distance(coord, cen0), distance(coord, cen1));
-	vout.x = 0.5*smoothstep(3.0, 0.0, d);
+	vout.x = 0.5*smoothstep(5.0, 0.0, d);
 	imageStore(uOutputImage, coord, vout);
 }
 
