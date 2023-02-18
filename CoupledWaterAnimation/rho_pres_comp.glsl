@@ -77,6 +77,17 @@ void main()
         }
     }
 
-    particles[i].extras[0] = max(resting_rho, rho); // Assign computed value
-	particles[i].extras[1] = max(GAS_CONST * (rho - resting_rho), 0.0f); // Compute Pressure
+    //particles[i].extras[0] = max(resting_rho, rho); // Assign computed value
+	//particles[i].extras[1] = max(GAS_CONST * (rho - resting_rho), 0.0f); // Compute Pressure
+
+    float pressure = max(GAS_CONST * (rho - resting_rho), 0.0f); // Compute Pressure
+    
+    // Add force from wave
+    float wave_force = texture(wave_tex, 2.0f * particles[i].pos.xz).r * particles[i].extras[0];
+    
+    pressure += wave_force;
+    rho += wave_force / (GAS_CONST * PARTICLE_RADIUS);
+    
+    particles[i].extras[0] = rho; // Assign computed density
+	particles[i].extras[1] = pressure; // Assign computed pressure
 }
