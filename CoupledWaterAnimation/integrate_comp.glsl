@@ -56,6 +56,9 @@ void main()
     vec3 new_vel = particles[i].vel.xyz + dt * acceleration;
     vec3 new_pos = particles[i].pos.xyz + dt * new_vel;
 
+    // Add damping to the particle velocity
+    new_vel *= 1.0f - DAMPING * dt;
+
     // Boundary conditions
     if (new_pos.x < lower.x)
     {
