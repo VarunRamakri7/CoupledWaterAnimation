@@ -78,7 +78,5 @@ void main()
     }
 
     particles[i].extras[0] = max(resting_rho, rho); // Assign computed value
-    
-    // Compute Pressure
-	particles[i].extras[1] = max(GAS_CONST * (rho - resting_rho), 0.0f);
+	particles[i].extras[1] = max(GAS_CONST * (rho - resting_rho), 0.0f); // Compute Pressure
 }
