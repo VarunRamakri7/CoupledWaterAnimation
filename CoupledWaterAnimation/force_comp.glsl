@@ -48,8 +48,8 @@ layout(std140, binding = 1) uniform ConstantsUniform
 
 layout(std140, binding = 2) uniform BoundaryUniform
 {
-    vec4 upper; // Upper bounds of particle area
-    vec4 lower; // Lower bounds of particle area
+    vec4 upper; // XYZ - Upper bounds, W - Foam threshold
+    vec4 lower; // XYZ - Lower bounds, W - Density coefficient
 };
 
 layout(std140, binding = 3) uniform WaveUniforms
@@ -114,7 +114,7 @@ void main()
 	
 		vec3 wave_acc = (wave_particle.vel.xyz - particles[i].vel.xyz) / dt;
 		wave_particle.force = vec4(mass * wave_acc, 0.0f); // Force exerted by wave
-		wave_particle.extras = vec4(500.0f * resting_rho, particles[i].extras[1], 0.0f, 0.0f); // Density, pressure, and age
+		wave_particle.extras = vec4(upper.w * resting_rho, lower.w * particles[i].extras[1], 0.0f, 0.0f); // Density, pressure, and age
 	
 		// Add force from ghost wave particle
 		vec3 wave_delta = particles[i].pos.xyz - wave_particle.pos.xyz; // Vector between wave ghost particle and current particle

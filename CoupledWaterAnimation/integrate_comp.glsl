@@ -40,8 +40,8 @@ layout(std430, binding = 1) buffer WAVE
 
 layout(std140, binding = 2) uniform BoundaryUniform
 {
-    vec4 upper; // Upper bounds of particle area
-    vec4 lower; // Lower bounds of particle area
+    vec4 upper; // XYZ - Upper bounds, W - Foam threshold
+    vec4 lower; // XYZ - Lower bounds, W - Density coefficient
 };
 
 const float dt = 0.00005f; // Time step

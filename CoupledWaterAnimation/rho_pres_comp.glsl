@@ -46,8 +46,8 @@ layout(std140, binding = 1) uniform ConstantsUniform
 
 layout(std140, binding = 2) uniform BoundaryUniform
 {
-    vec4 upper; // Upper bounds of particle area
-    vec4 lower; // Lower bounds of particle area
+    vec4 upper; // XYZ - Upper bounds, W - Foam threshold
+    vec4 lower; // XYZ - Lower bounds, W - Density coefficient
 };
 
 const float GAS_CONST = 4000.0f; // const for equation of state

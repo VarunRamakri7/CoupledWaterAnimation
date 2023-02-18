@@ -103,8 +103,8 @@ struct ConstantsUniform
 
 struct BoundaryUniform
 {
-    glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 1.0f);
-    glm::vec4 lower = glm::vec4(0.0f, -0.02f, 0.0f, 1.0f);
+    glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 500.0f); // XYZ - Upper bounds, W - Foam Threshold
+    glm::vec4 lower = glm::vec4(0.0f, -0.02f, 0.0f, 50.0f); // XYZ - Lower bounds, W - Density coefficient
 }BoundaryData;
 
 struct WaveUniforms
@@ -190,7 +190,9 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Viscosity", &ConstantsData.visc, 1000.0f, 5000.0f);
     ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
     ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
-    ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
+    ImGui::SliderFloat3("Lower Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
+    ImGui::SliderFloat("Foam Threshold", &BoundaryData.upper.w, 500.0f, 2000.0f);
+    ImGui::SliderFloat("Density coeffecient", &BoundaryData.lower.w, 50.0f, 200.0f);
     ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.1f, 0.45f);
     ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.9f, 1.0f);
     ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
@@ -430,7 +432,6 @@ std::vector<glm::vec4> make_cube()
     const float spacing = ConstantsData.smoothing_coeff * 0.85f * PARTICLE_RADIUS;
     //const float spacing = (BoundaryData.upper.x - BoundaryData.lower.x) / 25;
 
-
     // 50x4x50 cuboid of particles above the wave surface
     const float mid = 0.0f; // (BoundaryData.upper.x + BoundaryData.lower.x) / 4.0f;
     for (int i = 0; i < 50; i++)
@@ -463,7 +464,7 @@ void init_particles()
         particles[i].pos = grid_positions[i];
         particles[i].vel = glm::vec4(0.0f); // // No initial velocity
         particles[i].force = glm::vec4(0.0f); // No initial force
-        particles[i].extras = glm::vec4(ConstantsData.resting_rho, 0.0f, 0.0f, 0.0f); // 0 - rho, 1 - pressure, 2 - age
+        particles[i].extras = glm::vec4(ConstantsData.resting_rho, 0.0f, 500.0f, 50.0f); // 0 - rho, 1 - pressure, 2 - foam threshold, 3 - density coefficient
     }
     //std::cout << "Particles count: " << particles.size() << std::endl;
 
