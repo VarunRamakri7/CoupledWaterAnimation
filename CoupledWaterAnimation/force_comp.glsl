@@ -112,7 +112,7 @@ void main()
 
 	// Combine all forces
 	vec3 grav_force = particles[i].extras[0] * G;
-	particles[i].force.xyz = pres_force + visc_force + grav_force + torque + drag_force + wave_force;// + WaveForce(i, coord);
+	particles[i].force.xyz = pres_force + visc_force + grav_force + torque + drag_force + wave_force;
 }
 
 vec3 WaveVelocity(vec2 uv)
