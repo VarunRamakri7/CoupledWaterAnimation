@@ -213,7 +213,7 @@ void display(GLFWwindow* window)
 
     SceneData.eye_w = glm::vec4(eye, 1.0f);
     glm::mat4 V = glm::lookAt(glm::vec3(SceneData.eye_w), center, glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 P = glm::perspective(glm::pi<float>() / 4.0f, 1.0f, 0.1f, 100.0f);
+    glm::mat4 P = glm::perspective(glm::pi<float>() / 4.0f, aspect, 0.1f, 100.0f);
     SceneData.PV = P * V;
 
     //Set uniforms
