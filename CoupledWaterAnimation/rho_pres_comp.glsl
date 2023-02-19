@@ -56,6 +56,8 @@ const float dt = 0.00005f; // Time step
 
 Particle wave_particle;
 
+float WaveSteepness(vec2 uv);
+
 void main()
 {
     uint i = gl_GlobalInvocationID.x;
@@ -82,7 +84,9 @@ void main()
 
     float pressure = max(GAS_CONST * (rho - resting_rho), 0.0f); // Compute Pressure
 
-    float height = texture(wave_tex, 2.0f * particles[i].pos.xz).r;
+    vec2 coord = 2.0f * particles[i].pos.xz;
+    float height = texture(wave_tex, coord).r;
+
     float wave_force = height * rho; // Approximate force from wave
     pressure += wave_force;
     rho += wave_force / (GAS_CONST * PARTICLE_RADIUS);
@@ -99,6 +103,42 @@ void main()
     //rho += wave_force / (GAS_CONST * PARTICLE_RADIUS);
     //pressure += wave_force;
     
+    // Check if breaking wave threshold is exceeded
+    float steepness = WaveSteepness(coord);
+    if (steepness > 0.01f)
+    {
+        // Reduce smoothing length and increase pressure
+        const float breaking_smoothing_length = 0.5f * smoothing_length;
+        for (uint j = 0; j < NUM_PARTICLES; j++)
+        {
+            vec3 delta = particles[i].pos.xyz - particles[j].pos.xyz; // Get vector between current particle and particle in vicinity
+            float r = length(delta); // Get length of the vector
+            if (r < breaking_smoothing_length) // Check if particle is inside breaking smoothing radius
+            {
+                rho += mass * 315.0f * pow(breaking_smoothing_length * breaking_smoothing_length - r * r, 3) / (64.0f * PI * pow(breaking_smoothing_length, 9)); // Use Poly6 kernal
+                pressure += 0.5f * (0.01f - steepness);
+            }
+        }
+    }
+
     particles[i].extras[0] = max(resting_rho, rho); // Assign computed density
 	particles[i].extras[1] = pressure; // Assign computed pressure
+}
+
+float WaveSteepness(vec2 uv)
+{
+    float h = texture(wave_tex, uv).r;
+    
+    // Sample wave height at neighboring pixels
+    float hL = texture(wave_tex, vec2(uv.x - 1.0f / texture_size.x, uv.y)).r;
+    float hR = texture(wave_tex, vec2(uv.x + 1.0f / texture_size.x, uv.y)).r;
+    float hB = texture(wave_tex, vec2(uv.x, uv.y - 1.0f / texture_size.x)).r;
+    float hT = texture(wave_tex, vec2(uv.x, uv.y + 1.0f / texture_size.x)).r;
+    
+    // Calculate slope in x and y direction
+    float slopeX = (hL - 2.0*h + hR) / pow(1.0f / texture_size.x, 2);
+    float slopeY = (hB - 2.0*h + hT) / pow(1.0f / texture_size.x, 2);
+    
+    // Calculate steepness using the slope    
+    return sqrt(pow(slopeX, 2) + pow(slopeY, 2));
 }
