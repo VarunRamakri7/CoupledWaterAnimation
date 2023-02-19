@@ -193,7 +193,7 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat3("Lower Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
     //ImGui::SliderFloat("Foam Threshold", &BoundaryData.upper.w, 500.0f, 2000.0f);
     //ImGui::SliderFloat("Density coeffecient", &BoundaryData.lower.w, 50.0f, 200.0f);
-    ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.1f, 0.45f);
+    ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.01f, 0.09f);
     ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.9f, 1.0f);
     ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
     ImGui::End();
