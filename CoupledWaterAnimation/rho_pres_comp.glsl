@@ -81,13 +81,24 @@ void main()
 	//particles[i].extras[1] = max(GAS_CONST * (rho - resting_rho), 0.0f); // Compute Pressure
 
     float pressure = max(GAS_CONST * (rho - resting_rho), 0.0f); // Compute Pressure
-    
-    // Add force from wave
-    float wave_force = texture(wave_tex, 2.0f * particles[i].pos.xz).r * particles[i].extras[0];
-    
+
+    float height = texture(wave_tex, 2.0f * particles[i].pos.xz).r;
+    float wave_force = height * rho; // Approximate force from wave
     pressure += wave_force;
     rho += wave_force / (GAS_CONST * PARTICLE_RADIUS);
+
+    //float wave_velocity = sqrt(9.81f * height);
+    //float vel = length(particles[i].vel.xyz - wave_velocity * vec3(1.0, 0.0, 0.0));
     
-    particles[i].extras[0] = rho; // Assign computed density
+    // Calculate wave force with Bernouli's Equation
+    //float p1 = 0.5f * resting_rho * PARTICLE_RADIUS * PARTICLE_RADIUS * height * height;
+    //float p2 = 0.25f * resting_rho * PARTICLE_RADIUS * PARTICLE_RADIUS * vel * vel;
+    //float wave_force = 0.45f * (p1 + p2);
+    
+    // Update density and pressure
+    //rho += wave_force / (GAS_CONST * PARTICLE_RADIUS);
+    //pressure += wave_force;
+    
+    particles[i].extras[0] = max(resting_rho, rho); // Assign computed density
 	particles[i].extras[1] = pressure; // Assign computed pressure
 }
