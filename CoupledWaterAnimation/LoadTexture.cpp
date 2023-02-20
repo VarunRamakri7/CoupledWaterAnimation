@@ -31,3 +31,40 @@ GLuint LoadTexture(const std::string& fname)
 
    return tex_id;
 }
+
+GLuint LoadCubemap(const std::vector<std::string>& faces)
+{
+    GLuint tex_id;
+    
+    glGenTextures(1, &tex_id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, tex_id);
+
+    GLubyte* byteImg = nullptr;
+    for (unsigned int i = 0; i < faces.size(); i++)
+    {
+        FIBITMAP* tempImg = FreeImage_Load(FreeImage_GetFileType(faces[i].c_str(), 0), faces[i].c_str());
+        FIBITMAP* img = FreeImage_ConvertTo32Bits(tempImg);
+
+        FreeImage_Unload(tempImg);
+
+        GLuint w = FreeImage_GetWidth(img);
+        GLuint h = FreeImage_GetHeight(img);
+        GLuint scanW = FreeImage_GetPitch(img);
+
+        byteImg = new GLubyte[h * scanW];
+        FreeImage_ConvertToRawBits(byteImg, img, scanW, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, FALSE);
+        FreeImage_Unload(img);
+
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, byteImg);
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    delete byteImg;
+
+    return tex_id;
+}
