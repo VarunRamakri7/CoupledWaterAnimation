@@ -68,52 +68,52 @@ std::vector<std::string> faces =
     "skybox-textures/negx.jpg", // Left
     "skybox-textures/posy.jpg", // Top
     "skybox-textures/negy.jpg", // Bottom
-    "skybox-textures/negz.jpg", // Front
-    "skybox-textures/posz.jpg" // Back
+    "skybox-textures/posz.jpg", // Back
+    "skybox-textures/negz.jpg" // Front
 };
 const float skyboxVertices[] = {
     // positions          
-    -10.0f,  10.0f, -10.0f,
-    -10.0f, -10.0f, -10.0f,
-    10.0f, -10.0f, -10.0f,
-    10.0f, -10.0f, -10.0f,
-    10.0f,  10.0f, -10.0f,
-    -10.0f,  10.0f, -10.0f,
+    -100.0f,  100.0f, -100.0f,
+    -100.0f, -100.0f, -100.0f,
+    100.0f, -100.0f, -100.0f,
+    100.0f, -100.0f, -100.0f,
+    100.0f,  100.0f, -100.0f,
+    -100.0f,  100.0f, -100.0f,
 
-    -10.0f, -10.0f,  10.0f,
-    -10.0f, -10.0f, -10.0f,
-    -10.0f,  10.0f, -10.0f,
-    -10.0f,  10.0f, -10.0f,
-    -10.0f,  10.0f,  10.0f,
-    -10.0f, -10.0f,  10.0f,
+    -100.0f, -100.0f,  100.0f,
+    -100.0f, -100.0f, -100.0f,
+    -100.0f,  100.0f, -100.0f,
+    -100.0f,  100.0f, -100.0f,
+    -100.0f,  100.0f,  100.0f,
+    -100.0f, -100.0f,  100.0f,
     
-    10.0f, -10.0f, -10.0f,
-    10.0f, -10.0f,  10.0f,
-    10.0f,  10.0f,  10.0f,
-    10.0f,  10.0f,  10.0f,
-    10.0f,  10.0f, -10.0f,
-    10.0f, -10.0f, -10.0f,
+    100.0f, -100.0f, -100.0f,
+    100.0f, -100.0f,  100.0f,
+    100.0f,  100.0f,  100.0f,
+    100.0f,  100.0f,  100.0f,
+    100.0f,  100.0f, -100.0f,
+    100.0f, -100.0f, -100.0f,
 
-     -10.0f, -10.0f,  10.0f,
-    -10.0f,  10.0f,  10.0f,
-    10.0f,  10.0f,  10.0f,
-    10.0f,  10.0f,  10.0f,
-    10.0f, -10.0f,  10.0f,
-    -10.0f, -10.0f,  10.0f,
+     -100.0f, -100.0f,  100.0f,
+    -100.0f,  100.0f,  100.0f,
+    100.0f,  100.0f,  100.0f,
+    100.0f,  100.0f,  100.0f,
+    100.0f, -100.0f,  100.0f,
+    -100.0f, -100.0f,  100.0f,
 
-    -10.0f,  10.0f, -10.0f,
-    10.0f,  10.0f, -10.0f,
-    10.0f,  10.0f,  10.0f,
-    10.0f,  10.0f,  10.0f,
-    -10.0f,  10.0f,  10.0f,
-    -10.0f,  10.0f, -10.0f,
+    -100.0f,  100.0f, -100.0f,
+    100.0f,  100.0f, -100.0f,
+    100.0f,  100.0f,  100.0f,
+    100.0f,  100.0f,  100.0f,
+    -100.0f,  100.0f,  100.0f,
+    -100.0f,  100.0f, -100.0f,
 
-    -10.0f, -10.0f, -10.0f,
-    -10.0f, -10.0f,  10.0f,
-    10.0f, -10.0f, -10.0f,
-    10.0f, -10.0f, -10.0f,
-    -10.0f, -10.0f,  10.0f,
-    10.0f, -10.0f,  10.0f
+    -100.0f, -100.0f, -100.0f,
+    -100.0f, -100.0f,  100.0f,
+    100.0f, -100.0f, -100.0f,
+    100.0f, -100.0f, -100.0f,
+    -100.0f, -100.0f,  100.0f,
+    100.0f, -100.0f,  100.0f
 };
 GLuint skybox_vao;
 GLuint skybox_vbo;
@@ -158,7 +158,7 @@ struct ConstantsUniform
 struct BoundaryUniform
 {
     glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 500.0f); // XYZ - Upper bounds, W - Foam Threshold
-    glm::vec4 lower = glm::vec4(0.0f, -0.02f, 0.0f, 50.0f); // XYZ - Lower bounds, W - Density coefficient
+    glm::vec4 lower = glm::vec4(0.0f, -0.02f, 0.0f, 100.0f); // XYZ - Lower bounds, W - Density coefficient
 }BoundaryData;
 
 struct WaveUniforms
@@ -246,7 +246,7 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
     ImGui::SliderFloat3("Lower Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
     //ImGui::SliderFloat("Foam Threshold", &BoundaryData.upper.w, 500.0f, 2000.0f);
-    //ImGui::SliderFloat("Density coeffecient", &BoundaryData.lower.w, 50.0f, 200.0f);
+    //ImGui::SliderFloat("Density coeffecient", &BoundaryData.lower.w, 100.0f, 200.0f);
     ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.01f, 0.09f);
     ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.9f, 1.0f);
     ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
@@ -550,7 +550,7 @@ void init_particles()
         particles[i].pos = grid_positions[i];
         particles[i].vel = glm::vec4(0.0f); // // No initial velocity
         particles[i].force = glm::vec4(0.0f); // No initial force
-        particles[i].extras = glm::vec4(ConstantsData.resting_rho, 0.0f, 500.0f, 50.0f); // 0 - rho, 1 - pressure, 2 - foam threshold, 3 - density coefficient
+        particles[i].extras = glm::vec4(ConstantsData.resting_rho, 0.0f, 500.0f, 100.0f); // 0 - rho, 1 - pressure, 2 - foam threshold, 3 - density coefficient
     }
     //std::cout << "Particles count: " << particles.size() << std::endl;
 
