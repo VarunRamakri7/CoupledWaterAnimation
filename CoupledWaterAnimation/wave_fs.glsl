@@ -1,6 +1,7 @@
 #version 450
 
 layout(binding = 0) uniform sampler2D wave_tex;
+layout(binding = 1) uniform samplerCube skybox_tex;
 layout(location = 1) uniform float time;
 
 in VertexData
@@ -22,4 +23,6 @@ void main(void)
 	v.x = smoothstep(-0.01, 0.01, v.x);
 	
 	fragcolor = vec4(mix(wave_col, color0, v.x));
+
+	//fragcolor = texture(skybox_tex, normalize(inData.pw));
 }
