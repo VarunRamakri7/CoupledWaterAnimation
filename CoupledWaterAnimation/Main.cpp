@@ -64,20 +64,20 @@ StencilImage2DTripleBuffered wave2d;
 const std::string directory = "skybox-textures/";
 std::vector<std::string> faces =
 { 
-    directory + "posx.jpg",
-    directory + "negx.jpg",
-    directory + "posy.jpg",
-    directory + "negy.jpg",
-    directory + "posz.jpg",
-    directory + "negz.jpg"
+    "skybox-textures/posx.jpg", // Right
+    "skybox-textures/negx.jpg", // Left
+    "skybox-textures/posy.jpg", // Top
+    "skybox-textures/negy.jpg", // Bottom
+    "skybox-textures/negz.jpg", // Front
+    "skybox-textures/posz.jpg" // Back
 };
 const float skyboxVertices[] = {
     // positions          
     -10.0f,  10.0f, -10.0f,
     -10.0f, -10.0f, -10.0f,
-     10.0f, -10.0f, -10.0f,
-     10.0f, -10.0f, -10.0f,
-     10.0f,  10.0f, -10.0f,
+    10.0f, -10.0f, -10.0f,
+    10.0f, -10.0f, -10.0f,
+    10.0f,  10.0f, -10.0f,
     -10.0f,  10.0f, -10.0f,
 
     -10.0f, -10.0f,  10.0f,
@@ -86,34 +86,34 @@ const float skyboxVertices[] = {
     -10.0f,  10.0f, -10.0f,
     -10.0f,  10.0f,  10.0f,
     -10.0f, -10.0f,  10.0f,
-
+    
     10.0f, -10.0f, -10.0f,
-     10.0f, -10.0f,  10.0f,
-     10.0f,  10.0f,  10.0f,
-     10.0f,  10.0f,  10.0f,
-     10.0f,  10.0f, -10.0f,
-     10.0f, -10.0f, -10.0f,
+    10.0f, -10.0f,  10.0f,
+    10.0f,  10.0f,  10.0f,
+    10.0f,  10.0f,  10.0f,
+    10.0f,  10.0f, -10.0f,
+    10.0f, -10.0f, -10.0f,
 
      -10.0f, -10.0f,  10.0f,
     -10.0f,  10.0f,  10.0f,
-     10.0f,  10.0f,  10.0f,
-     10.0f,  10.0f,  10.0f,
-     10.0f, -10.0f,  10.0f,
+    10.0f,  10.0f,  10.0f,
+    10.0f,  10.0f,  10.0f,
+    10.0f, -10.0f,  10.0f,
     -10.0f, -10.0f,  10.0f,
 
     -10.0f,  10.0f, -10.0f,
-     10.0f,  10.0f, -10.0f,
-     10.0f,  10.0f,  10.0f,
-     10.0f,  10.0f,  10.0f,
+    10.0f,  10.0f, -10.0f,
+    10.0f,  10.0f,  10.0f,
+    10.0f,  10.0f,  10.0f,
     -10.0f,  10.0f,  10.0f,
     -10.0f,  10.0f, -10.0f,
 
     -10.0f, -10.0f, -10.0f,
     -10.0f, -10.0f,  10.0f,
-     10.0f, -10.0f, -10.0f,
-     10.0f, -10.0f, -10.0f,
+    10.0f, -10.0f, -10.0f,
+    10.0f, -10.0f, -10.0f,
     -10.0f, -10.0f,  10.0f,
-     10.0f, -10.0f,  10.0f
+    10.0f, -10.0f,  10.0f
 };
 GLuint skybox_vao;
 GLuint skybox_vbo;
