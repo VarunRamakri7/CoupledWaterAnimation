@@ -45,12 +45,13 @@ void main(void)
     vec4 reflection_color = reflection();
     vec4 lighting_color = lighting();
 
-    vec4 final_color = mix(base_col, 0.5f * (refraction() + reflection()) + lighting(), v.x);
+    vec4 final_color = mix(base_col, 0.5f * (refraction() + reflection()) + lighting(), v.x); // Mix all attributes for final color
     //vec4 final_color = 0.5f * (refraction_color + reflection_color) + 0.75f * lighting_color + base_col;
 
     fragcolor = final_color;
 }
 
+// From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
 vec4 reflection()
 {
     vec3 I = normalize(inData.pw - eye_w.xyz);
@@ -58,6 +59,7 @@ vec4 reflection()
     return vec4(texture(skybox_tex, R).rgb, 1.0f);
 }
 
+// From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
 vec4 refraction()
 {
     float ratio = 1.0f / 1.33f; // Refractive index of Air/Water
@@ -66,6 +68,7 @@ vec4 refraction()
     return vec4(texture(skybox_tex, R).rgb, 1.0f);
 }
 
+// From LearnOpenGL: https://learnopengl.com/code_viewer_gh.php?code=src/2.lighting/2.1.basic_lighting_diffuse/2.1.basic_lighting.fs
 vec4 lighting()
 {
     // ambient
