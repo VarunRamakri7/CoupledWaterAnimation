@@ -519,7 +519,7 @@ void initOpenGL()
     wave2d.SetShader(waveCS);
 
     strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glPointSize(5.0f);
 
