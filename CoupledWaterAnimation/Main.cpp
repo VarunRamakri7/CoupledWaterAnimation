@@ -39,6 +39,8 @@ static const std::string particle_vs("particle_vs.glsl");
 static const std::string particle_fs("particle_fs.glsl");
 static const std::string wave_vs("wave_vs.glsl");
 static const std::string wave_fs("wave_fs.glsl");
+static const std::string skybox_vs("skybox_vs.glsl");
+static const std::string skybox_fs("skybox_fs.glsl");
 
 // Compute Shaders
 static const std::string rho_pres_com_shader("rho_pres_comp.glsl");
@@ -48,6 +50,7 @@ static const std::string integrate_comp_shader("integrate_comp.glsl");
 // Shader programs
 GLuint particle_shader_program = -1;
 GLuint wave_shader_program = -1;
+GLuint skybox_shader_program = -1;
 GLuint compute_programs[3] = { -1, -1, -1 };
 
 GLuint particle_position_vao = -1;
@@ -56,6 +59,65 @@ GLuint particles_ssbo = -1;
 indexed_surf_vao strip_surf;
 ComputeShader waveCS("wave_comp.glsl");
 StencilImage2DTripleBuffered wave2d;
+
+// Skybox Textures
+const std::string directory = "skybox-textures/";
+std::vector<std::string> faces =
+{ 
+    directory + "posx.jpg",
+    directory + "negx.jpg",
+    directory + "posy.jpg",
+    directory + "negy.jpg",
+    directory + "posz.jpg",
+    directory + "negz.jpg"
+};
+const float skyboxVertices[] = {
+    // positions          
+    -10.0f,  10.0f, -10.0f,
+    -10.0f, -10.0f, -10.0f,
+     10.0f, -10.0f, -10.0f,
+     10.0f, -10.0f, -10.0f,
+     10.0f,  10.0f, -10.0f,
+    -10.0f,  10.0f, -10.0f,
+
+    -10.0f, -10.0f,  10.0f,
+    -10.0f, -10.0f, -10.0f,
+    -10.0f,  10.0f, -10.0f,
+    -10.0f,  10.0f, -10.0f,
+    -10.0f,  10.0f,  10.0f,
+    -10.0f, -10.0f,  10.0f,
+
+    10.0f, -10.0f, -10.0f,
+     10.0f, -10.0f,  10.0f,
+     10.0f,  10.0f,  10.0f,
+     10.0f,  10.0f,  10.0f,
+     10.0f,  10.0f, -10.0f,
+     10.0f, -10.0f, -10.0f,
+
+     -10.0f, -10.0f,  10.0f,
+    -10.0f,  10.0f,  10.0f,
+     10.0f,  10.0f,  10.0f,
+     10.0f,  10.0f,  10.0f,
+     10.0f, -10.0f,  10.0f,
+    -10.0f, -10.0f,  10.0f,
+
+    -10.0f,  10.0f, -10.0f,
+     10.0f,  10.0f, -10.0f,
+     10.0f,  10.0f,  10.0f,
+     10.0f,  10.0f,  10.0f,
+    -10.0f,  10.0f,  10.0f,
+    -10.0f,  10.0f, -10.0f,
+
+    -10.0f, -10.0f, -10.0f,
+    -10.0f, -10.0f,  10.0f,
+     10.0f, -10.0f, -10.0f,
+     10.0f, -10.0f, -10.0f,
+    -10.0f, -10.0f,  10.0f,
+     10.0f, -10.0f,  10.0f
+};
+GLuint skybox_vao;
+GLuint skybox_vbo;
+GLuint skybox_tex = -1;
 
 glm::vec3 eye = glm::vec3(7.0f, 4.0f, 0.0f);
 glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
@@ -69,14 +131,6 @@ bool simulate = false;
 
 bool drawSurface = true;
 bool drawParticles = true;
-
-enum WaveMode
-{
-    INIT,
-    INIT_FROM_TEX,
-    EVOLVE
-};
-int waveMode = INIT;
 
 struct Particle
 {
@@ -130,7 +184,7 @@ namespace UniformLocs
     int M = 0; // model matrix
     int time = 1;
     int pass = 2;
-    int mode = 3; // Wave Mode
+    int mode = 3; // Unused
 }
 
 void draw_gui(GLFWwindow* window)
@@ -237,6 +291,15 @@ void display(GLFWwindow* window)
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0); //unbind the ubo
 
+    // Draw skybox
+    glUseProgram(skybox_shader_program); // Use wave shader program
+    glDepthMask(GL_FALSE);
+    glBindVertexArray(skybox_vao);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDepthMask(GL_TRUE);
+
     // Draw Particles
     if (drawParticles)
     {
@@ -249,6 +312,10 @@ void display(GLFWwindow* window)
     if (drawSurface)
     {
         glUseProgram(wave_shader_program); // Use wave shader program
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex);
+
         wave2d.GetReadImage(0).BindTextureUnit();
         glm::ivec3 size = wave2d.GetReadImage(0).GetSize();
         glBindVertexArray(strip_surf.vao);
@@ -303,6 +370,7 @@ void reload_shader()
 {
     GLuint new_particle_shader = InitShader(particle_vs.c_str(), particle_fs.c_str());
     GLuint new_wave_shader = InitShader(wave_vs.c_str(), wave_fs.c_str());
+    GLuint new_skybox_shader = InitShader(skybox_vs.c_str(), skybox_fs.c_str());
 
     // Load compute shaders
     GLuint compute_shader_handle = InitShader(rho_pres_com_shader.c_str());
@@ -364,6 +432,24 @@ void reload_shader()
         wave_shader_program = new_wave_shader;
 
         glLinkProgram(wave_shader_program);
+    }
+
+    // Check skybox shader program
+    if (new_skybox_shader == -1)
+    {
+        glClearColor(0.0f, 1.0f, 1.0f, 0.0f); //change clear color if shader can't be compiled
+    }
+    else
+    {
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+        if (skybox_shader_program != -1)
+        {
+            glDeleteProgram(skybox_shader_program);
+        }
+        skybox_shader_program = new_skybox_shader;
+
+        glLinkProgram(skybox_shader_program);
     }
 }
 
@@ -486,6 +572,17 @@ void init_particles()
     glBindVertexArray(0); // Unbind VAO
 }
 
+void init_skybox()
+{
+    glGenVertexArrays(1, &skybox_vao);
+    glGenBuffers(1, &skybox_vbo);
+    glBindVertexArray(skybox_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, skybox_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+}
+
 #define BUFFER_OFFSET(offset) ((GLvoid*) (offset))
 
 //Initialize OpenGL state. This function only gets called once.
@@ -510,6 +607,10 @@ void initOpenGL()
 
     glEnable(GL_PRIMITIVE_RESTART);
     glPrimitiveRestartIndex(RESTART_INDEX);
+
+    init_skybox();
+    skybox_tex = LoadCubemap(faces);
+    glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 
     init_particles();
 
