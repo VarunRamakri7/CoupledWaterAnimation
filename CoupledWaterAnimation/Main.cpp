@@ -24,10 +24,10 @@
 #define RESTART_INDEX 65535
 #define WAVE_RES 512
 
-#define NUM_PARTICLES 10000
+#define NUM_PARTICLES 20480
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
-#define PART_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
+#define PART_WORK_GROUPS 20 // Ceiling of particle count divided by work group size
 #define MAX_WAVE_WORK_GROUPS 32 // Work group size for wave compute shader
 
 const int init_window_width = 720;
@@ -520,11 +520,11 @@ std::vector<glm::vec4> make_cube()
 
     // 50x4x50 cuboid of particles above the wave surface
     const float mid = 0.0f; // (BoundaryData.upper.x + BoundaryData.lower.x) / 4.0f;
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < 64; i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < 5; j++)
         {
-            for (int k = 0; k < 50; k++)
+            for (int k = 0; k < 64; k++)
             {
                 float x = mid + i * spacing;
                 float z = mid + k * spacing;
