@@ -95,8 +95,8 @@ void InitWave(ivec2 coord)
 {
 	vec4 vout = vec4(0.0);
 	ivec2 size = imageSize(uOutputImage);
-	ivec2 cen0 = ivec2(0.25*size);
-	ivec2 cen1 = ivec2(0.75*size);
+	ivec2 cen0 = ivec2(0.25f * size);
+	ivec2 cen1 = ivec2(0.75f * size);
 
 	float d = min(distance(coord, cen0), distance(coord, cen1));
 	vout.x = 0.5*smoothstep(5.0, 0.0, d);
