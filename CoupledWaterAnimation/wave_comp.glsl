@@ -19,24 +19,11 @@ const int MODE_INIT_FROM_TEXTURE = 1;
 const int MODE_EVOLVE = 2;
 const int MODE_TEST = 10;
 
-struct Particle
-{
-    vec4 pos;
-    vec4 vel;
-    vec4 force;
-    vec4 extras; // 0 - rho, 1 - pressure, 2 - age
-};
-
 struct Wave
 {
     vec4 pos;
     vec4 tex_coords; // XY - UV, ZW - Grid coordinate
     vec4 normals;
-};
-
-layout(std430, binding = 0) buffer PARTICLES
-{
-    Particle particles[];
 };
 
 layout(std430, binding = 1) buffer WAVE
@@ -108,11 +95,11 @@ void InitWave(ivec2 coord)
 {
 	vec4 vout = vec4(0.0);
 	ivec2 size = imageSize(uOutputImage);
-	ivec2 cen0 = ivec2(0.25*size);
-	ivec2 cen1 = ivec2(0.75*size);
+	ivec2 cen0 = ivec2(0.25f * size);
+	ivec2 cen1 = ivec2(0.75f * size);
 
 	float d = min(distance(coord, cen0), distance(coord, cen1));
-	vout.x = 0.5*smoothstep(3.0, 0.0, d);
+	vout.x = 0.5*smoothstep(5.0, 0.0, d);
 	imageStore(uOutputImage, coord, vout);
 }
 

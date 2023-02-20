@@ -24,7 +24,7 @@
 #define RESTART_INDEX 65535
 #define WAVE_RES 512
 
-#define NUM_PARTICLES 2500
+#define NUM_PARTICLES 10000
 #define PARTICLE_RADIUS 0.005f
 #define WORK_GROUP_SIZE 1024
 #define PART_WORK_GROUPS 10 // Ceiling of particle count divided by work group size
@@ -96,15 +96,15 @@ struct SceneUniforms
 struct ConstantsUniform
 {
     float mass = 0.02f; // Particle Mass
-    float smoothing_coeff = 4.0f; // Smoothing length coefficient for neighborhood
+    float smoothing_coeff = 2.0f; // Smoothing length coefficient for neighborhood
     float visc = 3000.0f; // Fluid viscosity
     float resting_rho = 1000.0f; // Resting density
 }ConstantsData;
 
 struct BoundaryUniform
 {
-    glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 1.0f);
-    glm::vec4 lower = glm::vec4(0.0f, -0.015f, 0.0f, 1.0f);
+    glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 500.0f); // XYZ - Upper bounds, W - Foam Threshold
+    glm::vec4 lower = glm::vec4(0.0f, -0.02f, 0.0f, 50.0f); // XYZ - Lower bounds, W - Density coefficient
 }BoundaryData;
 
 struct WaveUniforms
@@ -190,8 +190,10 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Viscosity", &ConstantsData.visc, 1000.0f, 5000.0f);
     ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
     ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
-    ImGui::SliderFloat3("Lowwer Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
-    ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.1f, 0.45f);
+    ImGui::SliderFloat3("Lower Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
+    //ImGui::SliderFloat("Foam Threshold", &BoundaryData.upper.w, 500.0f, 2000.0f);
+    //ImGui::SliderFloat("Density coeffecient", &BoundaryData.lower.w, 50.0f, 200.0f);
+    ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.01f, 0.09f);
     ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.9f, 1.0f);
     ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
     ImGui::End();
@@ -211,7 +213,7 @@ void display(GLFWwindow* window)
 
     SceneData.eye_w = glm::vec4(eye, 1.0f);
     glm::mat4 V = glm::lookAt(glm::vec3(SceneData.eye_w), center, glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 P = glm::perspective(glm::pi<float>() / 4.0f, 1.0f, 0.1f, 100.0f);
+    glm::mat4 P = glm::perspective(glm::pi<float>() / 4.0f, aspect, 0.1f, 100.0f);
     SceneData.PV = P * V;
 
     //Set uniforms
@@ -427,16 +429,20 @@ std::vector<glm::vec4> make_cube()
 {
     std::vector<glm::vec4> positions;
 
-    const float spacing = ConstantsData.smoothing_coeff * 0.5f * PARTICLE_RADIUS;
+    const float spacing = ConstantsData.smoothing_coeff * 0.85f * PARTICLE_RADIUS;
+    //const float spacing = (BoundaryData.upper.x - BoundaryData.lower.x) / 25;
 
-    // 25x16x25 Cube of particles within [0, 0.25] on XZ and [0, 0.16] on Y
-    for (int i = 0; i < 25; i++)
+    // 50x4x50 cuboid of particles above the wave surface
+    const float mid = 0.0f; // (BoundaryData.upper.x + BoundaryData.lower.x) / 4.0f;
+    for (int i = 0; i < 50; i++)
     {
         for (int j = 0; j < 4; j++)
         {
-            for (int k = 0; k < 25; k++)
+            for (int k = 0; k < 50; k++)
             {
-                positions.push_back(glm::vec4(i * spacing, j * spacing, k * spacing, 1.0f));
+                float x = mid + i * spacing;
+                float z = mid + k * spacing;
+                positions.push_back(glm::vec4(x, j * spacing, z, 1.0f));
             }
         }
     }
@@ -456,9 +462,9 @@ void init_particles()
     for (int i = 0; i < NUM_PARTICLES; i++)
     {
         particles[i].pos = grid_positions[i];
-        particles[i].vel = glm::vec4(0.0f); // Constant velocity along Y-Axis
-        particles[i].force = glm::vec4(0.0f); // Gravity along the Y-Axis
-        particles[i].extras = glm::vec4(0.0f); // 0 - rho, 1 - pressure, 2 - age
+        particles[i].vel = glm::vec4(0.0f); // // No initial velocity
+        particles[i].force = glm::vec4(0.0f); // No initial force
+        particles[i].extras = glm::vec4(ConstantsData.resting_rho, 0.0f, 500.0f, 50.0f); // 0 - rho, 1 - pressure, 2 - foam threshold, 3 - density coefficient
     }
     //std::cout << "Particles count: " << particles.size() << std::endl;
 
@@ -513,7 +519,7 @@ void initOpenGL()
     wave2d.SetShader(waveCS);
 
     strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glPointSize(5.0f);
 
