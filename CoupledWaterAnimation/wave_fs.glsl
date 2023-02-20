@@ -20,12 +20,12 @@ in VertexData
 
 out vec4 fragcolor;
 
-const vec4 wave_col = vec4(0.0f, 0.5f, 1.0f, 1.0f); // Azure
-const vec4 color0 = vec4(0.6f, 0.8f, 1.0f, 1.0f); // Baby-blue
+const vec4 wave_col = vec4(0.7f, 0.9f, 1.0f, 1.0f); // Wave col
+const vec4 color0 = vec4(0.6f, 0.8f, 1.0f, 1.0f); // Light blue
 
 const vec3 light_col = vec3(1.0f, 0.85f, 0.7f); // Warm light
 const vec3 light_pos = vec3(0.0f, 1.0f, 0.0f); // Light position
-const vec4 base_col = vec4(0.5f, 0.92f, 1.0f, 1.0f);
+const vec4 base_col = vec4(0.6f, 0.8f, 1.0f, 1.0f); // Base wave col
 
 vec4 reflection();
 vec4 refraction();
@@ -45,7 +45,8 @@ void main(void)
     vec4 reflection_color = reflection();
     vec4 lighting_color = lighting();
 
-    vec4 final_color = mix(0.5f * (refraction_color + reflection_color) + lighting_color, base_col, v.x);
+    vec4 final_color = mix(base_col, 0.5f * (refraction() + reflection()) + lighting(), v.x);
+    //vec4 final_color = 0.5f * (refraction_color + reflection_color) + 0.75f * lighting_color + base_col;
 
     fragcolor = final_color;
 }
@@ -78,7 +79,7 @@ vec4 lighting()
     vec3 diffuse = diff * light_col;
     
     // specular
-    float specularStrength = 0.8f;
+    float specularStrength = 2.0f;
     vec3 viewDir = normalize(eye_w.xyz - inData.pw);
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);
