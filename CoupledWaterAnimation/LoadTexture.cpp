@@ -39,7 +39,6 @@ GLuint LoadCubemap(const std::vector<std::string>& faces)
     glGenTextures(1, &tex_id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, tex_id);
 
-    GLubyte* byteImg = nullptr;
     for (unsigned int i = 0; i < faces.size(); i++)
     {
         FIBITMAP* tempImg = FreeImage_Load(FreeImage_GetFileType(faces[i].c_str(), 0), faces[i].c_str());
@@ -53,7 +52,7 @@ GLuint LoadCubemap(const std::vector<std::string>& faces)
             GLuint h = FreeImage_GetHeight(img);
             GLuint scanW = FreeImage_GetPitch(img);
 
-            byteImg = new GLubyte[h * scanW];
+            GLubyte* byteImg = new GLubyte[h * scanW];
             FreeImage_ConvertToRawBits(byteImg, img, scanW, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, FALSE);
             FreeImage_Unload(img);
 
