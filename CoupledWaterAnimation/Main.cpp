@@ -61,15 +61,14 @@ ComputeShader waveCS("wave_comp.glsl");
 StencilImage2DTripleBuffered wave2d;
 
 // Skybox Textures
-const std::string directory = "skybox-textures/";
 std::vector<std::string> faces =
 { 
-    "skybox-textures/posx.jpg", // Right
-    "skybox-textures/negx.jpg", // Left
-    "skybox-textures/posy.jpg", // Top
-    "skybox-textures/negy.jpg", // Bottom
-    "skybox-textures/posz.jpg", // Back
-    "skybox-textures/negz.jpg" // Front
+    "skybox-textures/posx.png", // Right
+    "skybox-textures/negx.png", // Left
+    "skybox-textures/posy.png", // Top
+    "skybox-textures/negy.png", // Bottom
+    "skybox-textures/posz.png", // Back
+    "skybox-textures/negz.png" // Front
 };
 const float skyboxVertices[] = {
     // positions          
