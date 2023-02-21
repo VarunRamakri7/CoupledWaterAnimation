@@ -123,7 +123,7 @@ glm::vec3 eye_persp = glm::vec3(7.0f, 4.0f, 0.0f);
 glm::vec3 center_persp = glm::vec3(0.0f, -1.0f, 0.0f);
 
 // Orthographic view
-glm::vec3 eye_ortho = glm::vec3(2.0f, -1.0f, 8.0f);
+glm::vec3 eye_ortho = glm::vec3(-12.0f, -1.0f, 8.0f);
 glm::vec3 center_ortho = glm::vec3(-1.0f, -1.0f, 0.0f);
 
 float angle = 0.75f;
@@ -168,7 +168,7 @@ struct BoundaryUniform
 
 struct WaveUniforms
 {
-    glm::vec4 attributes = glm::vec4(0.01f, 0.995f, 0.001f, 0.0f); // Lambda, Attenuation, Beta
+    glm::vec4 attributes = glm::vec4(0.01f, 0.995f, 0.001f, 1.0f); // Lambda, Attenuation, Beta, Wave type
 } WaveData;
 
 GLuint scene_ubo = -1;
@@ -239,12 +239,19 @@ void draw_gui(GLFWwindow* window)
         // Change perspective camera
         ImGui::SliderFloat3("Camera Eye", &eye_persp[0], -10.0f, 10.0f);
         ImGui::SliderFloat3("Camera Center", &center_persp[0], -10.0f, 10.0f);
+
+        WaveData.attributes[1] = 0.995f; // Set attenuation for splash
+        WaveData.attributes[3] = 1.0f; // Set wave mode as splash
+
     }
     else
     {
         // Change orthographic camera
         ImGui::SliderFloat3("Camera Eye", &eye_ortho[0], -10.0f, 10.0f);
         ImGui::SliderFloat3("Camera Center", &center_ortho[0], -10.0f, 10.0f);
+
+        WaveData.attributes[1] = 0.998f; // Set attenuation for wave
+        WaveData.attributes[3] = 0.0f; // Set wave mode as wave
     }
 
     ImGui::Checkbox("Draw Wave Surface", &drawSurface);
