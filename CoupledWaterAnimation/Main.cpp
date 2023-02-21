@@ -118,10 +118,15 @@ GLuint skybox_vao;
 GLuint skybox_vbo;
 GLuint skybox_tex = -1;
 
-glm::vec3 eye = glm::vec3(7.0f, 4.0f, 0.0f);
-glm::vec3 center = glm::vec3(0.0f, -1.0f, 0.0f);
+// Perspective view
+glm::vec3 eye_persp = glm::vec3(7.0f, 4.0f, 0.0f);
+glm::vec3 center_persp = glm::vec3(0.0f, -1.0f, 0.0f);
+
+// Orthographic view
+glm::vec3 eye_ortho = glm::vec3(2.0f, -1.0f, 8.0f);
+glm::vec3 center_ortho = glm::vec3(-1.0f, -1.0f, 0.0f);
+
 float angle = 0.75f;
-//float wave_angle = 0.75f;
 float particle_scale = 5.0f;
 float wave_scale = 0.047f;
 float aspect = 1.0f;
@@ -130,6 +135,7 @@ bool simulate = false;
 
 bool drawSurface = true;
 bool drawParticles = true;
+bool isOrthoView = false;
 
 struct Particle
 {
@@ -226,11 +232,21 @@ void draw_gui(GLFWwindow* window)
 
     ImGui::SliderFloat("View angle", &angle, -glm::pi<float>(), +glm::pi<float>());
     ImGui::SliderFloat("Particle Scale", &particle_scale, 0.0001f, 20.0f);
-    //ImGui::SliderFloat("Particle Angle", &angle, 0.0f, 180.0f);
     ImGui::SliderFloat("Wave Scale", &wave_scale, 0.0001f, 1.0f);
-    //ImGui::SliderFloat("Wave Angle", &wave_angle, 0.0f, 180.0f);
-    ImGui::SliderFloat3("Camera Eye", &eye[0], -10.0f, 10.0f);
-    ImGui::SliderFloat3("Camera Center", &center[0], -10.0f, 10.0f);
+    ImGui::Checkbox("Orthographic View", &isOrthoView);
+    if (!isOrthoView)
+    {
+        // Change perspective camera
+        ImGui::SliderFloat3("Camera Eye", &eye_persp[0], -10.0f, 10.0f);
+        ImGui::SliderFloat3("Camera Center", &center_persp[0], -10.0f, 10.0f);
+    }
+    else
+    {
+        // Change orthographic camera
+        ImGui::SliderFloat3("Camera Eye", &eye_ortho[0], -10.0f, 10.0f);
+        ImGui::SliderFloat3("Camera Center", &center_ortho[0], -10.0f, 10.0f);
+    }
+
     ImGui::Checkbox("Draw Wave Surface", &drawSurface);
     ImGui::Checkbox("Draw Particles", &drawParticles);
 
@@ -244,8 +260,6 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
     ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
     ImGui::SliderFloat3("Lower Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
-    //ImGui::SliderFloat("Foam Threshold", &BoundaryData.upper.w, 500.0f, 2000.0f);
-    //ImGui::SliderFloat("Density coeffecient", &BoundaryData.lower.w, 50.0f, 200.0f);
     ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.01f, 0.09f);
     ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.9f, 1.0f);
     ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
@@ -264,9 +278,22 @@ void display(GLFWwindow* window)
     //Clear the screen to the color previously specified in the glClearColor(...) call.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    SceneData.eye_w = glm::vec4(eye, 1.0f);
-    glm::mat4 V = glm::lookAt(glm::vec3(SceneData.eye_w), center, glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 P = glm::perspective(glm::pi<float>() / 4.0f, aspect, 0.1f, 50.0f);
+    glm::mat4 V;
+    glm::mat4 P;
+    if (isOrthoView)
+    {
+        // Orthographic View
+        SceneData.eye_w = glm::vec4(eye_ortho, 1.0f);
+        V = glm::lookAt(glm::vec3(SceneData.eye_w), center_ortho, glm::vec3(0.0f, 1.0f, 0.0f));
+        P = glm::ortho(0.0f, 5.0f, 0.0f, 5.0f, 0.001f, 100.0f);
+    }
+    else
+    {
+        // Set perspective view
+        SceneData.eye_w = glm::vec4(eye_persp, 1.0f);
+        V = glm::lookAt(glm::vec3(SceneData.eye_w), center_persp, glm::vec3(0.0f, 1.0f, 0.0f));
+        P = glm::perspective(glm::pi<float>() / 4.0f, aspect, 0.1f, 50.0f);
+    }
     SceneData.PV = P * V;
 
     //Set uniforms
