@@ -9,3 +9,7 @@ The wave surface and SPH are functional independantly. There is no coupling yet.
 * February 20th 2023 - Coupled SPH-Wave
 The wave surface and SPH are coupled and funcitoning. Foam, splashes, and breaking waves can be seen.
 <img src="media/feb-20-coupled.gif" width=20% height=20%>
+
+* February 21th 2023 - Skybox Environment
+Added a skybox and environment mapped the wave surface. There is lighting, reflection, and refraction.
+<img src="media/feb-21-skybox.gif" width=20% height=20%>
