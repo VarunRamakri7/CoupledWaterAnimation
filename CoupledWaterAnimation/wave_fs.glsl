@@ -37,16 +37,13 @@ void main(void)
 	
 	//fragcolor = vec4(mix(wave_col, color0, v.x)); // Color wave depending on height
 
-    //fragcolor = 0.5f * (refraction() + reflection()); // Color wave with refraction and reflection
-    //fragcolor = 5.0f * lighting();// Color wave with lighting
+    vec4 refraction_color = refraction();
+    vec4 reflection_color = reflection();
+    vec4 lighting_color = lighting();
+    vec4 final_color = mix(color0, 0.33f * (refraction() + reflection()) + lighting(), v.x); // Mix all attributes for final color
+    fragcolor = final_color;
 
-    //vec4 refraction_color = refraction();
-    //vec4 reflection_color = reflection();
-    //vec4 lighting_color = lighting();
-    //vec4 final_color = mix(base_col, 0.5f * (refraction() + reflection()) + 0.65f * lighting(), v.x); // Mix all attributes for final color
-    //vec4 final_color = 0.5f * (refraction_color + reflection_color) + 0.75f * lighting_color + base_col;
-
-    fragcolor = 0.33f * (reflection() + refraction()) + lighting();
+    //fragcolor = 0.33f * (reflection() + refraction()) + lighting();
 }
 
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
