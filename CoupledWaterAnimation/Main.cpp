@@ -240,7 +240,7 @@ void draw_gui(GLFWwindow* window)
         ImGui::SliderFloat3("Camera Eye", &eye_persp[0], -10.0f, 10.0f);
         ImGui::SliderFloat3("Camera Center", &center_persp[0], -10.0f, 10.0f);
 
-        WaveData.attributes[1] = 0.995f; // Set attenuation for splash
+        //WaveData.attributes[1] = 0.995f; // Set attenuation for splash
         WaveData.attributes[3] = 1.0f; // Set wave mode as splash
 
     }
@@ -250,7 +250,7 @@ void draw_gui(GLFWwindow* window)
         ImGui::SliderFloat3("Camera Eye", &eye_ortho[0], -10.0f, 10.0f);
         ImGui::SliderFloat3("Camera Center", &center_ortho[0], -10.0f, 10.0f);
 
-        WaveData.attributes[1] = 0.998f; // Set attenuation for wave
+        //WaveData.attributes[1] = 0.998f; // Set attenuation for wave
         WaveData.attributes[3] = 0.0f; // Set wave mode as wave
     }
 
