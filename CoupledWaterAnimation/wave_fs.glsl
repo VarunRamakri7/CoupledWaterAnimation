@@ -25,7 +25,6 @@ const vec4 color0 = vec4(0.6f, 0.8f, 1.0f, 1.0f); // Light blue
 
 const vec3 light_col = vec3(1.0f, 0.85f, 0.7f); // Warm light
 const vec3 light_pos = vec3(0.0f, 1.0f, 0.0f); // Light position
-const vec4 base_col = vec4(0.6f, 0.8f, 1.0f, 1.0f); // Base wave col
 
 vec4 reflection();
 vec4 refraction();
@@ -47,7 +46,7 @@ void main(void)
     //vec4 final_color = mix(base_col, 0.5f * (refraction() + reflection()) + 0.65f * lighting(), v.x); // Mix all attributes for final color
     //vec4 final_color = 0.5f * (refraction_color + reflection_color) + 0.75f * lighting_color + base_col;
 
-    fragcolor = refraction() + 0.5f * lighting();
+    fragcolor = 0.33f * (reflection() + refraction()) + lighting();
 }
 
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
@@ -71,7 +70,7 @@ vec4 refraction()
 vec4 lighting()
 {
     // ambient
-    float ambientStrength = 0.2f;
+    float ambientStrength = 0.8f;
     vec3 ambient = ambientStrength * light_col;
   	
     // diffuse 
@@ -79,9 +78,10 @@ vec4 lighting()
     vec3 lightDir = normalize(light_pos - inData.pw);
     float diff = max(dot(norm, lightDir), 0.0f);
     vec3 diffuse = diff * light_col;
+    diffuse *= 0.05f;
     
     // specular
-    float specularStrength = 2.0f;
+    float specularStrength = 0.8f;
     vec3 viewDir = normalize(eye_w.xyz - inData.pw);
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);
