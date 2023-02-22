@@ -36,6 +36,6 @@ void main(void)
 
 	outData.tex_coord = tex_coord_attrib.xy;
 	outData.pw = vec3(M * vec4(pos_attrib.xyz, 1.0));
-	outData.nw = vec3(M * vec4(normal_attrib.xyz, 1.0));
+	outData.nw = -normal_attrib.xyz; // Invert normals
 	outData.color = color_attrib;
 }
