@@ -95,11 +95,25 @@ void InitWave(ivec2 coord)
 {
 	vec4 vout = vec4(0.0);
 	ivec2 size = imageSize(uOutputImage);
-	ivec2 cen0 = ivec2(0.25f * size);
-	ivec2 cen1 = ivec2(0.75f * size);
+
+	ivec2 cen0;
+	ivec2 cen1;
+
+	if(attributes.w == 1.0f)
+	{
+		// Splash
+		cen0 = ivec2(0.25f * size);
+		cen1 = ivec2(0.75f * size);
+	}
+	else
+	{
+		// Wave
+		cen0 = ivec2(0.25f * size.x, size.y);
+		cen1 = ivec2(0.75f * size.x, size.y);
+	}
 
 	float d = min(distance(coord, cen0), distance(coord, cen1));
-	vout.x = 0.5*smoothstep(5.0, 0.0, d);
+	vout.x = 0.5f * smoothstep(attributes.w == 0.0f ? 20.0f : 5.0f, 0.0f, d);
 	imageStore(uOutputImage, coord, vout);
 }
 
