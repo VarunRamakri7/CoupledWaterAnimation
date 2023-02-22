@@ -40,8 +40,9 @@ void main(void)
     vec4 refraction_color = refraction();
     vec4 reflection_color = reflection();
     vec4 lighting_color = lighting();
-    vec4 final_color = mix(color0, 0.33f * (refraction() + reflection()) + lighting(), v.x); // Mix all attributes for final color
-    fragcolor = final_color;
+    
+    fragcolor = mix(refraction_color + reflection_color, lighting_color, v.x);
+    fragcolor.a = 0.25f;
 
     //fragcolor = 0.33f * (reflection() + refraction()) + lighting();
 }
@@ -78,7 +79,7 @@ vec4 lighting()
     diffuse *= 0.05f;
     
     // specular
-    float specularStrength = 0.8f;
+    float specularStrength = 10.0f;
     vec3 viewDir = normalize(eye_w.xyz - inData.pw);
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);

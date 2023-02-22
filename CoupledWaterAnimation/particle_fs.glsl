@@ -30,4 +30,5 @@ void main ()
 	frag_color = mix(particle_col + vec4(0.2f, 0.2f, 0.2f, 0.0f), foam_col, 2.0f * particle_pos.y);
 	frag_color.a = 1.0f;
 	frag_color.rgb += spec; // Add specular highlight
+	frag_color.a = 0.5f;
 }
