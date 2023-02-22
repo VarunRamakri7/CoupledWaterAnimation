@@ -17,5 +17,5 @@ Added a skybox and environment mapped the wave surface. There is lighting, refle
 * February 22nd 2023 - Camera Views
 Added orthographic camera view and ImGui toggle to switch between camera views. Perspective view is meant to
 showcase splashes, and foam whereas, orthographic view is meant to showcase breaking waves.
-<img src="media/feb-22-persp.gif" width=20% height=20%>
-<img src="media/feb-22-ortho.gif" width=20% height=20%>
+
+<img src="media/feb-22-persp.gif" width=20% height=20%> <img src="media/feb-22-ortho.gif" width=20% height=20%>
