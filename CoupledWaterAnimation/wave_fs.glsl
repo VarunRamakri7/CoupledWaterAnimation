@@ -39,12 +39,12 @@ void main(void)
 
     vec4 refraction_color = refraction();
     vec4 reflection_color = reflection();
-    vec4 lighting_color = lighting();
+    vec4 lighting_color = 0.1f * lighting();
     
-    fragcolor = mix(refraction_color + reflection_color, lighting_color, v.x);
-    fragcolor.a = 0.25f;
+    vec4 combine = 0.5f * (reflection_color + refraction_color) + lighting_color;
+    fragcolor = combine;
 
-    //fragcolor = 0.33f * (reflection() + refraction()) + lighting();
+    fragcolor.a = 0.5f;
 }
 
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
