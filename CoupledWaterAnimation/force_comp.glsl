@@ -94,11 +94,10 @@ void main()
 			visc_force += mass * (particles[j].vel.xyz - particles[i].vel.xyz) / particles[j].extras[0] * laplacian * (smoothing_length - r); // Laplacian of viscosity kernel
 		}
 	}
+	visc_force *= visc;
 
 	vec2 coord = particles[i].pos.xz * 2.0f; // Get XZ coordinate of particle
 	float height = texture(wave_tex, coord).r; // Sample height of wave
-
-	visc_force *= visc;
 
 	// Calculate torque of particles
 	vec3 torque = cross(particles[i].pos.xyz, particles[i].force.xyz);
