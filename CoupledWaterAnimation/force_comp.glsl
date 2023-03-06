@@ -106,7 +106,7 @@ void main()
 	// Drag force from the wave on the particles
 	vec3 rel_vel = particles[i].vel.xyz - WaveVelocity(coord); // Relative velocity
 	vec3 drag_force = -0.25f * rel_vel;
-
+	
 	vec3 wave_force = -height * WaveNormal(coord) * 0.5f; // Approximate force from the wave in the opposite direction
 
 	// Combine all forces
