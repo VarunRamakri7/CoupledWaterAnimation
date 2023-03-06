@@ -26,13 +26,13 @@ void main ()
 	
 	// Add specular highlight
 	float spec = pow(max(dot(normalize(particle_pos), normalize(vec3(0.0f, 1.0f, 0.0f))), 0.0f), 16.0f);
-	float a = exp(-12.0f * r) + 0.1f * exp(-2.0f * r);
-	a *= rand(particle_pos.xz);
+	spec = pow(spec, 2);
+	float a = exp(-12.0f * r) + 0.1f * exp(-2.0f * r); // Change transparency based on distance from center
 
 	// Change particle color depending on height
 	frag_color = mix(particle_col, foam_col, 2.0f * particle_pos.y);
 	frag_color.rgb += spec; // Add specular highlight
-	frag_color.a = mix(1.0f, a, 2.0f * r); // Change transparency based on distance from center
+	frag_color.a = a;
 }
 
 float rand(vec2 co)
