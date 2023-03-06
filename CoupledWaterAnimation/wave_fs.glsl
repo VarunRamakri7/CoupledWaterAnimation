@@ -41,7 +41,7 @@ void main(void)
     vec4 reflection_color = reflection();
     vec4 lighting_color = 0.1f * lighting();
     
-    vec4 combine = 0.5f * (reflection_color + refraction_color) + lighting_color;
+    vec4 combine = 0.75f * (reflection_color + refraction_color) + lighting_color;
     fragcolor = combine;
 
     fragcolor.a = 0.75f;
