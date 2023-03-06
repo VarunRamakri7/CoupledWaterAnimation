@@ -10,14 +10,13 @@ in vec2 tex_coord;
 
 out vec4 frag_color;
 
-//const vec4 particle_col = vec4(0.8f, 0.97f, 1.0f, 1.0f); // Light cyan
 const vec4 particle_col = vec4(0.2f, 0.5f, 1.0f, 1.0f); // Light blue
 const vec4 foam_col = vec4(1.0f); // White
 
 void main ()
 {
 	//float height = textureLod(wave_tex, particle_pos.xz * 2.0f, 0.0f).r;
-	if(particle_pos.y < 0.0f) discard; // Ignore particles that are below origin
+	//if (particle_pos.y < 0.0f) discard; // Ignore particles that are below origin
 
 	// Make circular particles
     float r = length(gl_PointCoord - vec2(0.4f));
@@ -28,7 +27,6 @@ void main ()
 
 	// Change particle color depending on height
 	frag_color = mix(particle_col + vec4(0.2f, 0.2f, 0.2f, 0.0f), foam_col, 2.0f * particle_pos.y);
-	frag_color.a = 1.0f;
 	frag_color.rgb += spec; // Add specular highlight
 	frag_color.a = 0.5f;
 }

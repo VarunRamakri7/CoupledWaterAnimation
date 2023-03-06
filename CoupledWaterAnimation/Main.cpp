@@ -3,6 +3,8 @@
 #include "..\imgui-master\imgui.h"
 #include "..\imgui-master\backends\imgui_impl_glfw.h"
 #include "..\imgui-master\backends\imgui_impl_opengl3.h"
+#include "..\implot-master\implot.h"
+#include "..\implot-master\implot_internal.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
