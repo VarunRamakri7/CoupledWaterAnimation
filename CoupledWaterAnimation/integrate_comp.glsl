@@ -103,9 +103,10 @@ void main()
     }
 
     // Check if particle is below surface
-    if (new_pos.y < 0.0f)
+    float tex_height = texture(wave_tex, new_pos.xz * 2.0f).r;
+    if (new_pos.y < tex_height)
     {
-        new_pos.y = texture(wave_tex, new_pos.xz * 2.0f).r - PARTICLE_RADIUS; // Place particle on wave
+        new_pos.y = tex_height - PARTICLE_RADIUS; // Place particle below wave
     }
 
     // Assign calculated values
