@@ -244,7 +244,7 @@ void draw_gui(GLFWwindow* window)
 
         //WaveData.attributes[1] = 0.995f; // Set attenuation for splash
         WaveData.attributes[3] = 1.0f; // Set wave mode as splash
-
+        angle = 0.75f;
     }
     else
     {
@@ -254,6 +254,7 @@ void draw_gui(GLFWwindow* window)
 
         //WaveData.attributes[1] = 0.998f; // Set attenuation for wave
         WaveData.attributes[3] = 0.0f; // Set wave mode as wave
+        angle = 0.65f;
     }
 
     ImGui::Checkbox("Draw Wave Surface", &drawSurface);
@@ -659,7 +660,7 @@ void initOpenGL()
     strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    glPointSize(5.0f);
+    glPointSize(8.0f);
 
     Module::sInitAll();
 
