@@ -88,24 +88,6 @@ void main()
     pressure += wave_force;
     rho += wave_force / (GAS_CONST * PARTICLE_RADIUS);
 
-    // Check if breaking wave threshold is exceeded
-    //float steepness = WaveSteepness(coord);
-    //if (steepness > 0.01f)
-    //{
-    //    // Reduce smoothing length and increase pressure
-    //    const float breaking_smoothing_length = 0.5f * smoothing_length;
-    //    for (uint j = 0; j < NUM_PARTICLES; j++)
-    //    {
-    //        vec3 delta = particles[i].pos.xyz - particles[j].pos.xyz; // Get vector between current particle and particle in vicinity
-    //        float r = length(delta); // Get length of the vector
-    //        if (r < breaking_smoothing_length) // Check if particle is inside breaking smoothing radius
-    //        {
-    //            rho += mass * 315.0f * pow(breaking_smoothing_length * breaking_smoothing_length - r * r, 3) / (64.0f * PI * pow(breaking_smoothing_length, 9)); // Use Poly6 kernal
-    //            pressure += 0.5f * (0.01f - steepness);
-    //        }
-    //    }
-    //}
-
     particles[i].extras[0] = max(resting_rho, rho); // Assign computed density
 	particles[i].extras[1] = pressure; // Assign computed pressure
 }
