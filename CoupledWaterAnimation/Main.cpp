@@ -430,11 +430,6 @@ void reload_shader()
         compute_programs[2] = compute_shader_handle;
     }
 
-    /*compute_shader_handle = InitShader(wave_comp_shader.c_str());
-    if (compute_shader_handle != -1)
-    {
-        compute_programs[3] = compute_shader_handle;
-    }*/
     waveCS.Init();
 
     // Check particle shader program
@@ -506,8 +501,8 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
         case 'r':
         case 'R':
             init_particles();
-            reload_shader();
             wave2d.Reinit();
+            reload_shader();
             break;
 
         case 'p':
@@ -651,10 +646,14 @@ void initOpenGL()
 
     init_skybox();
     skybox_tex = LoadCubemap(faces);
-    init_wave_tex = LoadTexture("init-textures/sin.png");
     glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 
     init_particles();
+
+    // Load wave init texture
+    init_wave_tex = LoadTexture("init-textures/breaking-wave.png"); // Load breaking wave texture
+    //init_wave_tex = LoadTexture("init-textures/wake.png"); // Load boat wake texture
+    //init_wave_tex = LoadTexture("init-textures/splash.png"); // Load splash texture
 
     reload_shader();
 
