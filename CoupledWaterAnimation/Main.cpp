@@ -651,7 +651,7 @@ void initOpenGL()
 
     init_skybox();
     skybox_tex = LoadCubemap(faces);
-    init_wave_tex = LoadTexture("init-textures/wake.png");
+    init_wave_tex = LoadTexture("init-textures/sin.png");
     glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 
     init_particles();
