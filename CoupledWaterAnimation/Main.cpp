@@ -400,7 +400,7 @@ void idle()
         glDispatchCompute(PART_WORK_GROUPS, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         
-        glBindTextureUnit(3, init_wave_tex);
+        //glBindTextureUnit(3, init_wave_tex); // Bind wave init texture
         Module::sComputeAll();
     }
 }

@@ -70,8 +70,8 @@ void main()
 	switch(uMode)
 	{
 		case MODE_INIT:
-			//InitWave(gid);
-			InitFromImage(gid);
+			InitWave(gid);
+			//InitFromImage(gid);
 		break;
 
 		case MODE_INIT_FROM_TEXTURE:
