@@ -120,7 +120,7 @@ GLuint skybox_vao;
 GLuint skybox_vbo;
 GLuint skybox_tex = -1;
 
-GLuint init_wake_tex = -1;
+GLuint init_wave_tex = -1;
 
 // Perspective view
 glm::vec3 eye_persp = glm::vec3(7.0f, 4.0f, 0.0f);
@@ -400,7 +400,7 @@ void idle()
         glDispatchCompute(PART_WORK_GROUPS, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         
-        glBindTextureUnit(3, init_wake_tex);
+        glBindTextureUnit(3, init_wave_tex);
         Module::sComputeAll();
     }
 }
@@ -651,7 +651,7 @@ void initOpenGL()
 
     init_skybox();
     skybox_tex = LoadCubemap(faces);
-    init_wake_tex = LoadTexture("init-textures/wake.png");
+    init_wave_tex = LoadTexture("init-textures/wake.png");
     glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 
     init_particles();
