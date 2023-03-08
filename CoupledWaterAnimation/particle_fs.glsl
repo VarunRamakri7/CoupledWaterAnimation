@@ -5,6 +5,7 @@ layout(location = 2) uniform int pass;
 
 //layout(binding = 0) uniform sampler2D wave_tex;
 layout(binding = 1) uniform samplerCube skybox_tex;
+//layout(binding = 2) uniform writeonly image2D depth_tex;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
@@ -19,7 +20,7 @@ in VertexData
 	float depth;
 } inData;
 
-out vec4 frag_color;
+out layout(location = 0) vec4 frag_color; //the output color for this fragment    
 
 const vec3 normal = vec3(0.0f, 1.0f, 0.0f);
 const vec4 particle_col = vec4(0.4f, 0.7f, 1.0f, 1.0f); // Light blue
@@ -56,10 +57,12 @@ void main ()
 	// Change particle color depending on height
 	frag_color = mix(combine, foam_col, 2.0f * inData.particle_pos.y);
 	frag_color.rgb += spec; // Add specular highlight
-	frag_color.a = mix(1.0f, a, 2.0f * inData.particle_pos.y);
+	frag_color.a = mix(0.1f, a, 2.0f * inData.particle_pos.y);
 
     //float depth = LinearizeDepth(inData.depth) / far;
     //frag_color = vec4(vec3(depth), 1.0f);
+    //ivec2 coord = ivec2(inData.particle_pos.xy);
+    //imageStore(depth_tex, coord, vec4(vec3(depth), 1.0f));
 }
 
 float LinearizeDepth(float depth) 
