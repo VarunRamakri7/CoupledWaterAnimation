@@ -1,5 +1,7 @@
 #version 440
 
+layout(binding = 0) uniform sampler2D wave_tex;
+
 layout(location = 0) uniform mat4 M;
 layout(location = 1) uniform float time;
 
@@ -17,6 +19,11 @@ out vec2 tex_coord;
 
 void main(void)
 {
-	gl_Position = PV * M * vec4(pos_attrib, 1.0); //transform vertices and send result into pipeline
+	vec4 pos = vec4(pos_attrib.xyz, 1.0);
+
+	float height = textureLod(wave_tex, pos_attrib.xy, 0.0).r;
+	pos.y += 0.2f * height;
+
+	gl_Position = PV * M * pos; //transform vertices and send result into pipeline
 	tex_coord = tex_coord_attrib; //send tex_coord to fragment shader
 }

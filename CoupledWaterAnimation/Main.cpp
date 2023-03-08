@@ -138,7 +138,7 @@ static const std::string mesh_name = "Amago0.obj";
 static const std::string mesh_tex_name = "AmagoT.bmp";
 MeshData mesh_data;
 GLuint mesh_tex = -1;
-glm::vec3 mesh_pos = glm::vec3(0.24f, 0.0f, 0.24);
+glm::vec3 mesh_pos = glm::vec3(2.0f, 0.0f, -1.0f);
 
 float angle = 0.75f;
 float particle_scale = 5.0f;
@@ -249,7 +249,7 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Particle Scale", &particle_scale, 0.0001f, 20.0f);
     ImGui::SliderFloat("Wave Scale", &wave_scale, 0.0001f, 1.0f);
     ImGui::SliderFloat("Mesh Scale", &mesh_scale, 0.01f, 2.0f);
-    ImGui::SliderFloat3("Mesh Position", &mesh_pos[0], -1.0f, 1.0f);
+    ImGui::SliderFloat3("Mesh Position", &mesh_pos[0], -10.0f, 10.0f);
     ImGui::Checkbox("Orthographic View", &isOrthoView);
     if (!isOrthoView)
     {
