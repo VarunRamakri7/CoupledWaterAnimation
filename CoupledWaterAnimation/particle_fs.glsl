@@ -32,14 +32,13 @@ vec4 refraction();
 vec4 lighting();
 
 void main ()
-{
-	// Make circular particles
+{    
+    // Make circular particles
     float r = length(gl_PointCoord - vec2(0.5f));
     if (r >= 0.5f) discard;
 	
 	// Add specular highlight
 	float spec = pow(max(dot(normalize(inData.particle_pos), normalize(light_pos)), 0.0f), 16.0f);
-	spec = pow(spec, 2);
 	float a = exp(-12.0f * r) + 0.1f * exp(-2.0f * r); // Change transparency based on distance from center
 
     // Calculate lighting and skybox color
@@ -52,8 +51,7 @@ void main ()
 	// Change particle color depending on height
 	frag_color = mix(combine, foam_col, 2.0f * inData.particle_pos.y);
 	frag_color.rgb += spec; // Add specular highlight
-	frag_color.a = a;
-
+	frag_color.a = mix(1.0f, a, 2.0f * inData.particle_pos.y);// a;
 }
 
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
