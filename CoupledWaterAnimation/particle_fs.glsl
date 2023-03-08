@@ -16,6 +16,7 @@ in VertexData
 {
 	vec3 particle_pos;
 	vec2 tex_coord;
+	float depth;
 } inData;
 
 out vec4 frag_color;
@@ -27,6 +28,10 @@ const vec4 foam_col = vec4(1.0f); // White
 const vec3 light_col = vec3(1.0f, 0.85f, 0.7f); // Warm light
 const vec3 light_pos = vec3(1.0f, 1.0f, 0.0f); // Light position
 
+const float near = 0.1f; // Near plane distance
+const float far = 100.0f; // Far plane distance
+
+float LinearizeDepth(float depth);
 vec4 reflection();
 vec4 refraction();
 vec4 lighting();
@@ -51,7 +56,16 @@ void main ()
 	// Change particle color depending on height
 	frag_color = mix(combine, foam_col, 2.0f * inData.particle_pos.y);
 	frag_color.rgb += spec; // Add specular highlight
-	frag_color.a = mix(1.0f, a, 2.0f * inData.particle_pos.y);// a;
+	frag_color.a = mix(1.0f, a, 2.0f * inData.particle_pos.y);
+
+    //float depth = LinearizeDepth(inData.depth) / far;
+    //frag_color = vec4(vec3(depth), 1.0f);
+}
+
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0f - 1.0f; // back to NDC 
+    return (2.0f * near * far) / (far + near - z * (far - near));	
 }
 
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
