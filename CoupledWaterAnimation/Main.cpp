@@ -342,6 +342,11 @@ void display(GLFWwindow* window)
     if (drawParticles)
     {
         glUseProgram(particle_shader_program);
+
+        // Bind skybox
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex);
+
         glBindVertexArray(particle_position_vao);
         glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
     }
@@ -351,6 +356,7 @@ void display(GLFWwindow* window)
     {
         glUseProgram(wave_shader_program); // Use wave shader program
 
+        // Bind skybox
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex);
 
