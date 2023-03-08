@@ -10,7 +10,7 @@ layout(std140, binding = 0) uniform SceneUniforms
    vec4 eye_w; // Camera eye in world-space
 };
 
-layout(binding = 0) uniform sampler2D wave_tex;
+//layout(binding = 0) uniform sampler2D wave_tex;
 
 layout(location = 0) in vec3 pos_attrib;
 layout(location = 1) in vec4 tex_coord_attrib;
