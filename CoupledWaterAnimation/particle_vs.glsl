@@ -15,13 +15,16 @@ layout(binding = 0) uniform sampler2D wave_tex;
 layout(location = 0) in vec3 pos_attrib;
 layout(location = 1) in vec4 tex_coord_attrib;
 
-out vec3 particle_pos;
-out vec2 tex_coord;
+out VertexData
+{
+	vec3 particle_pos;
+	vec2 tex_coord;
+} outData;
 
 void main ()
 {
-	tex_coord = tex_coord_attrib.xy;
+	outData.tex_coord = tex_coord_attrib.xy;
 
     gl_Position = PV * M * vec4(pos_attrib, 1.0f);
-	particle_pos = vec3(M * vec4(pos_attrib, 1.0));
+	outData.particle_pos = vec3(M * vec4(pos_attrib, 1.0));
 }
