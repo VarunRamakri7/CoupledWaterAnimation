@@ -202,6 +202,8 @@
   <ItemGroup>
     <None Include="force_comp.glsl" />
     <None Include="integrate_comp.glsl" />
+    <None Include="mesh_fs.glsl" />
+    <None Include="mesh_vs.glsl" />
     <None Include="rho_pres_comp.glsl" />
     <None Include="particle_fs.glsl" />
     <None Include="particle_vs.glsl" />

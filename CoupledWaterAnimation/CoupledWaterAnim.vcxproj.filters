@@ -187,5 +187,7 @@
     <None Include="skybox_fs.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="mesh_vs.glsl" />
+    <None Include="mesh_fs.glsl" />
   </ItemGroup>
 </Project>

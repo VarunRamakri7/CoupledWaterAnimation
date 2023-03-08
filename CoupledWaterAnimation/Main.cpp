@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "InitShader.h"    //Functions for loading shaders from text files
+#include "LoadMesh.h"
 #include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
 #include "VideoMux.h"      //Functions for saving videos
 #include "Surf.h"
@@ -43,6 +44,8 @@ static const std::string wave_vs("wave_vs.glsl");
 static const std::string wave_fs("wave_fs.glsl");
 static const std::string skybox_vs("skybox_vs.glsl");
 static const std::string skybox_fs("skybox_fs.glsl");
+static const std::string mesh_vs("mesh_vs.glsl");
+static const std::string mesh_fs("mesh_fs.glsl");
 
 // Compute Shaders
 static const std::string rho_pres_com_shader("rho_pres_comp.glsl");
@@ -53,6 +56,7 @@ static const std::string integrate_comp_shader("integrate_comp.glsl");
 GLuint particle_shader_program = -1;
 GLuint wave_shader_program = -1;
 GLuint skybox_shader_program = -1;
+GLuint mesh_shader_program = -1;
 GLuint compute_programs[3] = { -1, -1, -1 };
 
 GLuint particle_position_vao = -1;
@@ -130,9 +134,16 @@ glm::vec3 center_persp = glm::vec3(0.0f, -1.0f, 0.0f);
 glm::vec3 eye_ortho = glm::vec3(-12.0f, -1.0f, 8.0f);
 glm::vec3 center_ortho = glm::vec3(-1.0f, -1.0f, 0.0f);
 
+static const std::string mesh_name = "Amago0.obj";
+static const std::string mesh_tex_name = "AmagoT.bmp";
+MeshData mesh_data;
+GLuint mesh_tex = -1;
+glm::vec3 mesh_pos = glm::vec3(0.24f, 0.0f, 0.24);
+
 float angle = 0.75f;
 float particle_scale = 5.0f;
 float wave_scale = 0.047f;
+float mesh_scale = 1.0f;
 float aspect = 1.0f;
 bool recording = false;
 bool simulate = false;
@@ -237,6 +248,8 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("View angle", &angle, -glm::pi<float>(), +glm::pi<float>());
     ImGui::SliderFloat("Particle Scale", &particle_scale, 0.0001f, 20.0f);
     ImGui::SliderFloat("Wave Scale", &wave_scale, 0.0001f, 1.0f);
+    ImGui::SliderFloat("Mesh Scale", &mesh_scale, 0.01f, 2.0f);
+    ImGui::SliderFloat3("Mesh Position", &mesh_pos[0], -1.0f, 1.0f);
     ImGui::Checkbox("Orthographic View", &isOrthoView);
     if (!isOrthoView)
     {
@@ -314,6 +327,11 @@ void display(GLFWwindow* window)
 
     M = glm::rotate(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(wave_scale));
     glProgramUniformMatrix4fv(wave_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set Wave Model Matrix
+    
+    M = glm::mat4(1.0f);
+    M = glm::translate(M, mesh_pos); // translate it down so it's at the center of the scene
+    M *= glm::rotate(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(mesh_scale * mesh_data.mScaleFactor));
+    glProgramUniformMatrix4fv(mesh_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set particle Model Matrix
 
     glBindBuffer(GL_UNIFORM_BUFFER, scene_ubo); //Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SceneUniforms), &SceneData); //Upload the new uniform values.
@@ -337,6 +355,13 @@ void display(GLFWwindow* window)
     glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthMask(GL_TRUE);
+
+    // Draw boat
+    glUseProgram(mesh_shader_program);
+    glBindVertexArray(mesh_data.mVao);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, mesh_tex);
+    glDrawElements(GL_TRIANGLES, mesh_data.mSubmesh[0].mNumIndices, GL_UNSIGNED_INT, 0);
 
     // Draw Particles
     if (drawParticles)
@@ -392,6 +417,7 @@ void idle()
     //Pass time_sec value to the shaders
     glProgramUniform1f(particle_shader_program, UniformLocs::time, time_sec);
     glProgramUniform1f(wave_shader_program, UniformLocs::time, time_sec);
+    glProgramUniform1f(mesh_shader_program, UniformLocs::time, time_sec);
 
     // Dispatch compute shaders
     if (simulate)
@@ -416,6 +442,7 @@ void reload_shader()
     GLuint new_particle_shader = InitShader(particle_vs.c_str(), particle_fs.c_str());
     GLuint new_wave_shader = InitShader(wave_vs.c_str(), wave_fs.c_str());
     GLuint new_skybox_shader = InitShader(skybox_vs.c_str(), skybox_fs.c_str());
+    GLuint new_mesh_shader = InitShader(mesh_vs.c_str(), mesh_fs.c_str());
 
     // Load compute shaders
     GLuint compute_shader_handle = InitShader(rho_pres_com_shader.c_str());
@@ -491,6 +518,25 @@ void reload_shader()
 
         glLinkProgram(skybox_shader_program);
     }
+
+    // Check mesh shader program
+    if (new_mesh_shader == -1)
+    {
+        glClearColor(0.0f, 1.0f, 1.0f, 0.0f); //change clear color if shader can't be compiled
+    }
+    else
+    {
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+        if (mesh_shader_program != -1)
+        {
+            glDeleteProgram(mesh_shader_program);
+        }
+        mesh_shader_program = new_mesh_shader;
+
+        glLinkProgram(mesh_shader_program);
+    }
+
 }
 
 void init_particles();
@@ -662,6 +708,8 @@ void initOpenGL()
     //init_wave_tex = LoadTexture("init-textures/splash.png"); // Load splash texture
 
     reload_shader();
+    mesh_data = LoadMesh(mesh_name);
+    mesh_tex = LoadTexture(mesh_tex_name);
 
     waveCS.SetMaxWorkGroupSize(glm::ivec3(MAX_WAVE_WORK_GROUPS, MAX_WAVE_WORK_GROUPS, 1));
     wave2d.SetShader(waveCS);
