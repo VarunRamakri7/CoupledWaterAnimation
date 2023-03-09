@@ -6,8 +6,10 @@ layout(location = 2) uniform int pass;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
-   mat4 PV;
-   vec4 eye_w; // Camera eye in world-space
+	mat4 PV;
+	mat4 P;
+	mat4 V;
+	vec4 eye_w; // Camera eye in world-space
 };
 
 //layout(binding = 0) uniform sampler2D wave_tex;
@@ -41,7 +43,7 @@ void main ()
 		gl_Position = eye_pos;
 
 		outData.particle_pos = vec3(M * vec4(pos_attrib, 1.0));
-		outData.depth = eye_pos.z / eye_pos.w; // Calculate eye-space depth
+		outData.depth = eye_pos.z;// / eye_pos.w; // Calculate eye-space depth
 	}
 
 	// Render full-screen quad

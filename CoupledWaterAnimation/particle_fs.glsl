@@ -11,8 +11,10 @@ layout(binding = 4) uniform sampler2D normals_tex;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
-   mat4 PV; // Projection x View Matrix
-   vec4 eye_w; // Camera eye in world-space
+    mat4 PV;
+    mat4 P; // Projection Matrix
+    mat4 V; // View matrix
+    vec4 eye_w; // Camera eye in world-space
 };
 
 in VertexData
@@ -24,7 +26,7 @@ in VertexData
 
 out layout(location = 0) vec4 frag_color; //the output color for this fragment    
 
-const vec3 normal = vec3(0.0f, 1.0f, 0.0f);
+vec3 normal = vec3(0.0f, 1.0f, 0.0f);
 const vec4 particle_col = vec4(0.4f, 0.7f, 1.0f, 1.0f); // Light blue
 const vec4 foam_col = vec4(1.0f); // White
 
@@ -34,6 +36,7 @@ const vec3 light_pos = vec3(1.0f, 1.0f, 0.0f); // Light position
 const float near = 0.1f; // Near plane distance
 const float far = 100.0f; // Far plane distance
 
+vec3 WorldPosFromDepth(float depth);
 float LinearizeDepth(float depth);
 vec4 reflection();
 vec4 refraction();
@@ -75,6 +78,7 @@ void main ()
     {
         frag_color = texelFetch(fbo_tex, ivec2(gl_FragCoord), 0);
         //frag_color = texelFetch(depth_tex, ivec2(gl_FragCoord), 0);
+        //frag_color = texelFetch(normals_tex, ivec2(gl_FragCoord), 0);
     }
 
     // Render particle depth
@@ -91,12 +95,33 @@ void main ()
     // Calculate normals
     if (pass == 3)
     {
+        // Make circular particles
+        float r = length(gl_PointCoord - vec2(0.5f));
+        if (r >= 0.5f) discard;
+
         float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
         vec3 pos = inData.particle_pos;
 
-        // Use partial differences to calculae normal
-        frag_color = vec4(normal, 1.0f);
+        // TODO: Use partial differences to calculate normal
+        normal = normalize(gl_FragCoord.xyz - inData.particle_pos.xyz);
+        vec3 worldSpacePos = normalize(WorldPosFromDepth(depth));
+        frag_color = vec4(worldSpacePos, 1.0f);
     }
+}
+
+vec3 WorldPosFromDepth(float depth)
+{
+    float z = depth * 2.0f - 1.0f;
+
+    vec4 clipSpacePosition = vec4(vec2(gl_FragCoord) * 2.0f - 1.0f, z, 1.0f);
+    vec4 viewSpacePosition = inverse(P) * clipSpacePosition;
+
+    // Perspective division
+    viewSpacePosition /= viewSpacePosition.w;
+
+    vec4 worldSpacePosition = inverse(V) * viewSpacePosition;
+
+    return worldSpacePosition.xyz;
 }
 
 float LinearizeDepth(float depth) 

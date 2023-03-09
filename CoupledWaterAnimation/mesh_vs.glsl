@@ -7,8 +7,10 @@ layout(location = 1) uniform float time;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
-   mat4 PV;
-   vec4 eye_w; // Camera eye in world-space
+	mat4 PV;
+	mat4 P;
+	mat4 V;
+	vec4 eye_w; // Camera eye in world-space
 };
 
 in vec3 pos_attrib; //this variable holds the position of mesh vertices

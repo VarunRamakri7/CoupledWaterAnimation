@@ -2,8 +2,10 @@
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
-   mat4 PV;
-   vec4 eye_w; // Camera eye in world-space
+    mat4 PV;
+    mat4 P;
+    mat4 V;
+    vec4 eye_w; // Camera eye in world-space
 };
 
 layout(location = 0) in vec3 pos_attrib;

@@ -172,7 +172,9 @@ struct Particle
 //This structure mirrors the uniform block declared in the shader
 struct SceneUniforms
 {
-    glm::mat4 PV; //camera projection * view matrix
+    glm::mat4 PV; // Projection x View matrix
+    glm::mat4 P; // Projection matrix
+    glm::mat4 V; // View matrix
     glm::vec4 eye_w; //world-space eye position
 } SceneData;
 
@@ -337,6 +339,8 @@ void display(GLFWwindow* window)
         P = glm::perspective(glm::pi<float>() / 4.0f, aspect, 0.1f, 100.0f);
     }
     SceneData.PV = P * V;
+    SceneData.P = P;
+    SceneData.V = V;
 
     //Set uniforms
     glm::mat4 M = glm::rotate(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(particle_scale));
@@ -430,6 +434,9 @@ void display(GLFWwindow* window)
     glViewport(0, 0, monitor_res.x, monitor_res.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glBindTextureUnit(2, fbo_tex);
+    glBindTextureUnit(4, normals_tex);
+
     glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
@@ -441,6 +448,9 @@ void display(GLFWwindow* window)
     //Make the viewport match the FBO texture size.
     glViewport(0, 0, monitor_res.x, monitor_res.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glBindTextureUnit(2, fbo_tex);
+    glBindTextureUnit(3, depth_tex);
 
     glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
