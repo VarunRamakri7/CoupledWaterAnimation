@@ -72,6 +72,12 @@ void main ()
     {
         frag_color = texelFetch(fbo_tex, ivec2(gl_FragCoord), 0);
     }
+
+    if (pass == 2)
+    {
+        float depth = LinearizeDepth(inData.depth) / far;
+        frag_color = vec4(vec3(depth), 1.0f);
+    }
 }
 
 float LinearizeDepth(float depth) 

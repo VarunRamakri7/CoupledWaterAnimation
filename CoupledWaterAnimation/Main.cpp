@@ -301,7 +301,9 @@ void draw_gui(GLFWwindow* window)
 
     ImGui::Begin("FBO");
         ImGui::Image((void*)fbo_tex, ImVec2(128.0f, 128.0f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
-    ImGui::End();
+        ImGui::SameLine();
+        ImGui::Image((void*)depth_tex, ImVec2(128.0f, 128.0f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
+        ImGui::End();
 
     //Module::sDrawGuiAll();
 
@@ -313,7 +315,8 @@ void draw_gui(GLFWwindow* window)
 // This function gets called every time the scene gets redisplayed
 void display(GLFWwindow* window)
 {
-    //Clear the screen to the color previously specified in the glClearColor(...) call.
+    //Clear the screen
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 V;
@@ -414,7 +417,21 @@ void display(GLFWwindow* window)
         glBindVertexArray(strip_surf.vao);
         strip_surf.Draw();
     }
-    
+
+    //Pass 2: render scene into depth attachment
+    glUseProgram(particle_shader_program);
+
+    glUniform1i(UniformLocs::pass, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
+    glDrawBuffer(GL_COLOR_ATTACHMENT1); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
+
+    //Make the viewport match the FBO texture size.
+    glViewport(0, 0, monitor_res.x, monitor_res.y);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glBindVertexArray(particle_position_vao);
+    glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
+
     //Pass 1: render textured quad to back buffer
     glUseProgram(particle_shader_program);
 
@@ -722,6 +739,56 @@ void init_skybox()
 
 #define BUFFER_OFFSET(offset) ((GLvoid*) (offset))
 
+bool checkFramebufferStatus(GLuint fbo)
+{
+    // check FBO status
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo); // bind
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    switch (status)
+    {
+    case GL_FRAMEBUFFER_COMPLETE:
+        std::cout << "Framebuffer complete." << std::endl;
+        return true;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+        std::cout << "[ERROR] Framebuffer incomplete: Attachment is NOT complete." << std::endl;
+        return false;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+        std::cout << "[ERROR] Framebuffer incomplete: No image is attached to FBO." << std::endl;
+        return false;
+        /*
+            case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+                std::cout << "[ERROR] Framebuffer incomplete: Attached images have different dimensions." << std::endl;
+                return false;
+
+            case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
+                std::cout << "[ERROR] Framebuffer incomplete: Color attached images have different internal formats." << std::endl;
+                return false;
+        */
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+        std::cout << "[ERROR] Framebuffer incomplete: Draw buffer." << std::endl;
+        return false;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+        std::cout << "[ERROR] Framebuffer incomplete: Read buffer." << std::endl;
+        return false;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+        std::cout << "[ERROR] Framebuffer incomplete: Multisample." << std::endl;
+        return false;
+
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+        std::cout << "[ERROR] Framebuffer incomplete: Unsupported by FBO implementation." << std::endl;
+        return false;
+
+    default:
+        std::cout << "[ERROR] Framebuffer incomplete: Unknown error." << std::endl;
+        return false;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);   // unbind
+}
+
 //Initialize OpenGL state. This function only gets called once.
 void initOpenGL()
 {
@@ -784,19 +851,35 @@ void initOpenGL()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    // Create FBO depth texture
+    glGenTextures(1, &depth_tex);
+    glBindTexture(GL_TEXTURE_2D, depth_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, monitor_res.x, monitor_res.y, 0, GL_RGB, GL_FLOAT, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     //Create renderbuffer for depth.
     GLuint rbo = -1;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, monitor_res.x, monitor_res.y);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     //Create the framebuffer object
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_tex, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, depth_tex, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    bool fboStatus = checkFramebufferStatus(fbo);
+    std::cout << "FBO Status: " << fboStatus << std::endl;
 
     //Create and initialize uniform buffers
 

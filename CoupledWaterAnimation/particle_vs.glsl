@@ -32,7 +32,7 @@ const vec4 quad[4] = vec4[] (vec4(-1.0, 1.0, 0.0, 1.0),
 
 void main ()
 {
-	if(pass == 0)
+	if(pass == 0 || pass == 2)
 	{
 		outData.tex_coord = tex_coord_attrib.xy;
 
