@@ -316,7 +316,7 @@ void draw_gui(GLFWwindow* window)
 void display(GLFWwindow* window)
 {
     //Clear the screen
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.75f, 0.75f, 0.75f, 0.75f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 V;
@@ -418,10 +418,10 @@ void display(GLFWwindow* window)
         strip_surf.Draw();
     }
 
-    //Pass 2: render scene into depth attachment
+    //Pass 2: render particle depth into depth attachment
     glUseProgram(particle_shader_program);
 
-    glUniform1i(UniformLocs::pass, 0);
+    glUniform1i(UniformLocs::pass, 2);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
     glDrawBuffer(GL_COLOR_ATTACHMENT1); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
 
@@ -444,6 +444,7 @@ void display(GLFWwindow* window)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindTextureUnit(2, fbo_tex);
+    //glBindTextureUnit(2, depth_tex);
 
     glDisable(GL_DEPTH_TEST);
 

@@ -75,8 +75,12 @@ void main ()
 
     if (pass == 2)
     {
-        float depth = LinearizeDepth(inData.depth) / far;
-        frag_color = vec4(vec3(depth), 1.0f);
+        // Make circular particles
+        float r = length(gl_PointCoord - vec2(0.5f));
+        if (r >= 0.5f) discard;
+
+        //float depth = LinearizeDepth(inData.depth) / far;
+        frag_color = vec4(vec3(inData.depth), 1.0f);
     }
 }
 
