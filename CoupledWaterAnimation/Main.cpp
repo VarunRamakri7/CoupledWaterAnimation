@@ -21,6 +21,7 @@
 #include "LoadTexture.h"   //Functions for creating OpenGL textures from image files
 #include "VideoMux.h"      //Functions for saving videos
 #include "Surf.h"
+#include "AttriblessRendering.h"
 #include "StencilImage2DTripleBuffered.h"
 #include "DebugCallback.h"
 
@@ -33,8 +34,8 @@
 #define PART_WORK_GROUPS 20 // Ceiling of particle count divided by work group size
 #define MAX_WAVE_WORK_GROUPS 32 // Work group size for wave compute shader
 
-const int init_window_width = 720;
-const int init_window_height = 720;
+glm::vec2 window_res = glm::vec2(720, 720);
+glm::vec2 monitor_res;
 const char* const window_title = "Coupled Water Animation";
 
 // Vertex and Fragment Shaders
@@ -58,6 +59,14 @@ GLuint wave_shader_program = -1;
 GLuint skybox_shader_program = -1;
 GLuint mesh_shader_program = -1;
 GLuint compute_programs[3] = { -1, -1, -1 };
+
+// FBO related
+GLuint fbo = -1;
+GLuint fbo_tex = -1;
+GLuint depth_tex = -1; // Depth FBO texture
+GLenum buffers[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+
+GLuint attribless_vao = -1;
 
 GLuint particle_position_vao = -1;
 GLuint particles_ssbo = -1;
@@ -290,7 +299,11 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
     ImGui::End();
 
-    Module::sDrawGuiAll();
+    ImGui::Begin("FBO");
+        ImGui::Image((void*)fbo_tex, ImVec2(128.0f, 128.0f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
+    ImGui::End();
+
+    //Module::sDrawGuiAll();
 
     //End ImGui Frame
     ImGui::Render();
@@ -317,7 +330,7 @@ void display(GLFWwindow* window)
         // Set perspective view
         SceneData.eye_w = glm::vec4(eye_persp, 1.0f);
         V = glm::lookAt(glm::vec3(SceneData.eye_w), center_persp, glm::vec3(0.0f, 1.0f, 0.0f));
-        P = glm::perspective(glm::pi<float>() / 4.0f, aspect, 0.1f, 50.0f);
+        P = glm::perspective(glm::pi<float>() / 4.0f, aspect, 0.1f, 100.0f);
     }
     SceneData.PV = P * V;
 
@@ -346,6 +359,17 @@ void display(GLFWwindow* window)
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(WaveUniforms), &WaveData); // Upload the new uniform values.
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0); //unbind the ubo
+
+    //Pass 0: render scene into fbo attachment
+    glUseProgram(particle_shader_program);
+
+    glUniform1i(UniformLocs::pass, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
+    glDrawBuffer(GL_COLOR_ATTACHMENT0); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
+
+    //Make the viewport match the FBO texture size.
+    glViewport(0, 0, monitor_res.x, monitor_res.y);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Draw skybox
     glUseProgram(skybox_shader_program); // Use wave shader program
@@ -391,6 +415,24 @@ void display(GLFWwindow* window)
         strip_surf.Draw();
     }
     
+    //Pass 1: render textured quad to back buffer
+    glUseProgram(particle_shader_program);
+
+    glUniform1i(UniformLocs::pass, 1);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDrawBuffer(GL_BACK);
+
+    //Make the viewport match the FBO texture size.
+    glViewport(0, 0, monitor_res.x, monitor_res.y);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glBindTextureUnit(2, fbo_tex);
+
+    glDisable(GL_DEPTH_TEST);
+
+    glBindVertexArray(attribless_vao);
+    draw_attribless_quad();
+
     glBindVertexArray(0); // Unbind VAO
 
     if (recording == true)
@@ -587,9 +629,18 @@ void mouse_button(GLFWwindow* window, int button, int action, int mods)
     Module::sMouseButtonAll(button, action, mods, glm::vec2(x, y));
 }
 
+void GetScreenSize()
+{
+    // Get screen dimensions
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    monitor_res.x = mode->width;
+    monitor_res.y = mode->height;
+}
+
 void resize(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height); //Set viewport to cover entire framebuffer
+    window_res = glm::vec2(width, height);
     aspect = float(width) / float(height); // Set aspect ratio
 }
 
@@ -721,6 +772,32 @@ void initOpenGL()
 
     Module::sInitAll();
 
+    glGenVertexArrays(1, &attribless_vao);
+
+    // Create FBO color texture
+    glGenTextures(1, &fbo_tex);
+    glBindTexture(GL_TEXTURE_2D, fbo_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, monitor_res.x, monitor_res.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    //Create renderbuffer for depth.
+    GLuint rbo = -1;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, monitor_res.x, monitor_res.y);
+
+    //Create the framebuffer object
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_tex, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     //Create and initialize uniform buffers
 
     // For SceneUniforms
@@ -767,7 +844,7 @@ int main(int argc, char** argv)
 #endif
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(init_window_width, init_window_height, window_title, NULL, NULL);
+    window = glfwCreateWindow(window_res.x, window_res.y, window_title, NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -782,6 +859,8 @@ int main(int argc, char** argv)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+
+    GetScreenSize();
 
     initOpenGL();
 

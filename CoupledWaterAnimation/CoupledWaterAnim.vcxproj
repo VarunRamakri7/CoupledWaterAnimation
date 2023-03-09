@@ -163,6 +163,7 @@
     <ClCompile Include="..\implot-master\implot.cpp" />
     <ClCompile Include="..\implot-master\implot_demo.cpp" />
     <ClCompile Include="..\implot-master\implot_items.cpp" />
+    <ClCompile Include="AttriblessRendering.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="ComputeShader.cpp" />
     <ClCompile Include="DebugCallback.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="..\imgui-master\imstb_truetype.h" />
     <ClInclude Include="..\implot-master\implot.h" />
     <ClInclude Include="..\implot-master\implot_internal.h" />
+    <ClInclude Include="AttriblessRendering.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="DebugCallback.h" />
