@@ -6,7 +6,8 @@ layout(location = 2) uniform int pass;
 //layout(binding = 0) uniform sampler2D wave_tex;
 layout(binding = 1) uniform samplerCube skybox_tex;
 layout(binding = 2) uniform sampler2D fbo_tex;
-//layout(binding = 3) uniform sampler2D depth_tex;
+layout(binding = 3) uniform sampler2D depth_tex;
+layout(binding = 4) uniform sampler2D normals_tex;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
@@ -40,6 +41,7 @@ vec4 lighting();
 
 void main ()
 {    
+    // Render particles and skybox
     if(pass == 0)
     {
         // Make circular particles
@@ -68,11 +70,14 @@ void main ()
         //imageStore(depth_tex, coord, vec4(vec3(depth), 1.0f));
     }
 
+    // Render full-screen quad
     if(pass == 1)
     {
         frag_color = texelFetch(fbo_tex, ivec2(gl_FragCoord), 0);
+        //frag_color = texelFetch(depth_tex, ivec2(gl_FragCoord), 0);
     }
 
+    // Render particle depth
     if (pass == 2)
     {
         // Make circular particles
@@ -81,6 +86,16 @@ void main ()
 
         //float depth = LinearizeDepth(inData.depth) / far;
         frag_color = vec4(vec3(inData.depth), 1.0f);
+    }
+
+    // Calculate normals
+    if (pass == 3)
+    {
+        float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
+        vec3 pos = inData.particle_pos;
+
+        // Use partial differences to calculae normal
+        frag_color = vec4(normal, 1.0f);
     }
 }
 

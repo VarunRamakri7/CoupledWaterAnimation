@@ -32,7 +32,8 @@ const vec4 quad[4] = vec4[] (vec4(-1.0, 1.0, 0.0, 1.0),
 
 void main ()
 {
-	if(pass == 0 || pass == 2)
+	// Render particles or depth or calculate normals
+	if(pass == 0 || pass == 2 || pass == 3)
 	{
 		outData.tex_coord = tex_coord_attrib.xy;
 
@@ -42,7 +43,9 @@ void main ()
 		outData.particle_pos = vec3(M * vec4(pos_attrib, 1.0));
 		outData.depth = eye_pos.z / eye_pos.w; // Calculate eye-space depth
 	}
-	if(pass == 1) //full screen quad
+
+	// Render full-screen quad
+	if(pass == 1)
 	{
 		gl_Position = quad[gl_VertexID]; //get clip space coords out of quad array
 		outData.tex_coord = 0.5f * (quad[gl_VertexID].xy + vec2(1.0f)); 
