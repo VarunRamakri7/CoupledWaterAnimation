@@ -302,10 +302,10 @@ void draw_gui(GLFWwindow* window)
     ImGui::End();
 
     ImGui::Begin("FBO");
-        ImGui::Image((void*)fbo_tex, ImVec2(128.0f, 128.0f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
+        ImGui::Image((void*)fbo_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
         ImGui::SameLine();
-        ImGui::Image((void*)depth_tex, ImVec2(128.0f, 128.0f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
-        ImGui::Image((void*)normals_tex, ImVec2(128.0f, 128.0f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show normal texture
+        ImGui::Image((void*)depth_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
+        ImGui::Image((void*)normals_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show normal texture
     ImGui::End();
 
     //Module::sDrawGuiAll();
@@ -319,7 +319,7 @@ void draw_gui(GLFWwindow* window)
 void display(GLFWwindow* window)
 {
     //Clear the screen
-    glClearColor(0.75f, 0.75f, 0.75f, 0.75f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 V;
@@ -368,7 +368,7 @@ void display(GLFWwindow* window)
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0); //unbind the ubo
 
-    //Pass 0: render scene into fbo attachment
+    // Pass 0: render scene into fbo attachment
     glUseProgram(particle_shader_program);
 
     glUniform1i(UniformLocs::pass, 0);
@@ -388,26 +388,6 @@ void display(GLFWwindow* window)
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthMask(GL_TRUE);
 
-    // Draw boat
-    glUseProgram(mesh_shader_program);
-    glBindVertexArray(mesh_data.mVao);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mesh_tex);
-    glDrawElements(GL_TRIANGLES, mesh_data.mSubmesh[0].mNumIndices, GL_UNSIGNED_INT, 0);
-
-    // Draw Particles
-    if (drawParticles)
-    {
-        glUseProgram(particle_shader_program);
-
-        // Bind skybox
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex);
-
-        glBindVertexArray(particle_position_vao);
-        glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
-    }
-
     // Draw wave surface
     if (drawSurface)
     {
@@ -423,14 +403,35 @@ void display(GLFWwindow* window)
         strip_surf.Draw();
     }
 
-    //Pass 2: render particle depth into depth attachment
+    // Draw boat
+    glUseProgram(mesh_shader_program);
+    glBindVertexArray(mesh_data.mVao);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, mesh_tex);
+    glDrawElements(GL_TRIANGLES, mesh_data.mSubmesh[0].mNumIndices, GL_UNSIGNED_INT, 0);
+
+    // Draw Particles
     glUseProgram(particle_shader_program);
+    if (drawParticles)
+    {
+        //glUseProgram(particle_shader_program);
+
+        // Bind skybox
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex);
+
+        glBindVertexArray(particle_position_vao);
+        glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
+    }
+
+    // Pass 2: render particle depth into depth attachment
+    //glUseProgram(particle_shader_program);
 
     glUniform1i(UniformLocs::pass, 2);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
     glDrawBuffer(GL_COLOR_ATTACHMENT1); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
 
-    //Make the viewport match the FBO texture size.
+    // Make the viewport match the FBO texture size.
     glViewport(0, 0, monitor_res.x, monitor_res.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -445,7 +446,7 @@ void display(GLFWwindow* window)
     glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
     glDrawBuffer(GL_COLOR_ATTACHMENT2); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
     
-    //Make the viewport match the FBO texture size.
+    // Make the viewport match the FBO texture size.
     glViewport(0, 0, monitor_res.x, monitor_res.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -455,12 +456,12 @@ void display(GLFWwindow* window)
     //glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
-    //Pass 1: render textured quad to back buffer
+    // Pass 1: render textured quad to back buffer
     glUniform1i(UniformLocs::pass, 1);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
 
-    //Make the viewport match the FBO texture size.
+    // Make the viewport match the FBO texture size.
     glViewport(0, 0, monitor_res.x, monitor_res.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

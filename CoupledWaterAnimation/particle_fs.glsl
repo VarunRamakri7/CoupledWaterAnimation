@@ -26,7 +26,6 @@ in VertexData
 
 out layout(location = 0) vec4 frag_color; //the output color for this fragment    
 
-vec3 normal = vec3(0.0f, 1.0f, 0.0f);
 const vec4 particle_col = vec4(0.4f, 0.7f, 1.0f, 1.0f); // Light blue
 const vec4 foam_col = vec4(1.0f); // White
 
@@ -36,8 +35,8 @@ const vec3 light_pos = vec3(1.0f, 1.0f, 0.0f); // Light position
 const float near = 0.1f; // Near plane distance
 const float far = 100.0f; // Far plane distance
 
-vec3 GetEyePosFromUV(vec2 coord);
 vec3 WorldPosFromDepth(float depth);
+vec4 blur();
 float LinearizeDepth(float depth);
 vec4 reflection();
 vec4 refraction();
@@ -45,7 +44,7 @@ vec4 lighting();
 
 void main ()
 {    
-    // Render particles and skybox
+    // Render particles
     if(pass == 0)
     {
         // Make circular particles
@@ -59,19 +58,17 @@ void main ()
         // Calculate lighting and skybox color
         vec4 refraction_color = refraction();
         vec4 reflection_color = reflection();
-        vec4 lighting_color = 0.1f * lighting();
+        vec4 lighting_color = lighting();
     
-        vec4 combine = 0.75f * (reflection_color + refraction_color) + lighting_color;
+        vec4 combine = 0.75f * (reflection_color + refraction_color) + 0.1f * lighting_color;
 
 	    // Change particle color depending on height
 	    frag_color = mix(combine, foam_col, 2.0f * inData.particle_pos.y);
 	    frag_color.rgb += spec; // Add specular highlight
 	    frag_color.a = mix(0.1f, a, 2.0f * inData.particle_pos.y);
 
-        //float depth = LinearizeDepth(inData.depth) / far;
-        //frag_color = vec4(vec3(depth), 1.0f);
-        //ivec2 coord = ivec2(inData.particle_pos.xy);
-        //imageStore(depth_tex, coord, vec4(vec3(depth), 1.0f));
+        //frag_color = lighting_color;
+        //frag_color.a = 1.0f;
     }
 
     // Render full-screen quad
@@ -80,6 +77,7 @@ void main ()
         frag_color = texelFetch(fbo_tex, ivec2(gl_FragCoord), 0);
         //frag_color = texelFetch(depth_tex, ivec2(gl_FragCoord), 0);
         //frag_color = texelFetch(normals_tex, ivec2(gl_FragCoord), 0);
+        //frag_color = blur();
     }
 
     // Render particle depth
@@ -100,9 +98,10 @@ void main ()
         float r = length(gl_PointCoord - vec2(0.5f));
         if (r >= 0.5f) discard;
 
-        normal = normalize(gl_FragCoord.xyz - inData.particle_pos.xyz); // Test
+        // Blur depth tetxure
+        vec4 blur_frag = blur();
 
-        // TODO: Use partial differences to calculate normal from depth
+        // Use partial differences to calculate normal from depth
         float dzdx = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(1, 0), 0).x - 
                      texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(-1, 0), 0).x;
         dzdx *= 0.5f;
@@ -110,28 +109,10 @@ void main ()
                      texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, -1), 0).x;
         dzdy *= 0.5f;
         vec3 d = vec3(-dzdx, -dzdy, 1.0f);
-        normal = normalize(d);
+        vec3 normal = normalize(d);
 
-        frag_color = vec4(normal, 1.0f);
+        frag_color = vec4(normal, 1.0f); // Write normals to texture
     }
-}
-
-vec3 GetEyePosFromUV(vec2 coord)
-{
-    // fetch depth value for current pixel
-    float depth = texelFetch(depth_tex, ivec2(coord), 0).x;
-
-    // convert texture coordinate to homogeneous space
-    vec2 xyPos = coord * 2.0f - 1.0f;
-
-    // construct clip-space position
-    vec4 clipPos = vec4(xyPos, depth, 1.0f);
-
-    // transform from clip space to view (eye) space
-    vec4 viewPos = clipPos * inverse(V);
-
-    // Make the position homogeneous and return
-    return viewPos.xyz / viewPos.w;
 }
 
 vec3 WorldPosFromDepth(float depth)
@@ -149,6 +130,25 @@ vec3 WorldPosFromDepth(float depth)
     return worldSpacePosition.xyz;
 }
 
+vec4 blur()
+{      
+    int hw = 5;
+    float n = 0.0f;
+
+    vec4 blur = vec4(0.0);
+    for(int i =- hw; i <= hw; i++)
+    {
+       for(int j =- hw; j <= hw; j++)
+       {
+          blur += texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(i, j), 0);
+          n += 1.0f;
+       }
+    }
+
+    blur = blur / n;
+    return blur;
+}
+
 float LinearizeDepth(float depth) 
 {
     float z = depth * 2.0f - 1.0f; // back to NDC 
@@ -158,7 +158,12 @@ float LinearizeDepth(float depth)
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
 vec4 reflection()
 {
-    vec3 I = normalize(inData.particle_pos - eye_w.xyz);
+    vec3 normal = texelFetch(normals_tex, ivec2(gl_FragCoord), 0).xyz;
+    float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
+    //vec3 pos = WorldPosFromDepth(depth);
+    vec3 pos = inData.particle_pos;
+
+    vec3 I = normalize(eye_w.xyz - pos);
     vec3 R = reflect(I, normal);
     return vec4(texture(skybox_tex, R).rgb, 1.0f);
 }
@@ -166,8 +171,13 @@ vec4 reflection()
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
 vec4 refraction()
 {
+    vec3 normal = texelFetch(normals_tex, ivec2(gl_FragCoord), 0).xyz;
+    float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
+    //vec3 pos = WorldPosFromDepth(depth);
+    vec3 pos = inData.particle_pos;
+
     float ratio = 1.0f / 1.33f; // Refractive index of Air/Water
-    vec3 I = normalize(inData.particle_pos - eye_w.xyz);
+    vec3 I = normalize(eye_w.xyz - pos);
     vec3 R = refract(I, normal, ratio);
     return vec4(texture(skybox_tex, R).rgb, 1.0f);
 }
@@ -175,22 +185,27 @@ vec4 refraction()
 // From LearnOpenGL: https://learnopengl.com/code_viewer_gh.php?code=src/2.lighting/2.1.basic_lighting_diffuse/2.1.basic_lighting.fs
 vec4 lighting()
 {
+    vec3 normal = texelFetch(normals_tex, ivec2(gl_FragCoord), 0).xyz;
+    float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
+    vec3 pos = WorldPosFromDepth(depth);
+    //vec3 pos = inData.particle_pos;
+
     // ambient
     float ambientStrength = 0.8f;
     vec3 ambient = ambientStrength * light_col;
   	
     // diffuse 
-    vec3 lightDir = normalize(light_pos - inData.particle_pos);
+    vec3 lightDir = normalize(light_pos - pos);
     float diff = max(dot(normal, lightDir), 0.0f);
     vec3 diffuse = diff * light_col;
     diffuse *= 0.05f;
     
     // specular
     float specularStrength = 10.0f;
-    vec3 viewDir = normalize(eye_w.xyz - inData.particle_pos);
+    vec3 viewDir = normalize(eye_w.xyz - pos);
     vec3 reflectDir = reflect(-lightDir, normal);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);
-    vec3 specular = specularStrength * spec * light_col;  
-        
+    vec3 specular = specularStrength * spec * light_col;
+
     return vec4((ambient + diffuse + specular) * particle_col.xyz, 1.0f);
 }
