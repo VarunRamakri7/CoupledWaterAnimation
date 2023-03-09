@@ -36,6 +36,7 @@ const vec3 light_pos = vec3(1.0f, 1.0f, 0.0f); // Light position
 const float near = 0.1f; // Near plane distance
 const float far = 100.0f; // Far plane distance
 
+vec3 GetEyePosFromUV(vec2 coord);
 vec3 WorldPosFromDepth(float depth);
 float LinearizeDepth(float depth);
 vec4 reflection();
@@ -100,13 +101,53 @@ void main ()
         if (r >= 0.5f) discard;
 
         float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
-        vec3 pos = inData.particle_pos;
+        vec3 pos = inData.particle_pos;//GetEyePosFromUV(gl_FragCoord.xy);
 
-        // TODO: Use partial differences to calculate normal
-        normal = normalize(gl_FragCoord.xyz - inData.particle_pos.xyz);
-        vec3 worldSpacePos = normalize(WorldPosFromDepth(depth));
-        frag_color = vec4(worldSpacePos, 1.0f);
+        normal = normalize(gl_FragCoord.xyz - inData.particle_pos.xyz); // Test
+
+        // TODO: Use partial differences to calculate normal from depth
+        float ddx_depth = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(1, 0), 0).x;
+        vec3 ddx = WorldPosFromDepth(ddx_depth) - pos;
+        ddx_depth = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(-1, 0), 0).x;
+        vec3 ddx2 = pos - WorldPosFromDepth(ddx_depth);
+        if (abs(ddx.z) > abs(ddx2.z))
+        {
+            ddx = ddx2;
+        }
+
+        float ddy_depth = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, 1), 0).x;
+        vec3 ddy = WorldPosFromDepth(ddy_depth) - pos;
+        ddy_depth = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, -1), 0).x;
+        vec3 ddy2 = pos - WorldPosFromDepth(ddy_depth);
+        if (abs(ddy2.z) < abs(ddy.z))
+        {
+            ddy = ddy2;
+        }
+
+        normal = cross(ddx, ddy);
+        frag_color = vec4(normalize(normal), 1.0f);
     }
+}
+
+vec3 GetEyePosFromUV(vec2 coord)
+{
+    // fetch depth value for current pixel
+    float depth = texelFetch(depth_tex, ivec2(coord), 0).x;
+
+    // convert texture coordinate to homogeneous space
+    vec2 xyPos = coord * 2.0f - 1.0f;
+
+    // construct clip-space position
+    vec4 clipPos = vec4(xyPos, depth, 1.0f);
+
+    // transform from clip space to view (eye) space
+    // NOTE: this assumes that you've precomputed the
+    // inverse of the view->clip transform matrix and
+    // provided it to the shader as a constant.
+    vec4 viewPos = clipPos * inverse(V);
+
+    // Make the position homogeneous and return
+    return viewPos.xyz / viewPos.w;
 }
 
 vec3 WorldPosFromDepth(float depth)
