@@ -100,32 +100,19 @@ void main ()
         float r = length(gl_PointCoord - vec2(0.5f));
         if (r >= 0.5f) discard;
 
-        float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
-        vec3 pos = inData.particle_pos;//GetEyePosFromUV(gl_FragCoord.xy);
-
         normal = normalize(gl_FragCoord.xyz - inData.particle_pos.xyz); // Test
 
         // TODO: Use partial differences to calculate normal from depth
-        float ddx_depth = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(1, 0), 0).x;
-        vec3 ddx = WorldPosFromDepth(ddx_depth) - pos;
-        ddx_depth = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(-1, 0), 0).x;
-        vec3 ddx2 = pos - WorldPosFromDepth(ddx_depth);
-        if (abs(ddx.z) > abs(ddx2.z))
-        {
-            ddx = ddx2;
-        }
+        float dzdx = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(1, 0), 0).x - 
+                     texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(-1, 0), 0).x;
+        dzdx *= 0.5f;
+        float dzdy = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, 1), 0).x - 
+                     texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, -1), 0).x;
+        dzdy *= 0.5f;
+        vec3 d = vec3(-dzdx, -dzdy, 1.0f);
+        normal = normalize(d);
 
-        float ddy_depth = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, 1), 0).x;
-        vec3 ddy = WorldPosFromDepth(ddy_depth) - pos;
-        ddy_depth = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, -1), 0).x;
-        vec3 ddy2 = pos - WorldPosFromDepth(ddy_depth);
-        if (abs(ddy2.z) < abs(ddy.z))
-        {
-            ddy = ddy2;
-        }
-
-        normal = cross(ddx, ddy);
-        frag_color = vec4(normalize(normal), 1.0f);
+        frag_color = vec4(normal, 1.0f);
     }
 }
 
@@ -141,9 +128,6 @@ vec3 GetEyePosFromUV(vec2 coord)
     vec4 clipPos = vec4(xyPos, depth, 1.0f);
 
     // transform from clip space to view (eye) space
-    // NOTE: this assumes that you've precomputed the
-    // inverse of the view->clip transform matrix and
-    // provided it to the shader as a constant.
     vec4 viewPos = clipPos * inverse(V);
 
     // Make the position homogeneous and return

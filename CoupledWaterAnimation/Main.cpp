@@ -305,7 +305,7 @@ void draw_gui(GLFWwindow* window)
         ImGui::Image((void*)fbo_tex, ImVec2(128.0f, 128.0f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
         ImGui::SameLine();
         ImGui::Image((void*)depth_tex, ImVec2(128.0f, 128.0f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
-        ImGui::Image((void*)normals_tex, ImVec2(128.0f, 128.0f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
+        ImGui::Image((void*)normals_tex, ImVec2(128.0f, 128.0f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show normal texture
     ImGui::End();
 
     //Module::sDrawGuiAll();
@@ -444,7 +444,7 @@ void display(GLFWwindow* window)
     glUniform1i(UniformLocs::pass, 3);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
     glDrawBuffer(GL_COLOR_ATTACHMENT2); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
-
+    
     //Make the viewport match the FBO texture size.
     glViewport(0, 0, monitor_res.x, monitor_res.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -452,12 +452,10 @@ void display(GLFWwindow* window)
     glBindTextureUnit(2, fbo_tex);
     glBindTextureUnit(3, depth_tex);
 
-    glBindVertexArray(particle_position_vao);
+    //glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
     //Pass 1: render textured quad to back buffer
-    //glUseProgram(particle_shader_program);
-
     glUniform1i(UniformLocs::pass, 1);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
