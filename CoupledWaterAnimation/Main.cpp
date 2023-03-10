@@ -142,7 +142,7 @@ glm::vec3 center_persp = glm::vec3(0.0f, -1.0f, 0.0f);
 glm::vec3 eye_ortho = glm::vec3(-12.0f, -1.0f, 8.0f);
 glm::vec3 center_ortho = glm::vec3(-1.0f, -1.0f, 0.0f);
 
-static const std::string mesh_name = "Amago0.obj";
+static const std::string mesh_name = "boat.obj";
 static const std::string mesh_tex_name = "AmagoT.bmp";
 MeshData mesh_data;
 GLuint mesh_tex = -1;
@@ -155,6 +155,7 @@ float mesh_scale = 1.0f;
 float aspect = 1.0f;
 bool recording = false;
 bool simulate = false;
+float circle_theta = 0.0f; // current angle of fish circle in radians
 
 bool drawSurface = true;
 bool drawParticles = true;
@@ -319,7 +320,7 @@ void draw_gui(GLFWwindow* window)
 void display(GLFWwindow* window)
 {
     //Clear the screen
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 V;
@@ -351,7 +352,7 @@ void display(GLFWwindow* window)
     
     M = glm::mat4(1.0f);
     M = glm::translate(M, mesh_pos); // translate it down so it's at the center of the scene
-    M *= glm::rotate(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(mesh_scale * mesh_data.mScaleFactor));
+    M *= glm::rotate(-circle_theta, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(mesh_scale * mesh_data.mScaleFactor));
     glProgramUniformMatrix4fv(mesh_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set particle Model Matrix
 
     glBindBuffer(GL_UNIFORM_BUFFER, scene_ubo); //Bind the OpenGL UBO before we update the data.
@@ -388,6 +389,13 @@ void display(GLFWwindow* window)
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthMask(GL_TRUE);
 
+    // Draw Boat
+    //glUseProgram(mesh_shader_program);
+    //glBindVertexArray(mesh_data.mVao);
+    //glActiveTexture(GL_TEXTURE1);
+    //glBindTexture(GL_TEXTURE_2D, mesh_tex);
+    //glDrawElements(GL_TRIANGLES, mesh_data.mSubmesh[0].mNumIndices, GL_UNSIGNED_INT, 0);
+
     // Draw wave surface
     if (drawSurface)
     {
@@ -402,13 +410,6 @@ void display(GLFWwindow* window)
         glBindVertexArray(strip_surf.vao);
         strip_surf.Draw();
     }
-
-    // Draw boat
-    glUseProgram(mesh_shader_program);
-    glBindVertexArray(mesh_data.mVao);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mesh_tex);
-    glDrawElements(GL_TRIANGLES, mesh_data.mSubmesh[0].mNumIndices, GL_UNSIGNED_INT, 0);
 
     // Draw Particles
     glUseProgram(particle_shader_program);
@@ -475,6 +476,26 @@ void display(GLFWwindow* window)
     glfwSwapBuffers(window);
 }
 
+void MoveFish()
+{
+    const float radius = 1.0f; // radius of the circle
+    const float speed = 0.001f; // speed of the movement
+
+    // Calculate the new position of the mesh
+    float x = 2.0f + radius * cos(circle_theta);
+    //float y = radius * sin(theta);
+    float z = radius * sin(circle_theta);
+    glm::vec3 newPos(x, mesh_pos.y, z);
+    mesh_pos = newPos;
+
+    // Update the position of the mesh
+    //glm::vec3 oldPos = mesh_pos;
+    //mesh_pos = oldPos + speed * (newPos - oldPos);
+
+    // Increase the angle for the next frame
+    circle_theta += 0.01f;
+}
+
 void idle()
 {
     static float time_sec = 0.0f;
@@ -485,9 +506,13 @@ void idle()
     glProgramUniform1f(wave_shader_program, UniformLocs::time, time_sec);
     glProgramUniform1f(mesh_shader_program, UniformLocs::time, time_sec);
 
-    // Dispatch compute shaders
+        // Animate fish
+        MoveFish();
+
     if (simulate)
     {
+        
+        // Dispatch compute shaders
         glUseProgram(compute_programs[0]); // Use density and pressure calculation program
         glDispatchCompute(PART_WORK_GROUPS, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
@@ -620,6 +645,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
         case 'R':
             init_particles();
             wave2d.Reinit();
+            //wave2d.ReinitFromTexture(init_wave_tex);
             reload_shader();
             break;
 
@@ -812,6 +838,8 @@ void initOpenGL()
     std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
     std::cout << "Max work group invocations: " << max_work_groups << std::endl;
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -823,7 +851,6 @@ void initOpenGL()
 
     init_skybox();
     skybox_tex = LoadCubemap(faces);
-    glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 
     init_particles();
 
@@ -837,6 +864,7 @@ void initOpenGL()
     mesh_tex = LoadTexture(mesh_tex_name);
 
     waveCS.SetMaxWorkGroupSize(glm::ivec3(MAX_WAVE_WORK_GROUPS, MAX_WAVE_WORK_GROUPS, 1));
+    //waveCS.SetMode(1); // Init from texture
     wave2d.SetShader(waveCS);
 
     strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
