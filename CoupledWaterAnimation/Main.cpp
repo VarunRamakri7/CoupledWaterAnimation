@@ -64,7 +64,6 @@ GLuint compute_programs[3] = { -1, -1, -1 };
 GLuint fbo = -1;
 GLuint fbo_tex = -1;
 GLuint depth_tex = -1; // Depth FBO texture
-GLuint normals_tex = -1; // Normals FBO texture
 
 GLuint attribless_vao = -1;
 
@@ -194,7 +193,7 @@ struct BoundaryUniform
 
 struct WaveUniforms
 {
-    glm::vec4 attributes = glm::vec4(0.01f, 0.995f, 0.001f, 1.0f); // Lambda, Attenuation, Beta, Wave type
+    glm::vec4 attributes = glm::vec4(0.01f, 0.985f, 0.001f, 1.0f); // Lambda, Attenuation, Beta, Wave type
 } WaveData;
 
 GLuint scene_ubo = -1;
@@ -301,12 +300,13 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
     ImGui::End();
 
+    /*
     ImGui::Begin("FBO");
         ImGui::Image((void*)fbo_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
         ImGui::SameLine();
         ImGui::Image((void*)depth_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
-        ImGui::Image((void*)normals_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show normal texture
     ImGui::End();
+    */
 
     //Module::sDrawGuiAll();
 
@@ -436,24 +436,8 @@ void display(GLFWwindow* window)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindTextureUnit(2, fbo_tex);
-    glBindTextureUnit(4, normals_tex);
 
     glBindVertexArray(particle_position_vao);
-    glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
-
-    // Pass 3: Calculate normals
-    glUniform1i(UniformLocs::pass, 3);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
-    glDrawBuffer(GL_COLOR_ATTACHMENT2); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
-    
-    // Make the viewport match the FBO texture size.
-    glViewport(0, 0, monitor_res.x, monitor_res.y);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glBindTextureUnit(2, fbo_tex);
-    glBindTextureUnit(3, depth_tex);
-
-    //glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
     // Pass 1: render textured quad to back buffer
@@ -467,7 +451,6 @@ void display(GLFWwindow* window)
 
     glBindTextureUnit(2, fbo_tex);
     glBindTextureUnit(3, depth_tex);
-    glBindTextureUnit(4, normals_tex);
 
     glDisable(GL_DEPTH_TEST);
 
@@ -886,17 +869,6 @@ void initOpenGL()
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    // Create FBO normals texture
-    glGenTextures(1, &normals_tex);
-    glBindTexture(GL_TEXTURE_2D, normals_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, monitor_res.x, monitor_res.y, 0, GL_RGB, GL_FLOAT, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
     //Create renderbuffer for depth.
     GLuint rbo = -1;
     glGenRenderbuffers(1, &rbo);
@@ -910,7 +882,6 @@ void initOpenGL()
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_tex, 0);
     //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, depth_tex, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, normals_tex, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

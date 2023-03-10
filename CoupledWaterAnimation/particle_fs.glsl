@@ -7,7 +7,6 @@ layout(location = 2) uniform int pass;
 layout(binding = 1) uniform samplerCube skybox_tex;
 layout(binding = 2) uniform sampler2D fbo_tex;
 layout(binding = 3) uniform sampler2D depth_tex;
-layout(binding = 4) uniform sampler2D normals_tex;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
@@ -76,7 +75,6 @@ void main ()
     {
         frag_color = texelFetch(fbo_tex, ivec2(gl_FragCoord), 0);
         //frag_color = texelFetch(depth_tex, ivec2(gl_FragCoord), 0);
-        //frag_color = texelFetch(normals_tex, ivec2(gl_FragCoord), 0);
         //frag_color = blur();
     }
 
@@ -90,29 +88,24 @@ void main ()
         //float depth = LinearizeDepth(inData.depth) / far;
         frag_color = vec4(vec3(inData.depth), 1.0f);
     }
+}
 
-    // Calculate normals
-    if (pass == 3)
-    {
-        // Make circular particles
-        float r = length(gl_PointCoord - vec2(0.5f));
-        if (r >= 0.5f) discard;
+// Calculate normal from depth
+vec3 GetNormalFromDepth()
+{
+    // Blur depth tetxure
+    vec4 blur_frag = blur();
 
-        // Blur depth tetxure
-        vec4 blur_frag = blur();
+    // Use partial differences to calculate normal from depth
+    float dzdx = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(1, 0), 0).x - 
+                 texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(-1, 0), 0).x;
+    dzdx *= 0.5f;
+    float dzdy = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, 1), 0).x - 
+                 texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, -1), 0).x;
+    dzdy *= 0.5f;
+    vec3 d = vec3(-dzdx, -dzdy, 1.0f);
 
-        // Use partial differences to calculate normal from depth
-        float dzdx = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(1, 0), 0).x - 
-                     texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(-1, 0), 0).x;
-        dzdx *= 0.5f;
-        float dzdy = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, 1), 0).x - 
-                     texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(0, -1), 0).x;
-        dzdy *= 0.5f;
-        vec3 d = vec3(-dzdx, -dzdy, 1.0f);
-        vec3 normal = normalize(d);
-
-        frag_color = vec4(normal, 1.0f); // Write normals to texture
-    }
+    return normalize(d);
 }
 
 vec3 WorldPosFromDepth(float depth)
@@ -158,7 +151,7 @@ float LinearizeDepth(float depth)
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
 vec4 reflection()
 {
-    vec3 normal = texelFetch(normals_tex, ivec2(gl_FragCoord), 0).xyz;
+    vec3 normal = NormalFromDepth();
     float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
     //vec3 pos = WorldPosFromDepth(depth);
     vec3 pos = inData.particle_pos;
@@ -171,7 +164,7 @@ vec4 reflection()
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
 vec4 refraction()
 {
-    vec3 normal = texelFetch(normals_tex, ivec2(gl_FragCoord), 0).xyz;
+    vec3 normal = NormalFromDepth();
     float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
     //vec3 pos = WorldPosFromDepth(depth);
     vec3 pos = inData.particle_pos;
@@ -185,7 +178,7 @@ vec4 refraction()
 // From LearnOpenGL: https://learnopengl.com/code_viewer_gh.php?code=src/2.lighting/2.1.basic_lighting_diffuse/2.1.basic_lighting.fs
 vec4 lighting()
 {
-    vec3 normal = texelFetch(normals_tex, ivec2(gl_FragCoord), 0).xyz;
+    vec3 normal = NormalFromDepth();
     float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
     vec3 pos = WorldPosFromDepth(depth);
     //vec3 pos = inData.particle_pos;
