@@ -151,7 +151,7 @@ float LinearizeDepth(float depth)
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
 vec4 reflection()
 {
-    vec3 normal = NormalFromDepth();
+    vec3 normal = GetNormalFromDepth();
     float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
     //vec3 pos = WorldPosFromDepth(depth);
     vec3 pos = inData.particle_pos;
@@ -164,7 +164,7 @@ vec4 reflection()
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
 vec4 refraction()
 {
-    vec3 normal = NormalFromDepth();
+    vec3 normal = GetNormalFromDepth();
     float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
     //vec3 pos = WorldPosFromDepth(depth);
     vec3 pos = inData.particle_pos;
@@ -178,7 +178,7 @@ vec4 refraction()
 // From LearnOpenGL: https://learnopengl.com/code_viewer_gh.php?code=src/2.lighting/2.1.basic_lighting_diffuse/2.1.basic_lighting.fs
 vec4 lighting()
 {
-    vec3 normal = NormalFromDepth();
+    vec3 normal = GetNormalFromDepth();
     float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
     vec3 pos = WorldPosFromDepth(depth);
     //vec3 pos = inData.particle_pos;
