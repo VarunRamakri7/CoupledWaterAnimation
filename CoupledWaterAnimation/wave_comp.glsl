@@ -99,6 +99,7 @@ void InitWave(ivec2 coord)
 
 	ivec2 cen0;
 	ivec2 cen1;
+	ivec2 cen2;
 
 	if(attributes.w == 1.0f)
 	{
@@ -110,11 +111,17 @@ void InitWave(ivec2 coord)
 	{
 		// Wave
 		cen0 = ivec2(0.25f * size.x, size.y);
+		cen2 = ivec2(0.5f * size.x, size.y);
 		cen1 = ivec2(0.75f * size.x, size.y);
 	}
 
 	float d = min(distance(coord, cen0), distance(coord, cen1));
-	vout.x = 0.5f * smoothstep(attributes.w == 0.0f ? 20.0f : 5.0f, 0.0f, d);
+	if(attributes.w == 0.0f) //Add third center for wave
+	{
+		d = min(d, distance(coord, cen2));
+	}
+
+	vout.x = smoothstep(5.0f, 0.0f, d);
 	imageStore(uOutputImage, coord, vout);
 }
 
@@ -122,7 +129,7 @@ void EvolveWave(ivec2 coord, ivec2 size)
 {
 	neighborhood n = get_clamp(coord);
 	vec4 w = (2.0 - 4.0 * attributes[0] - attributes[2]) * n.c0 + attributes[0] * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0 - attributes[2]) * n.c1;
-	w = attributes[1] * w;
+	w *= attributes[1];
 
     imageStore(uOutputImage, coord, w);
 }

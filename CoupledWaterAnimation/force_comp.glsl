@@ -4,6 +4,10 @@
 #define NUM_PARTICLES 20480
 #define PARTICLE_RADIUS 0.005f
 
+#define CREST_THRESHOLD 0.01f
+#define BREAKING_MASS_FACTOR 0.25f;
+#define BREAKING_VISC_FACTOR 0.5f;
+
 // For calculations
 #define PI 3.141592741f
 
@@ -94,6 +98,14 @@ void main()
 			visc_force += mass * (particles[j].vel.xyz - particles[i].vel.xyz) / particles[j].extras[0] * laplacian * (smoothing_length - r); // Laplacian of viscosity kernel
 		}
 	}
+
+	// Check if particle is at wave crest
+    if (particles[i].pos.y > CREST_THRESHOLD)
+    {
+        particles[i].force /= BREAKING_MASS_FACTOR; // Reduce mass
+        particles[i].extras[3] = BREAKING_VISC_FACTOR; // Set breaking viscosity factor
+    }
+
 	visc_force *= visc;
 
 	vec2 coord = particles[i].pos.xz * 2.0f; // Get XZ coordinate of particle

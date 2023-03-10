@@ -67,6 +67,13 @@ void main()
         particles[i].extras[1] *= 0.25f;
         new_vel *= 0.1f;
     }
+    
+    // Check if particle is below surface
+    float tex_height = texture(wave_tex, new_pos.xz * 2.0f).r;
+    if (new_pos.y < tex_height)
+    {
+        new_pos.y = tex_height - PARTICLE_RADIUS; // Place particle below wave
+    }
 
     // Boundary conditions
     if (new_pos.x < lower.x)
@@ -100,13 +107,6 @@ void main()
     {
         new_pos.z = upper.z;
         new_vel.z *= -DAMPING;
-    }
-
-    // Check if particle is below surface
-    float tex_height = texture(wave_tex, new_pos.xz * 2.0f).r;
-    if (new_pos.y < tex_height)
-    {
-        new_pos.y = tex_height - PARTICLE_RADIUS; // Place particle below wave
     }
 
     // Assign calculated values
