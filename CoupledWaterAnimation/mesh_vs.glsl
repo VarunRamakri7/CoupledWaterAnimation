@@ -19,8 +19,8 @@ in vec3 normal_attrib;
 
 out VertexData
 {
-	vec3 pos;
 	vec2 tex_coord;
+	vec3 pos;
 	vec3 normal;
 } outData;
 

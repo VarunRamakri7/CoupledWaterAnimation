@@ -14,8 +14,8 @@ layout(std140, binding = 0) uniform SceneUniforms
 
 in VertexData
 {
-	vec3 pos;
 	vec2 tex_coord;
+	vec3 pos;
 	vec3 normal;
 } inData;
 

@@ -390,11 +390,11 @@ void display(GLFWwindow* window)
     glDepthMask(GL_TRUE);
 
     // Draw Boat
-    //glUseProgram(mesh_shader_program);
-    //glBindVertexArray(mesh_data.mVao);
-    //glActiveTexture(GL_TEXTURE1);
-    //glBindTexture(GL_TEXTURE_2D, mesh_tex);
-    //glDrawElements(GL_TRIANGLES, mesh_data.mSubmesh[0].mNumIndices, GL_UNSIGNED_INT, 0);
+    glUseProgram(mesh_shader_program);
+    glBindVertexArray(mesh_data.mVao);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, mesh_tex);
+    glDrawElements(GL_TRIANGLES, mesh_data.mSubmesh[0].mNumIndices, GL_UNSIGNED_INT, 0);
 
     // Draw wave surface
     if (drawSurface)
@@ -426,8 +426,6 @@ void display(GLFWwindow* window)
     }
 
     // Pass 2: render particle depth into depth attachment
-    //glUseProgram(particle_shader_program);
-
     glUniform1i(UniformLocs::pass, 2);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
     glDrawBuffer(GL_COLOR_ATTACHMENT1); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
@@ -442,6 +440,7 @@ void display(GLFWwindow* window)
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
     // Pass 1: render textured quad to back buffer
+    //glUseProgram(particle_shader_program);
     glUniform1i(UniformLocs::pass, 1);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
@@ -476,7 +475,7 @@ void display(GLFWwindow* window)
     glfwSwapBuffers(window);
 }
 
-void MoveFish()
+void MoveMesh()
 {
     const float radius = 1.0f; // radius of the circle
     const float speed = 0.001f; // speed of the movement
@@ -485,12 +484,9 @@ void MoveFish()
     float x = 2.0f + radius * cos(circle_theta);
     //float y = radius * sin(theta);
     float z = radius * sin(circle_theta);
+
     glm::vec3 newPos(x, mesh_pos.y, z);
     mesh_pos = newPos;
-
-    // Update the position of the mesh
-    //glm::vec3 oldPos = mesh_pos;
-    //mesh_pos = oldPos + speed * (newPos - oldPos);
 
     // Increase the angle for the next frame
     circle_theta += 0.01f;
@@ -506,8 +502,8 @@ void idle()
     glProgramUniform1f(wave_shader_program, UniformLocs::time, time_sec);
     glProgramUniform1f(mesh_shader_program, UniformLocs::time, time_sec);
 
-        // Animate fish
-        MoveFish();
+    // Animate fish
+    MoveMesh();
 
     if (simulate)
     {
@@ -843,6 +839,8 @@ void initOpenGL()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     glEnable(GL_POINT_SPRITE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
@@ -868,7 +866,6 @@ void initOpenGL()
     wave2d.SetShader(waveCS);
 
     strip_surf = create_indexed_surf_strip_vao(WAVE_RES);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glPointSize(8.0f);
 
