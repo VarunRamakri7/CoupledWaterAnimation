@@ -103,7 +103,7 @@ void main()
     if (particles[i].pos.y > CREST_THRESHOLD)
     {
         particles[i].force /= BREAKING_MASS_FACTOR; // Reduce mass
-        particles[i].extras[3] = BREAKING_VISC_FACTOR; // Set breaking viscosity factor
+        visc_force *= BREAKING_VISC_FACTOR; // Set breaking viscosity factor
     }
 
 	visc_force *= visc;
