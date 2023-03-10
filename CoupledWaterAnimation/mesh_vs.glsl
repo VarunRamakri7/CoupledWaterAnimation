@@ -17,7 +17,12 @@ in vec3 pos_attrib; //this variable holds the position of mesh vertices
 in vec2 tex_coord_attrib;
 in vec3 normal_attrib;  
 
-out vec2 tex_coord; 
+out VertexData
+{
+	vec3 pos;
+	vec2 tex_coord;
+	vec3 normal;
+} outData;
 
 void main(void)
 {
@@ -27,5 +32,8 @@ void main(void)
 	pos.y += 0.2f * height;
 
 	gl_Position = PV * M * pos; //transform vertices and send result into pipeline
-	tex_coord = tex_coord_attrib; //send tex_coord to fragment shader
+	
+	outData.pos = vec3(M * pos);
+	outData.normal = normal_attrib;
+	outData.tex_coord = tex_coord_attrib; //send tex_coord to fragment shader
 }
