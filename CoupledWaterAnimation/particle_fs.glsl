@@ -65,9 +65,6 @@ void main ()
 	    frag_color = mix(combine, foam_col, 2.0f * inData.particle_pos.y);
 	    frag_color.rgb += spec; // Add specular highlight
 	    frag_color.a = mix(0.1f, a, 2.0f * inData.particle_pos.y);
-
-        //frag_color = lighting_color;
-        //frag_color.a = 1.0f;
     }
 
     // Render full-screen quad
