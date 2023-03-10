@@ -121,7 +121,7 @@ void InitWave(ivec2 coord)
 		d = min(d, distance(coord, cen2));
 	}
 
-	vout.x = smoothstep(5.0f, 0.0f, d);
+	vout.x = (attributes.w == 0.0f ? 1.0f : 0.5f) * smoothstep(5.0f, 0.0f, d);
 	imageStore(uOutputImage, coord, vout);
 }
 
