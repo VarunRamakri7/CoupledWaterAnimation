@@ -19,18 +19,6 @@ const int MODE_INIT_FROM_TEXTURE = 1;
 const int MODE_EVOLVE = 2;
 const int MODE_TEST = 10;
 
-struct Wave
-{
-    vec4 pos;
-    vec4 tex_coords; // XY - UV, ZW - Grid coordinate
-    vec4 normals;
-};
-
-layout(std430, binding = 1) buffer WAVE
-{
-    Wave waves[];
-};
-
 layout(std140, binding = 2) uniform BoundaryUniform
 {
     vec4 upper; // Upper bounds of particle area

@@ -100,7 +100,6 @@ GLuint create_indexed_strip_surf_vbo(int n_grid)
 
     //Upload from main memory to gpu memory.
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * surf_verts.size(), surf_verts.data(), GL_STATIC_DRAW);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, vbo); // Upload data to Compute Shader at binding = 1
 
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -230,8 +229,6 @@ indexed_surf_vao create_indexed_surf_strip_vao(int n)
     glVertexAttribPointer(AttribLocs::pos, 4, GL_FLOAT, false, stride, BUFFER_OFFSET(0));
     glVertexAttribPointer(AttribLocs::tex_coord, 4, GL_FLOAT, false, stride, BUFFER_OFFSET(4 * sizeof(float)));
     glVertexAttribPointer(AttribLocs::normal, 4, GL_FLOAT, false, stride, BUFFER_OFFSET((2 * 4) * sizeof(float)));
-
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, vbo); // Upload data to Compute Shader at binding = 1
 
 	GLuint offsetsVBP = create_instanced_offsets_vbo();
 	for (int i = 0; i < 4; i++)
