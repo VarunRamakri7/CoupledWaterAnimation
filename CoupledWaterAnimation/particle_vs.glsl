@@ -43,7 +43,7 @@ void main ()
 		gl_Position = eye_pos;
 
 		outData.particle_pos = vec3(M * vec4(pos_attrib, 1.0));
-		outData.depth = eye_pos.z;// / eye_pos.w; // Calculate eye-space depth
+		outData.depth = eye_pos.z; // Calculate eye-space depth
 	}
 
 	// Render full-screen quad
