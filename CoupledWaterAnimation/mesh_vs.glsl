@@ -7,9 +7,9 @@ layout(location = 1) uniform float time;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
-	mat4 PV;
-	mat4 P;
-	mat4 V;
+	mat4 PV; // Projection View Matrix
+	mat4 P; // Projection Matrix
+	mat4 V; // View Matrix
 	vec4 eye_w; // Camera eye in world-space
 };
 
@@ -28,8 +28,8 @@ void main(void)
 {
 	vec4 pos = vec4(pos_attrib.xyz, 1.0);
 
-	float height = textureLod(wave_tex, pos_attrib.xy, 0.0).r;
-	pos.y += 0.2f * height;
+	float height = textureLod(wave_tex, 2.0f * vec2(pos_attrib.xz), 0.0).r;
+	pos.y += 100.0f * height;
 
 	gl_Position = PV * M * pos; //transform vertices and send result into pipeline
 	
