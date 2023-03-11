@@ -49,7 +49,7 @@ vec4 lighting()
     diffuse *= 0.05f;
     
     // specular
-    float specularStrength = 1.0f;
+    float specularStrength = 0.5f;
     vec3 viewDir = normalize(eye_w.xyz - inData.pos);
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);
