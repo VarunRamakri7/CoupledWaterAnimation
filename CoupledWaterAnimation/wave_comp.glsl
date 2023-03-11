@@ -19,12 +19,6 @@ const int MODE_INIT_FROM_TEXTURE = 1;
 const int MODE_EVOLVE = 2;
 const int MODE_TEST = 10;
 
-layout(std140, binding = 2) uniform BoundaryUniform
-{
-    vec4 upper; // Upper bounds of particle area
-    vec4 lower; // Lower bounds of particle area
-};
-
 layout(std140, binding = 3) uniform WaveUniforms
 {
 	vec4 attributes; // Lambda, Attenuation, Beta
