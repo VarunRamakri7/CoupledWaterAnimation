@@ -53,7 +53,6 @@ void main()
 	{
 		case MODE_INIT:
 			InitWave(gid);
-			//InitFromImage(gid);
 		break;
 
 		case MODE_INIT_FROM_TEXTURE:
@@ -70,7 +69,7 @@ void main()
 
 void InitFromImage(ivec2 coord)
 {
-	vec4 vout = texelFetch(uInitImage, coord, 0);
+	vec4 vout = texelFetch(uInitImage, coord * ivec2(2, 1), 0);
 	imageStore(uOutputImage, coord, vout);
 }
 
@@ -89,16 +88,23 @@ void InitWave(ivec2 coord)
 		cen0 = ivec2(0.25f * size);
 		cen1 = ivec2(0.75f * size);
 	}
-	else
+	else if (attributes.w == 0.0f)
 	{
 		// Wave
 		cen0 = ivec2(0.25f * size.x, size.y);
 		cen2 = ivec2(0.5f * size.x, size.y);
 		cen1 = ivec2(0.75f * size.x, size.y);
 	}
+	else
+	{
+		// Boat wake
+		cen0 = ivec2(0.5f * size.x, 0.1f * size.y);
+		cen2 = ivec2(0.5f * size.x, 0.2f * size.y);
+		cen1 = ivec2(0.5f * size.x, 0.3f * size.y);
+	}
 
 	float d = min(distance(coord, cen0), distance(coord, cen1));
-	if(attributes.w == 0.0f) //Add third center for wave
+	if(attributes.w != 1.0f) //Add third center for wave, and wake
 	{
 		d = min(d, distance(coord, cen2));
 	}

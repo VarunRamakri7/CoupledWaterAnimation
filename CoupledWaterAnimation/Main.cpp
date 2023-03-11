@@ -270,7 +270,7 @@ void draw_gui(GLFWwindow* window)
         ImGui::SliderFloat3("Camera Center", &center_persp[0], -10.0f, 10.0f);
 
         //WaveData.attributes[1] = 0.995f; // Set attenuation for splash
-        WaveData.attributes[3] = 1.0f; // Set wave mode as splash
+        //WaveData.attributes[3] = 1.0f; // Set wave mode as splash
         angle = 0.75f;
     }
     else
@@ -280,9 +280,10 @@ void draw_gui(GLFWwindow* window)
         ImGui::SliderFloat3("Camera Center", &center_ortho[0], -10.0f, 10.0f);
 
         //WaveData.attributes[1] = 0.998f; // Set attenuation for wave
-        WaveData.attributes[3] = 0.0f; // Set wave mode as wave
+        //WaveData.attributes[3] = 0.0f; // Set wave mode as wave
         angle = 0.65f;
     }
+    ImGui::SliderFloat("Wave mode", &WaveData.attributes[3], 0.0f, 1.0f);
 
     ImGui::Checkbox("Draw Wave Surface", &drawSurface);
     ImGui::Checkbox("Draw Particles", &drawParticles);
@@ -352,7 +353,7 @@ void display(GLFWwindow* window)
     glProgramUniformMatrix4fv(wave_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set Wave Model Matrix
     
     M = glm::mat4(1.0f);
-    M = glm::translate(M, mesh_pos); // translate it down so it's at the center of the scene
+    M = glm::translate(M, mesh_pos);
     M *= glm::rotate(-circle_theta, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(mesh_scale * mesh_data.mScaleFactor));
     glProgramUniformMatrix4fv(mesh_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set particle Model Matrix
 
@@ -514,7 +515,7 @@ void idle()
         if (drawMesh)
         {
             // Animate mesh
-            MoveMesh();
+            //MoveMesh();
         }
         
         // Dispatch compute shaders
@@ -862,8 +863,8 @@ void initOpenGL()
     init_particles();
 
     // Load wave init texture
-    init_wave_tex = LoadTexture("init-textures/breaking-wave.png"); // Load breaking wave texture
-    //init_wave_tex = LoadTexture("init-textures/wake.png"); // Load boat wake texture
+    //init_wave_tex = LoadTexture("init-textures/breaking-wave.png"); // Load breaking wave texture
+    init_wave_tex = LoadTexture("init-textures/wake.png"); // Load boat wake texture
     //init_wave_tex = LoadTexture("init-textures/splash.png"); // Load splash texture
 
     reload_shader();
