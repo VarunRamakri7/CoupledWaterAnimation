@@ -90,9 +90,6 @@ void main ()
 // Calculate normal from depth
 vec3 GetNormalFromDepth()
 {
-    // Blur depth tetxure
-    vec4 blur_frag = blur();
-
     // Use partial differences to calculate normal from depth
     float dzdx = texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(1, 0), 0).x - 
                  texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(-1, 0), 0).x;
@@ -120,36 +117,11 @@ vec3 WorldPosFromDepth(float depth)
     return worldSpacePosition.xyz;
 }
 
-vec4 blur()
-{      
-    int hw = 5;
-    float n = 0.0f;
-
-    vec4 blur = vec4(0.0);
-    for(int i =- hw; i <= hw; i++)
-    {
-       for(int j =- hw; j <= hw; j++)
-       {
-          blur += texelFetch(depth_tex, ivec2(gl_FragCoord) + ivec2(i, j), 0);
-          n += 1.0f;
-       }
-    }
-
-    blur = blur / n;
-    return blur;
-}
-
-float LinearizeDepth(float depth) 
-{
-    float z = depth * 2.0f - 1.0f; // back to NDC 
-    return (2.0f * near * far) / (far + near - z * (far - near));	
-}
-
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
 vec4 reflection()
 {
     vec3 normal = GetNormalFromDepth();
-    float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
+    //float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
     //vec3 pos = WorldPosFromDepth(depth);
     vec3 pos = inData.particle_pos;
 
@@ -162,7 +134,7 @@ vec4 reflection()
 vec4 refraction()
 {
     vec3 normal = GetNormalFromDepth();
-    float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
+    //float depth = texelFetch(depth_tex, ivec2(gl_FragCoord), 0).x;
     //vec3 pos = WorldPosFromDepth(depth);
     vec3 pos = inData.particle_pos;
 
