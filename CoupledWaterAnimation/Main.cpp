@@ -146,7 +146,7 @@ static const std::string mesh_name = "boat.obj";
 static const std::string mesh_tex_name = "AmagoT.bmp";
 MeshData mesh_data;
 GLuint mesh_tex = -1;
-glm::vec3 mesh_pos = glm::vec3(2.0f, 0.0f, -1.0f);
+glm::vec3 mesh_pos = glm::vec3(2.0f, 0.145f, -1.0f);
 
 float angle = 0.75f;
 float particle_scale = 5.0f;
@@ -159,6 +159,7 @@ float circle_theta = 0.0f; // current angle of fish circle in radians
 
 bool drawSurface = true;
 bool drawParticles = true;
+bool drawMesh = false;
 bool isOrthoView = false;
 
 struct Particle
@@ -285,6 +286,7 @@ void draw_gui(GLFWwindow* window)
 
     ImGui::Checkbox("Draw Wave Surface", &drawSurface);
     ImGui::Checkbox("Draw Particles", &drawParticles);
+    ImGui::Checkbox("Draw mesh", &drawMesh);
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
@@ -301,13 +303,11 @@ void draw_gui(GLFWwindow* window)
     ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
     ImGui::End();
 
-    /*
     ImGui::Begin("FBO");
         ImGui::Image((void*)fbo_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
         ImGui::SameLine();
         ImGui::Image((void*)depth_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
     ImGui::End();
-    */
 
     //Module::sDrawGuiAll();
 
@@ -320,8 +320,9 @@ void draw_gui(GLFWwindow* window)
 void display(GLFWwindow* window)
 {
     //Clear the screen
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
 
     glm::mat4 V;
     glm::mat4 P;
@@ -374,7 +375,7 @@ void display(GLFWwindow* window)
 
     glUniform1i(UniformLocs::pass, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
-    glDrawBuffer(GL_COLOR_ATTACHMENT0); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
+    glDrawBuffer(GL_COLOR_ATTACHMENT0); // Write to color attachment 0
 
     //Make the viewport match the FBO texture size.
     glViewport(0, 0, monitor_res.x, monitor_res.y);
@@ -388,13 +389,6 @@ void display(GLFWwindow* window)
     glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_tex);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthMask(GL_TRUE);
-
-    // Draw Boat
-    glUseProgram(mesh_shader_program);
-    glBindVertexArray(mesh_data.mVao);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mesh_tex);
-    glDrawElements(GL_TRIANGLES, mesh_data.mSubmesh[0].mNumIndices, GL_UNSIGNED_INT, 0);
 
     // Draw wave surface
     if (drawSurface)
@@ -412,10 +406,10 @@ void display(GLFWwindow* window)
     }
 
     // Draw Particles
-    glUseProgram(particle_shader_program);
+    //glUseProgram(particle_shader_program);
     if (drawParticles)
     {
-        //glUseProgram(particle_shader_program);
+        glUseProgram(particle_shader_program);
 
         // Bind skybox
         glActiveTexture(GL_TEXTURE1);
@@ -426,12 +420,13 @@ void display(GLFWwindow* window)
     }
 
     // Pass 2: render particle depth into depth attachment
+    glUseProgram(particle_shader_program);
     glUniform1i(UniformLocs::pass, 2);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
-    glDrawBuffer(GL_COLOR_ATTACHMENT1); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
+    //glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
+    glDrawBuffer(GL_COLOR_ATTACHMENT1); // Write to color attachment 1
 
     // Make the viewport match the FBO texture size.
-    glViewport(0, 0, monitor_res.x, monitor_res.y);
+    //glViewport(0, 0, monitor_res.x, monitor_res.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindTextureUnit(2, fbo_tex);
@@ -439,14 +434,26 @@ void display(GLFWwindow* window)
     glBindVertexArray(particle_position_vao);
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES); // Draw particles
 
+    // Draw Boat
+    if (drawMesh)
+    {
+        glUseProgram(mesh_shader_program);
+        //glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
+        glDrawBuffer(GL_COLOR_ATTACHMENT0); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mesh_tex);
+        glBindVertexArray(mesh_data.mVao);
+        glDrawElements(GL_TRIANGLES, mesh_data.mSubmesh[0].mNumIndices, GL_UNSIGNED_INT, 0);
+    }
+
     // Pass 1: render textured quad to back buffer
-    //glUseProgram(particle_shader_program);
+    glUseProgram(particle_shader_program);
     glUniform1i(UniformLocs::pass, 1);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // Bind default FBO
     glDrawBuffer(GL_BACK);
 
     // Make the viewport match the FBO texture size.
-    glViewport(0, 0, monitor_res.x, monitor_res.y);
+    //glViewport(0, 0, monitor_res.x, monitor_res.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindTextureUnit(2, fbo_tex);
@@ -485,8 +492,7 @@ void MoveMesh()
     //float y = radius * sin(theta);
     float z = radius * sin(circle_theta);
 
-    glm::vec3 newPos(x, mesh_pos.y, z);
-    mesh_pos = newPos;
+    mesh_pos = glm::vec3(x, mesh_pos.y, z); // Update position
 
     // Increase the angle for the next frame
     circle_theta += 0.01f;
@@ -502,11 +508,14 @@ void idle()
     glProgramUniform1f(wave_shader_program, UniformLocs::time, time_sec);
     glProgramUniform1f(mesh_shader_program, UniformLocs::time, time_sec);
 
-    // Animate fish
-    MoveMesh();
 
     if (simulate)
     {
+        if (drawMesh)
+        {
+            // Animate mesh
+            MoveMesh();
+        }
         
         // Dispatch compute shaders
         glUseProgram(compute_programs[0]); // Use density and pressure calculation program
@@ -905,7 +914,7 @@ void initOpenGL()
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_tex, 0);
-    //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, depth_tex, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
