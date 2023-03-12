@@ -123,7 +123,7 @@ bool CoordOnCircle(ivec2 coord, ivec2 size)
 
 	float radius = length(tex_coord - center);
 	float circle_radius = 0.5f;
-	float tolerance = 0.1f;
+	float tolerance = 0.01f;
 
 	if(abs(radius - circle_radius) < tolerance)
 	{
