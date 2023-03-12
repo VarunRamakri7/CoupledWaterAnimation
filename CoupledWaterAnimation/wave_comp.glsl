@@ -22,13 +22,16 @@ const int MODE_TEST = 10;
 layout(std140, binding = 3) uniform WaveUniforms
 {
 	vec4 attributes; // Lambda, Attenuation, Beta
+	vec4 mesh_ws_pos; // World-space mesh position
 };
 
 const float dt = 0.0001f; // Time step
+float theta = 0.0f;
 
 void InitWave(ivec2 coord);
 void InitFromImage(ivec2 coord);
 void EvolveWave(ivec2 coord, ivec2 size);
+bool CoordOnCircle(ivec2 coord, ivec2 size);
 
 struct neighborhood
 {
@@ -113,13 +116,36 @@ void InitWave(ivec2 coord)
 	imageStore(uOutputImage, coord, vout);
 }
 
+bool CoordOnCircle(ivec2 coord, ivec2 size)
+{
+	vec2 tex_coord = vec2(coord) / vec2(size);
+	vec2 center = vec2(0.5f);
+
+	float radius = length(tex_coord - center);
+	float circle_radius = 0.5f;
+	float tolerance = 0.1f;
+
+	if(abs(radius - circle_radius) < tolerance)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void EvolveWave(ivec2 coord, ivec2 size)
 {
 	neighborhood n = get_clamp(coord);
-	vec4 w = (2.0 - 4.0 * attributes[0] - attributes[2]) * n.c0 + attributes[0] * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0 - attributes[2]) * n.c1;
+	vec4 w = (2.0f - 4.0f * attributes[0] - attributes[2]) * n.c0 + attributes[0] * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0f - attributes[2]) * n.c1;
 	w *= attributes[1];
 
-    imageStore(uOutputImage, coord, w);
+	// Check if mesh is in this position
+	if(CoordOnCircle(coord, size))
+	{
+		w.r += 0.0005f; // Increase if mesh is in the same position
+	}
+
+	imageStore(uOutputImage, coord, w);
 }
 
 ivec2 clamp_coord(ivec2 coord)

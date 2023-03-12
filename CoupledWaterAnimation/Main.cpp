@@ -196,6 +196,7 @@ struct BoundaryUniform
 struct WaveUniforms
 {
     glm::vec4 attributes = glm::vec4(0.01f, 0.985f, 0.001f, 1.0f); // Lambda, Attenuation, Beta, Wave type
+    glm::vec4 mesh_ws_pos = glm::vec4(2.0f, 0.145f, -1.0f, 0.0f); // Mesh world-space position
 } WaveData;
 
 GLuint scene_ubo = -1;
@@ -353,7 +354,7 @@ void display(GLFWwindow* window)
     glProgramUniformMatrix4fv(wave_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set Wave Model Matrix
     
     M = glm::mat4(1.0f);
-    M = glm::translate(M, mesh_pos);
+    M = glm::translate(M, glm::vec3(mesh_pos));
     M *= glm::rotate(-circle_theta, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(mesh_scale * mesh_data.mScaleFactor));
     glProgramUniformMatrix4fv(mesh_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set particle Model Matrix
 
@@ -365,7 +366,8 @@ void display(GLFWwindow* window)
 
     glBindBuffer(GL_UNIFORM_BUFFER, boundary_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(BoundaryUniform), &BoundaryData); // Upload the new uniform values.
-
+    
+    WaveData.mesh_ws_pos = M * glm::vec4(mesh_pos, 1.0f);
     glBindBuffer(GL_UNIFORM_BUFFER, wave_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(WaveUniforms), &WaveData); // Upload the new uniform values.
 
@@ -376,7 +378,7 @@ void display(GLFWwindow* window)
 
     glUniform1i(UniformLocs::pass, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
-    glDrawBuffer(GL_COLOR_ATTACHMENT0); // Write to color attachment 0
+    glDrawBuffer(GL_COLOR_ATTACHMENT0); // Write to FBO color attachment 0
 
     //Make the viewport match the FBO texture size.
     glViewport(0, 0, monitor_res.x, monitor_res.y);
@@ -423,8 +425,7 @@ void display(GLFWwindow* window)
     // Pass 2: render particle depth into depth attachment
     glUseProgram(particle_shader_program);
     glUniform1i(UniformLocs::pass, 2);
-    //glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
-    glDrawBuffer(GL_COLOR_ATTACHMENT1); // Write to color attachment 1
+    glDrawBuffer(GL_COLOR_ATTACHMENT1); // Write to FBO color attachment 1
 
     // Make the viewport match the FBO texture size.
     //glViewport(0, 0, monitor_res.x, monitor_res.y);
@@ -439,8 +440,7 @@ void display(GLFWwindow* window)
     if (drawMesh)
     {
         glUseProgram(mesh_shader_program);
-        //glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Render to FBO.
-        glDrawBuffer(GL_COLOR_ATTACHMENT0); //Out variable in frag shader will be written to the texture attached to GL_COLOR_ATTACHMENT0.
+        glDrawBuffer(GL_COLOR_ATTACHMENT0); // Write to FBO color attachment 0
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, mesh_tex);
         glBindVertexArray(mesh_data.mVao);
@@ -493,7 +493,7 @@ void MoveMesh()
     //float y = radius * sin(theta);
     float z = radius * sin(circle_theta);
 
-    mesh_pos = glm::vec3(x, mesh_pos.y, z); // Update position
+    mesh_pos = glm::vec4(x, mesh_pos.y, z, 0.0f); // Update position
 
     // Increase the angle for the next frame
     circle_theta += 0.01f;
@@ -509,13 +509,12 @@ void idle()
     glProgramUniform1f(wave_shader_program, UniformLocs::time, time_sec);
     glProgramUniform1f(mesh_shader_program, UniformLocs::time, time_sec);
 
-
     if (simulate)
     {
         if (drawMesh)
         {
             // Animate mesh
-            //MoveMesh();
+            MoveMesh();
         }
         
         // Dispatch compute shaders
