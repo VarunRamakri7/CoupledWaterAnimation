@@ -32,6 +32,7 @@ void InitWave(ivec2 coord);
 void InitFromImage(ivec2 coord);
 void EvolveWave(ivec2 coord, ivec2 size);
 bool CoordOnCircle(ivec2 coord, ivec2 size);
+bool CoordOnLine(ivec2 coord, ivec2 size);
 
 struct neighborhood
 {
@@ -102,8 +103,8 @@ void InitWave(ivec2 coord)
 	{
 		// Boat wake
 		cen0 = ivec2(0.5f * size.x, 0.1f * size.y);
-		cen2 = ivec2(0.5f * size.x, 0.2f * size.y);
-		cen1 = ivec2(0.5f * size.x, 0.3f * size.y);
+		cen2 = cen0;//ivec2(0.5f * size.x, 0.2f * size.y);
+		cen1 = cen0;//ivec2(0.5f * size.x, 0.3f * size.y);
 	}
 
 	float d = min(distance(coord, cen0), distance(coord, cen1));
@@ -133,16 +134,31 @@ bool CoordOnCircle(ivec2 coord, ivec2 size)
 	return false;
 }
 
+bool CoordOnLine(ivec2 coord, ivec2 size)
+{
+	int mid_x = size.x / 2;
+
+	if(coord.x == mid_x)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void EvolveWave(ivec2 coord, ivec2 size)
 {
 	neighborhood n = get_clamp(coord);
 	vec4 w = (2.0f - 4.0f * attributes[0] - attributes[2]) * n.c0 + attributes[0] * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0f - attributes[2]) * n.c1;
 	w *= attributes[1];
 
-	// Check if mesh is in this position
-	if(CoordOnCircle(coord, size))
+	if(w.r > 0.0001f && attributes.w > 0.0f && attributes.w < 1.0f)
 	{
-		w.r += 0.0005f; // Increase if mesh is in the same position
+		//if(CoordOnCircle(coord, size)) // Check if this coord lies on a circle
+		if(CoordOnLine(coord, size)) // Check if this coord lies on a line
+		{
+			w.r += 0.0005f; // Increase if this coord lies on the circle
+		}
 	}
 
 	imageStore(uOutputImage, coord, w);

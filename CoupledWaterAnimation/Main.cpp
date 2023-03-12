@@ -146,7 +146,9 @@ static const std::string mesh_name = "boat.obj";
 static const std::string mesh_tex_name = "AmagoT.bmp";
 MeshData mesh_data;
 GLuint mesh_tex = -1;
-glm::vec3 mesh_pos = glm::vec3(2.0f, 0.145f, -1.0f);
+//glm::vec3 mesh_pos = glm::vec3(2.0f, 0.145f, -1.0f);
+glm::vec3 mesh_pos = glm::vec3(1.0f, 0.145f, -1.0f);
+float mesh_angle = 0.75f;
 
 float angle = 0.75f;
 float particle_scale = 5.0f;
@@ -259,6 +261,7 @@ void draw_gui(GLFWwindow* window)
     }
 
     ImGui::SliderFloat("View angle", &angle, -glm::pi<float>(), +glm::pi<float>());
+    ImGui::SliderFloat("Mesh angle", &mesh_angle, -glm::pi<float>(), +glm::pi<float>());
     ImGui::SliderFloat("Particle Scale", &particle_scale, 0.0001f, 20.0f);
     ImGui::SliderFloat("Wave Scale", &wave_scale, 0.0001f, 1.0f);
     ImGui::SliderFloat("Mesh Scale", &mesh_scale, 0.01f, 2.0f);
@@ -355,7 +358,8 @@ void display(GLFWwindow* window)
     
     M = glm::mat4(1.0f);
     M = glm::translate(M, glm::vec3(mesh_pos));
-    M *= glm::rotate(-circle_theta, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(mesh_scale * mesh_data.mScaleFactor));
+    //M *= glm::rotate(-circle_theta, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(mesh_scale * mesh_data.mScaleFactor));
+    M *= glm::rotate(mesh_angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(mesh_scale * mesh_data.mScaleFactor));
     glProgramUniformMatrix4fv(mesh_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set particle Model Matrix
 
     glBindBuffer(GL_UNIFORM_BUFFER, scene_ubo); //Bind the OpenGL UBO before we update the data.
@@ -367,7 +371,7 @@ void display(GLFWwindow* window)
     glBindBuffer(GL_UNIFORM_BUFFER, boundary_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(BoundaryUniform), &BoundaryData); // Upload the new uniform values.
     
-    WaveData.mesh_ws_pos = M * glm::vec4(mesh_pos, 1.0f);
+    WaveData.mesh_ws_pos = glm::vec4(mesh_pos, 1.0f);
     glBindBuffer(GL_UNIFORM_BUFFER, wave_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(WaveUniforms), &WaveData); // Upload the new uniform values.
 
@@ -483,20 +487,36 @@ void display(GLFWwindow* window)
     glfwSwapBuffers(window);
 }
 
-void MoveMesh()
+void MoveMesh(bool onCircle)
 {
-    const float radius = 1.0f; // radius of the circle
     const float speed = 0.001f; // speed of the movement
+    glm::vec3 new_pos = mesh_pos;
 
-    // Calculate the new position of the mesh
-    float x = 2.0f + radius * cos(circle_theta);
-    //float y = radius * sin(theta);
-    float z = radius * sin(circle_theta);
+    if (onCircle)
+    {
+        // Move mesh along a circle
+        const float radius = 1.0f; // radius of the circle
 
-    mesh_pos = glm::vec4(x, mesh_pos.y, z, 0.0f); // Update position
+        // Calculate the new position of the mesh
+        float x = 2.0f + radius * cos(circle_theta);
+        //float y = radius * sin(theta);
+        float z = radius * sin(circle_theta);
 
-    // Increase the angle for the next frame
-    circle_theta += 0.01f;
+        new_pos = glm::vec3(x, mesh_pos.y, z); // Update position
+
+        // Increase the angle for the next frame
+        circle_theta += 0.01f;
+    }
+    else
+    {
+        // Move mesh along a straight line
+        glm::vec3 direction = glm::normalize(glm::vec3(1.0f, 0.0f, 1.0f));
+        glm::vec3 displacement = direction * 10.0f * speed;
+
+        new_pos = glm::vec3(mesh_pos + displacement);
+    }
+
+    mesh_pos = new_pos;
 }
 
 void idle()
@@ -514,7 +534,7 @@ void idle()
         if (drawMesh)
         {
             // Animate mesh
-            MoveMesh();
+            MoveMesh(false);
         }
         
         // Dispatch compute shaders
