@@ -72,7 +72,6 @@ void main ()
     {
         frag_color = texelFetch(fbo_tex, ivec2(gl_FragCoord), 0);
         //frag_color = texelFetch(depth_tex, ivec2(gl_FragCoord), 0);
-        //frag_color = blur();
     }
 
     // Render particle depth
