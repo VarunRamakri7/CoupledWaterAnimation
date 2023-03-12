@@ -27,7 +27,7 @@ void StencilImage2DTripleBuffered::Init()
       mImage[i].Init();
    }
 
-   Reinit();
+   Reinit(); // Note: Comment when using texture
 }
 
 void StencilImage2DTripleBuffered::PingPong()
