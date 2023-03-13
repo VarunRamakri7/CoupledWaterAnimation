@@ -86,11 +86,15 @@ void InitWave(ivec2 coord)
 	ivec2 cen1;
 	ivec2 cen2;
 
+	int mode = -1;
+
 	if(attributes.w == 1.0f)
 	{
 		// Splash
 		cen0 = ivec2(0.25f * size);
 		cen1 = ivec2(0.75f * size);
+
+		mode = 0;
 	}
 	else if (attributes.w == 0.0f)
 	{
@@ -98,6 +102,8 @@ void InitWave(ivec2 coord)
 		cen0 = ivec2(0.25f * size.x, size.y);
 		cen2 = ivec2(0.5f * size.x, size.y);
 		cen1 = ivec2(0.75f * size.x, size.y);
+
+		mode = 1;
 	}
 	else
 	{
@@ -105,6 +111,8 @@ void InitWave(ivec2 coord)
 		cen0 = ivec2(0.5f * size.x, 0.1f * size.y);
 		cen2 = cen0;//ivec2(0.5f * size.x, 0.2f * size.y);
 		cen1 = cen0;//ivec2(0.5f * size.x, 0.3f * size.y);
+
+		mode = 2;
 	}
 
 	float d = min(distance(coord, cen0), distance(coord, cen1));
@@ -113,8 +121,19 @@ void InitWave(ivec2 coord)
 		d = min(d, distance(coord, cen2));
 	}
 
-	float peak = (attributes.w == 0.0f ? 1.0f : 0.5f);
-	peak = (attributes.w == 1.0f ? 0.5f : 0.1f);
+	float peak = 0.5f;
+	switch(mode)
+	{
+		case 0: // Splash
+				peak = 0.5f;
+				break;
+		case 1: // Wave
+			peak = 1.0f;
+			break;
+		case 2: // Boat wake
+			peak = 0.1f;
+			break;
+	}
 
 	vout.x = peak * smoothstep(5.0f, 0.0f, d);
 	imageStore(uOutputImage, coord, vout);
