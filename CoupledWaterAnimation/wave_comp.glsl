@@ -25,8 +25,10 @@ layout(std140, binding = 3) uniform WaveUniforms
 	vec4 mesh_ws_pos; // World-space mesh position
 };
 
-const float dt = 0.0001f; // Time step
 float theta = 0.0f;
+int anim_mode = -1;
+
+const float dt = 0.0001f; // Time step
 
 void InitWave(ivec2 coord);
 void InitFromImage(ivec2 coord);
@@ -86,15 +88,13 @@ void InitWave(ivec2 coord)
 	ivec2 cen1;
 	ivec2 cen2;
 
-	int mode = -1;
-
 	if(attributes.w == 1.0f)
 	{
 		// Splash
 		cen0 = ivec2(0.25f * size);
 		cen1 = ivec2(0.75f * size);
 
-		mode = 0;
+		anim_mode = 0;
 	}
 	else if (attributes.w == 0.0f)
 	{
@@ -103,7 +103,7 @@ void InitWave(ivec2 coord)
 		cen2 = ivec2(0.5f * size.x, size.y);
 		cen1 = ivec2(0.75f * size.x, size.y);
 
-		mode = 1;
+		anim_mode = 1;
 	}
 	else
 	{
@@ -112,7 +112,7 @@ void InitWave(ivec2 coord)
 		cen2 = cen0;//ivec2(0.5f * size.x, 0.2f * size.y);
 		cen1 = cen0;//ivec2(0.5f * size.x, 0.3f * size.y);
 
-		mode = 2;
+		anim_mode = 2;
 	}
 
 	float d = min(distance(coord, cen0), distance(coord, cen1));
@@ -122,7 +122,7 @@ void InitWave(ivec2 coord)
 	}
 
 	float peak = 0.5f;
-	switch(mode)
+	switch(anim_mode)
 	{
 		case 0: // Splash
 				peak = 0.5f;
