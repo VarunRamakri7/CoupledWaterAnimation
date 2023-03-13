@@ -193,7 +193,9 @@ struct BoundaryUniform
 {
     glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 500.0f); // XYZ - Upper bounds, W - Foam Threshold
     glm::vec4 lower = glm::vec4(0.0f, -0.02f, 0.0f, 50.0f); // XYZ - Lower bounds, W - Density coefficient
-}BoundaryData;
+    glm::vec4 mesh_aabb_min;
+    glm::vec4 mesh_aabb_max;
+} BoundaryData;
 
 struct WaveUniforms
 {
@@ -360,7 +362,7 @@ void display(GLFWwindow* window)
     M = glm::translate(M, glm::vec3(mesh_pos));
     //M *= glm::rotate(-circle_theta, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(mesh_scale * mesh_data.mScaleFactor));
     M *= glm::rotate(mesh_angle, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(mesh_scale * mesh_data.mScaleFactor));
-    glProgramUniformMatrix4fv(mesh_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set particle Model Matrix
+    glProgramUniformMatrix4fv(mesh_shader_program, UniformLocs::M, 1, false, glm::value_ptr(M)); // Set mesh Model Matrix
 
     glBindBuffer(GL_UNIFORM_BUFFER, scene_ubo); //Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SceneUniforms), &SceneData); //Upload the new uniform values.
@@ -371,7 +373,7 @@ void display(GLFWwindow* window)
     glBindBuffer(GL_UNIFORM_BUFFER, boundary_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(BoundaryUniform), &BoundaryData); // Upload the new uniform values.
     
-    WaveData.mesh_ws_pos = glm::vec4(mesh_pos, 1.0f);
+    WaveData.mesh_ws_pos = M * glm::vec4(mesh_pos, 1.0f);
     glBindBuffer(GL_UNIFORM_BUFFER, wave_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(WaveUniforms), &WaveData); // Upload the new uniform values.
 
@@ -487,6 +489,10 @@ void display(GLFWwindow* window)
     glfwSwapBuffers(window);
 }
 
+/// <summary>
+/// Move mesh along a circle or a straight line
+/// </summary>
+/// <param name="onCircle"></param>
 void MoveMesh(bool onCircle)
 {
     const float speed = 0.001f; // speed of the movement
@@ -884,12 +890,17 @@ void initOpenGL()
 
     // Load wave init texture
     //init_wave_tex = LoadTexture("init-textures/breaking-wave.png"); // Load breaking wave texture
-    init_wave_tex = LoadTexture("init-textures/wake.png"); // Load boat wake texture
+    //init_wave_tex = LoadTexture("init-textures/wake.png"); // Load boat wake texture
     //init_wave_tex = LoadTexture("init-textures/splash.png"); // Load splash texture
 
     reload_shader();
+
+    // Load mesh
     mesh_data = LoadMesh(mesh_name);
-    mesh_tex = LoadTexture(mesh_tex_name);
+    BoundaryData.mesh_aabb_max = glm::vec4(mesh_data.mBbMax.x, mesh_data.mBbMax.y, mesh_data.mBbMax.z, 1.0f);
+    BoundaryData.mesh_aabb_min = glm::vec4(mesh_data.mBbMin.x, mesh_data.mBbMin.y, mesh_data.mBbMin.z, 1.0f);
+
+    //mesh_tex = LoadTexture(mesh_tex_name);
 
     waveCS.SetMaxWorkGroupSize(glm::ivec3(MAX_WAVE_WORK_GROUPS, MAX_WAVE_WORK_GROUPS, 1));
     //waveCS.SetMode(1); // Init from texture
