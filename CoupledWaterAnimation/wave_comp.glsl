@@ -113,7 +113,10 @@ void InitWave(ivec2 coord)
 		d = min(d, distance(coord, cen2));
 	}
 
-	vout.x = (attributes.w == 0.0f ? 1.0f : 0.5f) * smoothstep(5.0f, 0.0f, d);
+	float peak = (attributes.w == 0.0f ? 1.0f : 0.5f);
+	peak = (attributes.w == 1.0f ? 0.5f : 0.1f);
+
+	vout.x = peak * smoothstep(5.0f, 0.0f, d);
 	imageStore(uOutputImage, coord, vout);
 }
 
@@ -157,7 +160,7 @@ void EvolveWave(ivec2 coord, ivec2 size)
 		//if(CoordOnCircle(coord, size)) // Check if this coord lies on a circle
 		if(CoordOnLine(coord, size)) // Check if this coord lies on a line
 		{
-			w.r += 0.0005f; // Increase if this coord lies on the circle
+			w.r += 0.001f; // Increase if this coord lies on the circle
 		}
 	}
 
