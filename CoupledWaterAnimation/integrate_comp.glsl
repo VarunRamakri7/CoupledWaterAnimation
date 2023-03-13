@@ -42,6 +42,12 @@ layout(std140, binding = 2) uniform BoundaryUniform
     vec4 mesh_aabb_max; // Mesh max bounding box
 };
 
+layout(std140, binding = 3) uniform WaveUniforms
+{
+	vec4 attributes; // Lambda, Attenuation, Beta
+	vec4 mesh_ws_pos; // World-space mesh position
+};
+
 const float dt = 0.00005f; // Time step
 
 void CheckMeshCollision(inout vec3 pos, inout vec3 vel);
@@ -89,8 +95,8 @@ void main()
 void CheckMeshCollision(inout vec3 pos, inout vec3 vel)
 {
     // Check collision with mesh
-    vec4 mesh_box_max = PV * M * mesh_aabb_max; // World space bounding box max
-    vec4 mesh_box_min = PV * M * mesh_aabb_min; // World space bounding box min
+    vec4 mesh_box_max = mesh_aabb_max;//PV * M * mesh_aabb_max; // World space bounding box max
+    vec4 mesh_box_min = mesh_aabb_min;//PV * M * mesh_aabb_min; // World space bounding box min
     if (pos.x > mesh_box_min.x)
     {
         pos.x = mesh_box_min.x;
