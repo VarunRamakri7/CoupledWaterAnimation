@@ -671,6 +671,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
             init_particles();
             wave2d.Reinit();
             //wave2d.ReinitFromTexture(init_wave_tex);
+            mesh_pos = glm::vec3(1.0f, 0.145f, -1.0f); // Reset mesh
             reload_shader();
             break;
 
