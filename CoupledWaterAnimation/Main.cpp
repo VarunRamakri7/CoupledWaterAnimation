@@ -146,8 +146,8 @@ static const std::string mesh_name = "boat.obj";
 static const std::string mesh_tex_name = "AmagoT.bmp";
 MeshData mesh_data;
 GLuint mesh_tex = -1;
-//glm::vec3 mesh_pos = glm::vec3(2.0f, 0.145f, -1.0f);
-glm::vec3 mesh_pos = glm::vec3(1.0f, 0.145f, -1.0f);
+//glm::vec3 mesh_pos = glm::vec3(2.0f, 0.145f, -1.0f); // Circle path start pos
+glm::vec3 mesh_pos = glm::vec3(1.0f, 0.35f, -1.0f); // Straight line start pos
 float mesh_angle = 0.75f;
 
 float angle = 0.75f;
@@ -193,14 +193,14 @@ struct BoundaryUniform
 {
     glm::vec4 upper = glm::vec4(0.48f, 1.0f, 0.48f, 500.0f); // XYZ - Upper bounds, W - Foam Threshold
     glm::vec4 lower = glm::vec4(0.0f, -0.02f, 0.0f, 50.0f); // XYZ - Lower bounds, W - Density coefficient
-    glm::vec4 mesh_aabb_min;
-    glm::vec4 mesh_aabb_max;
+    //glm::vec4 mesh_aabb_min;
+    //glm::vec4 mesh_aabb_max;
 } BoundaryData;
 
 struct WaveUniforms
 {
     glm::vec4 attributes = glm::vec4(0.01f, 0.985f, 0.001f, 1.0f); // Lambda, Attenuation, Beta, Wave type
-    glm::vec4 mesh_ws_pos = glm::vec4(2.0f, 0.145f, -1.0f, 0.0f); // Mesh world-space position
+    glm::vec4 mesh_ws_pos = glm::vec4(2.0f, 0.35f, -1.0f, 0.0f); // Mesh world-space position
 } WaveData;
 
 GLuint scene_ubo = -1;
@@ -370,6 +370,9 @@ void display(GLFWwindow* window)
     glBindBuffer(GL_UNIFORM_BUFFER, constants_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ConstantsUniform), &ConstantsData); // Upload the new uniform values.
 
+    // TODO: Check AABB space conversion
+    //BoundaryData.mesh_aabb_max = P * V * M * BoundaryData.mesh_aabb_max;
+    //BoundaryData.mesh_aabb_min = P * V * M * BoundaryData.mesh_aabb_min;
     glBindBuffer(GL_UNIFORM_BUFFER, boundary_ubo); // Bind the OpenGL UBO before we update the data.
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(BoundaryUniform), &BoundaryData); // Upload the new uniform values.
     
@@ -495,7 +498,7 @@ void display(GLFWwindow* window)
 /// <param name="onCircle"></param>
 void MoveMesh(bool onCircle)
 {
-    const float speed = 0.001f; // speed of the movement
+    const float speed = 0.002f; // speed of the movement
     glm::vec3 new_pos = mesh_pos;
 
     if (onCircle)
@@ -677,7 +680,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
             init_particles();
             wave2d.Reinit();
             //wave2d.ReinitFromTexture(init_wave_tex);
-            mesh_pos = glm::vec3(1.0f, 0.145f, -1.0f); // Reset mesh
+            mesh_pos = glm::vec3(1.0f, 0.35f, -1.0f); // Reset mesh
             reload_shader();
             break;
 
@@ -897,8 +900,8 @@ void initOpenGL()
 
     // Load mesh
     mesh_data = LoadMesh(mesh_name);
-    BoundaryData.mesh_aabb_max = glm::vec4(mesh_data.mBbMax.x, mesh_data.mBbMax.y, mesh_data.mBbMax.z, 1.0f);
-    BoundaryData.mesh_aabb_min = glm::vec4(mesh_data.mBbMin.x, mesh_data.mBbMin.y, mesh_data.mBbMin.z, 1.0f);
+    //BoundaryData.mesh_aabb_max = glm::vec4(mesh_data.mBbMax.x, mesh_data.mBbMax.y, mesh_data.mBbMax.z, 1.0f);
+    //BoundaryData.mesh_aabb_min = glm::vec4(mesh_data.mBbMin.x, mesh_data.mBbMin.y, mesh_data.mBbMin.z, 1.0f);
 
     //mesh_tex = LoadTexture(mesh_tex_name);
 
