@@ -38,8 +38,8 @@ layout(std140, binding = 2) uniform BoundaryUniform
 {
     vec4 upper; // XYZ - Upper bounds, W - Foam threshold
     vec4 lower; // XYZ - Lower bounds, W - Density coefficient
-    vec4 mesh_aabb_min; // Mesh min bounding box
-    vec4 mesh_aabb_max; // Mesh max bounding box
+    //vec4 mesh_aabb_min; // Mesh min bounding box
+    //vec4 mesh_aabb_max; // Mesh max bounding box
 };
 
 layout(std140, binding = 3) uniform WaveUniforms
@@ -83,7 +83,7 @@ void main()
     }
 
     // Check collisions
-    CheckMeshCollision(new_pos, new_vel);
+    //CheckMeshCollision(new_pos, new_vel);
     CheckBoundary(new_pos, new_vel);
 
     // Assign calculated values
@@ -95,8 +95,8 @@ void main()
 void CheckMeshCollision(inout vec3 pos, inout vec3 vel)
 {
     // Check collision with mesh
-    vec4 mesh_box_max = mesh_aabb_max;//PV * M * mesh_aabb_max; // World space bounding box max
-    vec4 mesh_box_min = mesh_aabb_min;//PV * M * mesh_aabb_min; // World space bounding box min
+    vec4 mesh_box_max; //= mesh_aabb_max;//PV * M * mesh_aabb_max; // World space bounding box max
+    vec4 mesh_box_min ;//= mesh_aabb_min;//PV * M * mesh_aabb_min; // World space bounding box min
     if (pos.x > mesh_box_min.x)
     {
         pos.x = mesh_box_min.x;
