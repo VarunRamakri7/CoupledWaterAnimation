@@ -38,7 +38,7 @@ void main(void)
 vec4 lighting()
 {
     // ambient
-    float ambientStrength = 0.8f;
+    float ambientStrength = 0.4f;
     vec3 ambient = ambientStrength * light_col;
   	
     // diffuse 
@@ -46,10 +46,9 @@ vec4 lighting()
     vec3 lightDir = normalize(light_pos - inData.pos);
     float diff = max(dot(norm, lightDir), 0.0f);
     vec3 diffuse = diff * light_col;
-    diffuse *= 0.05f;
     
     // specular
-    float specularStrength = 0.5f;
+    float specularStrength = 0.2f;
     vec3 viewDir = normalize(eye_w.xyz - inData.pos);
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);

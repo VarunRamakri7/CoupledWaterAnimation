@@ -159,10 +159,9 @@ vec4 lighting()
     vec3 lightDir = normalize(light_pos - pos);
     float diff = max(dot(normal, lightDir), 0.0f);
     vec3 diffuse = diff * light_col;
-    diffuse *= 0.05f;
     
     // specular
-    float specularStrength = 10.0f;
+    float specularStrength = 0.9f;
     vec3 viewDir = normalize(eye_w.xyz - pos);
     vec3 reflectDir = reflect(-lightDir, normal);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);

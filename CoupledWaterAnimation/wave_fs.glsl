@@ -45,7 +45,7 @@ void main(void)
     
     vec4 combine = 0.75f * (reflection_color + refraction_color) + 0.1f * lighting_color;
     fragcolor = mix(combine, wave_col, v.x);
-    fragcolor.a = mix(0.5f, 0.2f, v.x);
+    fragcolor.a = mix(0.2f, 0.0f, v.x);
 }
 
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
@@ -77,7 +77,6 @@ vec4 lighting()
     vec3 lightDir = normalize(light_pos - inData.pw);
     float diff = max(dot(norm, lightDir), 0.0f);
     vec3 diffuse = diff * light_col;
-    diffuse *= 0.05f;
     
     // specular
     float specularStrength = 10.0f;
