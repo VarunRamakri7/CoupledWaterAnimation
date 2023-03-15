@@ -28,8 +28,8 @@ void main(void)
 {
 	vec4 pos = vec4(pos_attrib.xyz, 1.0);
 
-	float height = textureLod(wave_tex, 2.0f * vec2(pos_attrib.xz), 0.0).r;
-	pos.y += 100.0f * height;
+	//float height = textureLod(wave_tex, 2.0f * vec2(pos_attrib.xz), 0.0).r;
+	//pos.y += 100.0f * height;
 
 	gl_Position = PV * M * pos; //transform vertices and send result into pipeline
 	
