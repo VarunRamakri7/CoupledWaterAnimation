@@ -143,9 +143,9 @@ glm::vec3 eye_ortho = glm::vec3(-12.0f, -1.0f, 8.0f);
 glm::vec3 center_ortho = glm::vec3(-1.0f, -1.0f, 0.0f);
 
 static const std::string mesh_name = "boat.obj";
-static const std::string mesh_tex_name = "AmagoT.bmp";
+//static const std::string mesh_tex_name = "AmagoT.bmp";
 MeshData mesh_data;
-GLuint mesh_tex = -1;
+//GLuint mesh_tex = -1;
 //glm::vec3 mesh_pos = glm::vec3(2.0f, 0.145f, -1.0f); // Circle path start pos
 glm::vec3 mesh_pos = glm::vec3(1.0f, 0.35f, -1.0f); // Straight line start pos
 float mesh_angle = 0.75f;
@@ -233,88 +233,87 @@ void draw_gui(GLFWwindow* window)
 
     //Draw Gui
     ImGui::Begin("Debug window");
-    if (ImGui::Button("Quit"))
-    {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    }
-
-    const int filename_len = 256;
-    static char video_filename[filename_len] = "capture.mp4";
-
-    ImGui::InputText("Video filename", video_filename, filename_len);
-    if (recording == false)
-    {
-        if (ImGui::Button("Start Recording"))
+        if (ImGui::Button("Quit"))
         {
-            int w, h;
-            glfwGetFramebufferSize(window, &w, &h);
-            recording = true;
-            start_encoding(video_filename, w, h); //Uses ffmpeg
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
         }
 
-    }
-    else
-    {
-        if (ImGui::Button("Stop Recording"))
+        const int filename_len = 256;
+        static char video_filename[filename_len] = "capture.mp4";
+
+        ImGui::InputText("Video filename", video_filename, filename_len);
+        if (recording == false)
         {
-            recording = false;
-            finish_encoding(); //Uses ffmpeg
+            if (ImGui::Button("Start Recording"))
+            {
+                int w, h;
+                glfwGetFramebufferSize(window, &w, &h);
+                recording = true;
+                start_encoding(video_filename, w, h); //Uses ffmpeg
+            }
         }
-    }
+        else
+        {
+            if (ImGui::Button("Stop Recording"))
+            {
+                recording = false;
+                finish_encoding(); //Uses ffmpeg
+            }
+        }
 
-    ImGui::SliderFloat("View angle", &angle, -glm::pi<float>(), +glm::pi<float>());
-    ImGui::SliderFloat("Mesh angle", &mesh_angle, -glm::pi<float>(), +glm::pi<float>());
-    ImGui::SliderFloat("Particle Scale", &particle_scale, 0.0001f, 20.0f);
-    ImGui::SliderFloat("Wave Scale", &wave_scale, 0.0001f, 1.0f);
-    ImGui::SliderFloat("Mesh Scale", &mesh_scale, 0.01f, 2.0f);
-    ImGui::SliderFloat3("Mesh Position", &mesh_pos[0], -10.0f, 10.0f);
-    ImGui::Checkbox("Orthographic View", &isOrthoView);
-    if (!isOrthoView)
-    {
-        // Change perspective camera
-        ImGui::SliderFloat3("Camera Eye", &eye_persp[0], -10.0f, 10.0f);
-        ImGui::SliderFloat3("Camera Center", &center_persp[0], -10.0f, 10.0f);
+        ImGui::SliderFloat("View angle", &angle, -glm::pi<float>(), +glm::pi<float>());
+        ImGui::SliderFloat("Mesh angle", &mesh_angle, -glm::pi<float>(), +glm::pi<float>());
+        ImGui::SliderFloat("Particle Scale", &particle_scale, 0.0001f, 20.0f);
+        ImGui::SliderFloat("Wave Scale", &wave_scale, 0.0001f, 1.0f);
+        ImGui::SliderFloat("Mesh Scale", &mesh_scale, 0.01f, 2.0f);
+        ImGui::SliderFloat3("Mesh Position", &mesh_pos[0], -10.0f, 10.0f);
+        ImGui::Checkbox("Orthographic View", &isOrthoView);
+        if (!isOrthoView)
+        {
+            // Change perspective camera
+            ImGui::SliderFloat3("Camera Eye", &eye_persp[0], -10.0f, 10.0f);
+            ImGui::SliderFloat3("Camera Center", &center_persp[0], -10.0f, 10.0f);
 
-        //WaveData.attributes[1] = 0.995f; // Set attenuation for splash
-        //WaveData.attributes[3] = 1.0f; // Set wave mode as splash
-        angle = 0.75f;
-    }
-    else
-    {
-        // Change orthographic camera
-        ImGui::SliderFloat3("Camera Eye", &eye_ortho[0], -10.0f, 10.0f);
-        ImGui::SliderFloat3("Camera Center", &center_ortho[0], -10.0f, 10.0f);
+            //WaveData.attributes[1] = 0.995f; // Set attenuation for splash
+            //WaveData.attributes[3] = 1.0f; // Set wave mode as splash
+            angle = 0.75f;
+        }
+        else
+        {
+            // Change orthographic camera
+            ImGui::SliderFloat3("Camera Eye", &eye_ortho[0], -10.0f, 10.0f);
+            ImGui::SliderFloat3("Camera Center", &center_ortho[0], -10.0f, 10.0f);
 
-        //WaveData.attributes[1] = 0.998f; // Set attenuation for wave
-        //WaveData.attributes[3] = 0.0f; // Set wave mode as wave
-        angle = 0.65f;
-    }
-    ImGui::SliderFloat("Wave mode", &WaveData.attributes[3], 0.0f, 1.0f);
+            //WaveData.attributes[1] = 0.998f; // Set attenuation for wave
+            //WaveData.attributes[3] = 0.0f; // Set wave mode as wave
+            angle = 0.65f;
+        }
+        ImGui::SliderFloat("Wave mode", &WaveData.attributes[3], 0.0f, 1.0f);
 
-    ImGui::Checkbox("Draw Wave Surface", &drawSurface);
-    ImGui::Checkbox("Draw Particles", &drawParticles);
-    ImGui::Checkbox("Draw mesh", &drawMesh);
+        ImGui::Checkbox("Draw Wave Surface", &drawSurface);
+        ImGui::Checkbox("Draw Particles", &drawParticles);
+        ImGui::Checkbox("Draw mesh", &drawMesh);
 
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
 
     ImGui::Begin("Constants Window");
-    ImGui::SliderFloat("Mass", &ConstantsData.mass, 0.01f, 10.0f);
-    ImGui::SliderFloat("Smoothing", &ConstantsData.smoothing_coeff, 2.0f, 10.0f);
-    ImGui::SliderFloat("Viscosity", &ConstantsData.visc, 1000.0f, 5000.0f);
-    ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
-    ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
-    ImGui::SliderFloat3("Lower Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
-    ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.01f, 0.09f);
-    ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.9f, 1.0f);
-    ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
+        ImGui::SliderFloat("Mass", &ConstantsData.mass, 0.01f, 10.0f);
+        ImGui::SliderFloat("Smoothing", &ConstantsData.smoothing_coeff, 2.0f, 10.0f);
+        ImGui::SliderFloat("Viscosity", &ConstantsData.visc, 1000.0f, 5000.0f);
+        ImGui::SliderFloat("Resting Density", &ConstantsData.resting_rho, 1000.0f, 5000.0f);
+        ImGui::SliderFloat3("Upper Bounds", &BoundaryData.upper[0], 0.001f, 1.0f);
+        ImGui::SliderFloat3("Lower Bounds", &BoundaryData.lower[0], -1.0f, -0.001f);
+        ImGui::SliderFloat("Lamba", &WaveData.attributes[0], 0.01f, 0.09f);
+        ImGui::SliderFloat("Attenuation", &WaveData.attributes[1], 0.9f, 1.0f);
+        ImGui::SliderFloat("Beta", &WaveData.attributes[2], 0.001f, 0.01f);
     ImGui::End();
 
-    ImGui::Begin("FBO");
-        ImGui::Image((void*)fbo_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
-        ImGui::SameLine();
-        ImGui::Image((void*)depth_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
-    ImGui::End();
+    //ImGui::Begin("FBO");
+    //    ImGui::Image((void*)fbo_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
+    //    ImGui::SameLine();
+    //    ImGui::Image((void*)depth_tex, ImVec2(monitor_res.x * 0.1f, monitor_res.y * 0.1f), ImVec2(0.0, 1.0), ImVec2(1.0, 0.0)); // Show depth texture
+    //ImGui::End();
 
     //Module::sDrawGuiAll();
 
@@ -450,8 +449,8 @@ void display(GLFWwindow* window)
     {
         glUseProgram(mesh_shader_program);
         glDrawBuffer(GL_COLOR_ATTACHMENT0); // Write to FBO color attachment 0
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, mesh_tex);
+        //glActiveTexture(GL_TEXTURE1);
+        //glBindTexture(GL_TEXTURE_2D, mesh_tex);
         glBindVertexArray(mesh_data.mVao);
         glDrawElements(GL_TRIANGLES, mesh_data.mSubmesh[0].mNumIndices, GL_UNSIGNED_INT, 0);
     }
