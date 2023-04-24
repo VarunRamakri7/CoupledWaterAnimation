@@ -4,6 +4,10 @@
 #define NUM_PARTICLES 20480
 #define PARTICLE_RADIUS 0.005f
 
+#define CREST_THRESHOLD 0.01f
+#define BREAKING_MASS_FACTOR 0.25f;
+#define BREAKING_VISC_FACTOR 0.5f;
+
 // For calculations
 #define PI 3.141592741f
 
@@ -21,21 +25,9 @@ struct Particle
 	vec4 extras; // 0 - rho, 1 - pressure, 2 - age
 };
 
-struct Wave
-{
-	vec4 pos;
-	vec4 tex_coords; // XY - UV, ZW - Grid coordinate
-	vec4 normals;
-};
-
 layout(std430, binding = 0) buffer PARTICLES
 {
 	Particle particles[];
-};
-
-layout(std430, binding = 1) buffer WAVE
-{
-	Wave waves[];
 };
 
 layout(std140, binding = 1) uniform ConstantsUniform
@@ -95,10 +87,17 @@ void main()
 		}
 	}
 
-	vec2 coord = particles[i].pos.xz * 2.0f; // Get XZ coordinate of particle
-	float height = texture(wave_tex, coord).r; // Sample height of wave
+	// Check if particle is at wave crest
+    if (particles[i].pos.y > CREST_THRESHOLD)
+    {
+        particles[i].force /= BREAKING_MASS_FACTOR; // Reduce mass
+        visc_force *= BREAKING_VISC_FACTOR; // Set breaking viscosity factor
+    }
 
 	visc_force *= visc;
+
+	vec2 coord = particles[i].pos.xz * 2.0f; // Get XZ coordinate of particle
+	float height = texture(wave_tex, coord).r; // Sample height of wave
 
 	// Calculate torque of particles
 	vec3 torque = cross(particles[i].pos.xyz, particles[i].force.xyz);
@@ -107,7 +106,7 @@ void main()
 	// Drag force from the wave on the particles
 	vec3 rel_vel = particles[i].vel.xyz - WaveVelocity(coord); // Relative velocity
 	vec3 drag_force = -0.25f * rel_vel;
-
+	
 	vec3 wave_force = -height * WaveNormal(coord) * 0.5f; // Approximate force from the wave in the opposite direction
 
 	// Combine all forces

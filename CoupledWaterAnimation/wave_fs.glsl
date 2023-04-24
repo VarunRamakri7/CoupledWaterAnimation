@@ -6,8 +6,10 @@ layout(location = 1) uniform float time;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
-   mat4 PV;
-   vec4 eye_w; // Camera eye in world-space
+    mat4 PV;
+    mat4 P;
+    mat4 V;
+    vec4 eye_w; // Camera eye in world-space
 };
 
 in VertexData
@@ -25,7 +27,6 @@ const vec4 color0 = vec4(0.6f, 0.8f, 1.0f, 1.0f); // Light blue
 
 const vec3 light_col = vec3(1.0f, 0.85f, 0.7f); // Warm light
 const vec3 light_pos = vec3(0.0f, 1.0f, 0.0f); // Light position
-const vec4 base_col = vec4(0.6f, 0.8f, 1.0f, 1.0f); // Base wave col
 
 vec4 reflection();
 vec4 refraction();
@@ -34,20 +35,17 @@ vec4 lighting();
 void main(void)
 {
 	vec4 v = texture(wave_tex, inData.tex_coord);
-	v.x = smoothstep(-0.01, 0.01, v.x);
+	//v.x = smoothstep(-0.01, 0.01, v.x);
 	
 	//fragcolor = vec4(mix(wave_col, color0, v.x)); // Color wave depending on height
 
-    //fragcolor = 0.5f * (refraction() + reflection()); // Color wave with refraction and reflection
-    //fragcolor = 5.0f * lighting();// Color wave with lighting
-
-    //vec4 refraction_color = refraction();
-    //vec4 reflection_color = reflection();
-    //vec4 lighting_color = lighting();
-    //vec4 final_color = mix(base_col, 0.5f * (refraction() + reflection()) + 0.65f * lighting(), v.x); // Mix all attributes for final color
-    //vec4 final_color = 0.5f * (refraction_color + reflection_color) + 0.75f * lighting_color + base_col;
-
-    fragcolor = refraction() + 0.5f * lighting();
+    vec4 refraction_color = refraction();
+    vec4 reflection_color = reflection();
+    vec4 lighting_color = lighting();
+    
+    vec4 combine = 0.75f * (reflection_color + refraction_color) + 0.1f * lighting_color;
+    fragcolor = mix(combine, wave_col, v.x);
+    fragcolor.a = mix(0.2f, 0.0f, v.x);
 }
 
 // From LearnOpenGL: https://learnopengl.com/Advanced-OpenGL/Cubemaps
@@ -71,7 +69,7 @@ vec4 refraction()
 vec4 lighting()
 {
     // ambient
-    float ambientStrength = 0.2f;
+    float ambientStrength = 0.8f;
     vec3 ambient = ambientStrength * light_col;
   	
     // diffuse 
@@ -81,7 +79,7 @@ vec4 lighting()
     vec3 diffuse = diff * light_col;
     
     // specular
-    float specularStrength = 2.0f;
+    float specularStrength = 10.0f;
     vec3 viewDir = normalize(eye_w.xyz - inData.pw);
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);

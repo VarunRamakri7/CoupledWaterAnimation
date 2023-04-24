@@ -5,8 +5,10 @@ layout(location = 1) uniform float time;
 
 layout(std140, binding = 0) uniform SceneUniforms
 {
-   mat4 PV;
-   vec4 eye_w; // Camera eye in world-space
+	mat4 PV;
+	mat4 P;
+	mat4 V;
+	vec4 eye_w; // Camera eye in world-space
 };
 
 layout(binding = 0) uniform sampler2D wave_tex;
@@ -36,6 +38,6 @@ void main(void)
 
 	outData.tex_coord = tex_coord_attrib.xy;
 	outData.pw = vec3(M * vec4(pos_attrib.xyz, 1.0));
-	outData.nw = vec3(M * vec4(normal_attrib.xyz, 0.0));
+	outData.nw = -normal_attrib.xyz; // Invert normals
 	outData.color = color_attrib;
 }

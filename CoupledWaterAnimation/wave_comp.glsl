@@ -19,34 +19,22 @@ const int MODE_INIT_FROM_TEXTURE = 1;
 const int MODE_EVOLVE = 2;
 const int MODE_TEST = 10;
 
-struct Wave
-{
-    vec4 pos;
-    vec4 tex_coords; // XY - UV, ZW - Grid coordinate
-    vec4 normals;
-};
-
-layout(std430, binding = 1) buffer WAVE
-{
-    Wave waves[];
-};
-
-layout(std140, binding = 2) uniform BoundaryUniform
-{
-    vec4 upper; // Upper bounds of particle area
-    vec4 lower; // Lower bounds of particle area
-};
-
 layout(std140, binding = 3) uniform WaveUniforms
 {
 	vec4 attributes; // Lambda, Attenuation, Beta
+	vec4 mesh_ws_pos; // World-space mesh position
 };
+
+float theta = 0.0f;
+int anim_mode = -1;
 
 const float dt = 0.0001f; // Time step
 
 void InitWave(ivec2 coord);
 void InitFromImage(ivec2 coord);
 void EvolveWave(ivec2 coord, ivec2 size);
+bool CoordOnCircle(ivec2 coord, ivec2 size);
+bool CoordOnLine(ivec2 coord, ivec2 size);
 
 struct neighborhood
 {
@@ -87,7 +75,7 @@ void main()
 
 void InitFromImage(ivec2 coord)
 {
-	vec4 vout = texelFetch(uInitImage, coord, 0);
+	vec4 vout = texelFetch(uInitImage, coord * ivec2(2, 1), 0);
 	imageStore(uOutputImage, coord, vout);
 }
 
@@ -98,32 +86,104 @@ void InitWave(ivec2 coord)
 
 	ivec2 cen0;
 	ivec2 cen1;
+	ivec2 cen2;
 
 	if(attributes.w == 1.0f)
 	{
 		// Splash
 		cen0 = ivec2(0.25f * size);
 		cen1 = ivec2(0.75f * size);
+
+		anim_mode = 0;
 	}
-	else
+	else if (attributes.w == 0.0f)
 	{
 		// Wave
 		cen0 = ivec2(0.25f * size.x, size.y);
+		cen2 = ivec2(0.5f * size.x, size.y);
 		cen1 = ivec2(0.75f * size.x, size.y);
+
+		anim_mode = 1;
+	}
+	else
+	{
+		// Boat wake
+		cen0 = ivec2(0.5f * size.x, 0.1f * size.y);
+		cen2 = cen0;//ivec2(0.5f * size.x, 0.2f * size.y);
+		cen1 = cen0;//ivec2(0.5f * size.x, 0.3f * size.y);
+
+		anim_mode = 2;
 	}
 
 	float d = min(distance(coord, cen0), distance(coord, cen1));
-	vout.x = 0.5f * smoothstep(attributes.w == 0.0f ? 20.0f : 5.0f, 0.0f, d);
+	if(attributes.w != 1.0f) //Add third center for wave, and wake
+	{
+		d = min(d, distance(coord, cen2));
+	}
+
+	float peak = 0.5f;
+	switch(anim_mode)
+	{
+		case 0: // Splash
+				peak = 0.5f;
+				break;
+		case 1: // Wave
+			peak = 1.0f;
+			break;
+		case 2: // Boat wake
+			peak = 0.1f;
+			break;
+	}
+
+	vout.x = peak * smoothstep(5.0f, 0.0f, d);
 	imageStore(uOutputImage, coord, vout);
+}
+
+bool CoordOnCircle(ivec2 coord, ivec2 size)
+{
+	vec2 tex_coord = vec2(coord) / vec2(size);
+	vec2 center = vec2(0.5f);
+
+	float radius = length(tex_coord - center);
+	float circle_radius = 0.5f;
+	float tolerance = 0.01f;
+
+	if(abs(radius - circle_radius) < tolerance)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool CoordOnLine(ivec2 coord, ivec2 size)
+{
+	int mid_x = size.x / 2;
+
+	if(coord.x == mid_x)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void EvolveWave(ivec2 coord, ivec2 size)
 {
 	neighborhood n = get_clamp(coord);
-	vec4 w = (2.0 - 4.0 * attributes[0] - attributes[2]) * n.c0 + attributes[0] * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0 - attributes[2]) * n.c1;
-	w = attributes[1] * w;
+	vec4 w = (2.0f - 4.0f * attributes[0] - attributes[2]) * n.c0 + attributes[0] * (n.n0 + n.s0 + n.e0 + n.w0) - (1.0f - attributes[2]) * n.c1;
+	w *= attributes[1];
 
-    imageStore(uOutputImage, coord, w);
+	if(w.r > 0.0001f && attributes.w > 0.0f && attributes.w < 1.0f)
+	{
+		//if(CoordOnCircle(coord, size)) // Check if this coord lies on a circle
+		if(CoordOnLine(coord, size)) // Check if this coord lies on a line
+		{
+			w.r += 0.001f; // Increase if this coord lies on the circle
+		}
+	}
+
+	imageStore(uOutputImage, coord, w);
 }
 
 ivec2 clamp_coord(ivec2 coord)

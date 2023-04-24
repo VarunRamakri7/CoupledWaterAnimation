@@ -160,6 +160,10 @@
     <ClCompile Include="..\imgui-master\imgui_draw.cpp" />
     <ClCompile Include="..\imgui-master\imgui_tables.cpp" />
     <ClCompile Include="..\imgui-master\imgui_widgets.cpp" />
+    <ClCompile Include="..\implot-master\implot.cpp" />
+    <ClCompile Include="..\implot-master\implot_demo.cpp" />
+    <ClCompile Include="..\implot-master\implot_items.cpp" />
+    <ClCompile Include="AttriblessRendering.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="ComputeShader.cpp" />
     <ClCompile Include="DebugCallback.cpp" />
@@ -182,6 +186,9 @@
     <ClInclude Include="..\imgui-master\imstb_rectpack.h" />
     <ClInclude Include="..\imgui-master\imstb_textedit.h" />
     <ClInclude Include="..\imgui-master\imstb_truetype.h" />
+    <ClInclude Include="..\implot-master\implot.h" />
+    <ClInclude Include="..\implot-master\implot_internal.h" />
+    <ClInclude Include="AttriblessRendering.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="DebugCallback.h" />
@@ -197,6 +204,8 @@
   <ItemGroup>
     <None Include="force_comp.glsl" />
     <None Include="integrate_comp.glsl" />
+    <None Include="mesh_fs.glsl" />
+    <None Include="mesh_vs.glsl" />
     <None Include="rho_pres_comp.glsl" />
     <None Include="particle_fs.glsl" />
     <None Include="particle_vs.glsl" />

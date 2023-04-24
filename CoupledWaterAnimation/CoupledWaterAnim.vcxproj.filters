@@ -19,6 +19,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{649fa3ad-f2e7-4784-8ee0-d918c6afc67b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="implot">
+      <UniqueIdentifier>{77ae4dc6-abe1-43b2-9c8b-0b0f401fb1c3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InitShader.cpp">
@@ -78,11 +81,20 @@
     <ClCompile Include="Module.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\implot-master\implot.cpp">
+      <Filter>implot</Filter>
+    </ClCompile>
+    <ClCompile Include="..\implot-master\implot_demo.cpp">
+      <Filter>implot</Filter>
+    </ClCompile>
+    <ClCompile Include="..\implot-master\implot_items.cpp">
+      <Filter>implot</Filter>
+    </ClCompile>
+    <ClCompile Include="AttriblessRendering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="VideoMux.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="InitShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -137,6 +149,18 @@
     <ClInclude Include="Module.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\implot-master\implot.h">
+      <Filter>implot</Filter>
+    </ClInclude>
+    <ClInclude Include="..\implot-master\implot_internal.h">
+      <Filter>implot</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoMux.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AttriblessRendering.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="particle_fs.glsl">
@@ -167,6 +191,12 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="skybox_fs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="mesh_fs.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="mesh_vs.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
