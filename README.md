@@ -19,3 +19,7 @@ Added orthographic camera view and ImGui toggle to switch between camera views. 
 showcase splashes, and foam whereas, orthographic view is meant to showcase breaking waves.
 
 <img src="media/feb-22-persp.gif" width=20% height=20%> <img src="media/feb-22-ortho.gif" width=20% height=20%>
+
+* May 24th 2023 - Archiving repository
+Through the last two months I moved the project to a new template and revamped the project entirely.
+It will be available in another repo.
